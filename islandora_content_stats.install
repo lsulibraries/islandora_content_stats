@@ -1,0 +1,73 @@
+<?php
+
+// overview
+//https://www.drupal.org/docs/7/creating-custom-modules/writing-install-files-drupal-7x
+
+// db schema def
+//https://www.drupal.org/node/146843
+
+
+//SCHEMA: 
+//id: int, primary_key, auto_increment,
+//count: int,
+//timestamp: timestamp (unixtime)
+
+//
+//require_once dirname(__FILE__) . '/includes/queries.inc';
+//$counts = all_cmodel_counts();
+
+//function islandora_content_stats_db(){
+
+//foreach ($counts as $count){
+//    db_create_table('islandora_content_stats', array(
+//                $count['cmodel']['value'] = array(
+//                 '#type' => 'fieldset',
+//                 '#value' => $count['k0']['value'],
+//                 '#title' => $count['cmodel']['value'],
+//                 '#description' => t('Current active items'),
+//                ),
+//            ),
+//    );
+//}
+
+//}
+        
+/**
+ * Implements hook_schema().
+ */
+function islandora_content_stats_schema() {
+ $schema['islandora_content_stats'] = array(
+   'description' => 'Table that stores Islandora Content.',
+   'fields' => array(
+     'id'  => array(
+       'type' => serial,
+       'unsigned' => true,
+       'not_null' => true
+     ),
+     'content model' => array(
+       'type' => 'varchar',
+       'length' => 255,
+       'description' => 'content model',
+       ),
+     'count' => array(
+       'type' => 'int',
+       'description' => 'count of active, and unique items of a particular cmodel',
+     ),
+     'timestamp' => array(
+       'type' => 'datetime',
+       'mylql_type' => 'DATETIME',
+       'description' => 'timestamp on latest run of queries',
+      ),
+   ),
+   'primary key' => array('id'),
+ );
+ return $schema;
+}
+
+
+
+//
+//function islandora_contents_stats_update_7001(){
+//    $schema = drupal_get_schema('islandora_content_stats');
+//    db_create_table('islandora_content_stats',$schema['islandora_content_stats']);
+//}

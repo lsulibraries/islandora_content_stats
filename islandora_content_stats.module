@@ -1,0 +1,55 @@
+<?php
+//require_once dirname(__FILE__) . '/includes/queries.inc';
+//$current_time = time();
+/**
+ * Implements hook_menu().
+ */
+function islandora_content_stats_menu() {
+  $items = array();
+  $items['admin/islandora/tools/content_stats'] = array(
+    'title' => 'Content Statistics',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_content_stats_admin_form',1),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/admin.form.inc',
+  );
+  $items['admin/reports/content_stats'] = array(
+    'title' => 'Content Statistics',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_content_stats_reports_form',1),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/reports.form.inc',
+  );
+
+  return $items;
+}
+
+//display all query results on demand
+//- as a report DONE
+//- as a block
+  
+//  periodically run a set of queries
+//- save the results to a database table (with a timestamp)
+//
+//
+//config:
+//- specify the time to wait before running queries again
+//-- if cron runs hourly, perhaps this module checks that the interval (eg 2 days) has or has not elapsed based on db timestamp
+//
+//menu_router (router)
+//- config should islandora/tools... DONE
+//- report display under ?/reports (with batch sets, etc) DONE
+//
+//database table (prob just one for now)
+//- id, count, timestamp
+//- store new records for each run, don't overwrite (so we can see growth over time...)
+
+/**
+ * Implements hook_cron().
+ *
+ * periodically run a set of queries
+ * save the results to a database table (with a timestamp)
+ */
+//function islandora_content_stats_cron() {
+
+//}
