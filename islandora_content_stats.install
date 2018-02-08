@@ -16,21 +16,8 @@
 //require_once dirname(__FILE__) . '/includes/queries.inc';
 //$counts = all_cmodel_counts();
 
-//function islandora_content_stats_db(){
 
-//foreach ($counts as $count){
-//    db_create_table('islandora_content_stats', array(
-//                $count['cmodel']['value'] = array(
-//                 '#type' => 'fieldset',
-//                 '#value' => $count['k0']['value'],
-//                 '#title' => $count['cmodel']['value'],
-//                 '#description' => t('Current active items'),
-//                ),
-//            ),
-//    );
-//}
 
-//}
         
 /**
  * Implements hook_schema().
@@ -54,8 +41,7 @@ function islandora_content_stats_schema() {
        'description' => 'count of active, and unique items of a particular cmodel',
      ),
      'timestamp' => array(
-       'type' => 'datetime',
-       'mysql_type' => 'DATETIME',
+       'type' => 'int',
        'description' => 'timestamp on latest run of queries',
       ),
    ),

@@ -13,6 +13,11 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
+  $items['admin/reports/test'] = array(
+    'title' => 'Content Statistics',
+    'page callback' => 'islandora_content_stats_test',
+    'access arguments' => array(TRUE),
+  );
   $items['admin/reports/content_stats'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
@@ -24,6 +29,33 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
+function islandora_content_stats_test(){
+  $nid = db_insert('islandora_content_stats')
+  ->fields(array('id', 'query', 'count', 'timestamp'))
+  ->values(array(
+    'id' => NULL,
+    'query' => 'large_image',
+    'count' => 1357,
+    'timestamp' => time(),
+  ))
+  ->execute();
+}
+
+//
+///**
+// * Implements hook_block_info().
+// */
+//function current_posts_block_info() {
+//  $blocks['current_posts'] = array(
+//    // The name that will appear in the block list.
+//    'info' => t('Current posts'),
+//    // Default setting.
+//    'cache' => DRUPAL_CACHE_PER_ROLE,
+//  );
+//  return $blocks;
+//}
+
+>>>>>>> Stashed changes
 //display all query results on demand
 //- as a report DONE
 //- as a block
