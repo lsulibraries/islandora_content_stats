@@ -55,7 +55,7 @@ function islandora_content_stats_schema() {
      ),
      'timestamp' => array(
        'type' => 'datetime',
-       'mylql_type' => 'DATETIME',
+       'mysql_type' => 'DATETIME',
        'description' => 'timestamp on latest run of queries',
       ),
    ),
