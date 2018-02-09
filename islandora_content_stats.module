@@ -13,7 +13,7 @@ function islandora_content_stats_menu() {
     'file' => 'includes/admin.form.inc',
   );
   $items['admin/reports/content_stats/test'] = array(
-    'title' => 'Content Statistics DB POPULATE',
+    'title' => 'DB POPULATE',
     'page callback' => 'islandora_content_stats_test',
     'access arguments' => array(TRUE),
   );
@@ -41,7 +41,27 @@ function islandora_content_stats_test(){
           'timestamp' => time(),
         ))
         ->execute();
-}}
+    }
+    $inst_models = all_institution_cmodel_query();
+    foreach($inst_models as $key1 => $val1){
+        if(isset($val1)){
+            foreach($val1 as $key2 => $val2){
+                    db_insert('islandora_content_stats')
+        ->fields(array('id', 'query', 'count', 'timestamp'))
+        ->values(array(
+          'id' => NULL,
+          'query' => $key1 . " " . $key2 ,
+          'count' => $val2,
+          'timestamp' => time(),
+        ))
+        ->execute();
+                
+            }
+        
+        }
+        
+    }
+}
 
 //
 ///**

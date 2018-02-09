@@ -15,7 +15,7 @@ function islandora_content_stats_reports_form($form, &$form_state) {
 //        );
 //    }
 $col_counts = collection_cmodel_query('latech-cmprt:collection');
-dpm($col_counts);
+//dpm($col_counts);
 //    foreach ($col_counts[1] as $col_count){
 //        $form[$col_counts[0].$col_count['cmodel']['value']] = array(
 //         '#type' => 'fieldset',
@@ -25,7 +25,7 @@ dpm($col_counts);
 //        );
 //    }
   $institution_collection_audit = all_institution_cmodel_query();
-  dpm($institution_collection_audit);
+  //dpm($institution_collection_audit);
 //  foreach($institution_collection_audit as $inst => $count){
 //    if(isset($count)){
 //      foreach($count as $key => $val){
@@ -39,12 +39,15 @@ dpm($col_counts);
 //    }  
 //  }
   
-  $query_result = db_query('SELECT * FROM ldl.islandora_content_stats');
+  $query_result = db_query('SELECT * FROM ldl.islandora_content_stats ORDER BY id DESC');
   foreach($query_result as $record){
-//      
+
+
+//How do I conditionally return the last run id for a given query
+//bc this does not work...      
 //      foreach($query_result as $check){
-//          if($record->query == $check->query && $record->timestamp != $check->timestamp){
-//              dpm( $record );
+//      if($record->query == $check->query  && intval($record->id ) < intval($check->id)){
+//              dpm( gettype($record->id) );
 //           $form[$record->id] = array(
 //             '#type' => 'fieldset',
 //             '#value' =>"Results: " . $record->count . "@ " . $record->id ,
@@ -52,16 +55,17 @@ dpm($col_counts);
 //             '#description' => "Time of query ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
 //            );
 //          }      
-//          
-//        }
-//How do I conditionally return the last run id for a given query
+//        }  
+//  }
+      
     $form[$record->id] = array(
-     '#type' => 'fieldset',
-     '#value' =>"Results: " . $record->count,
-     '#title' => "Query for number of '" . $record->query . "' content model",
-     '#description' => "Time of query ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
-    );
+             '#type' => 'fieldset',
+             '#value' =>"Results: " . $record->count . " @ id: " . $record->id ,
+             '#title' => "Query for number of '" . $record->query . "' content model",
+             '#description' => "Time of query ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
+            );
   }
+  
 return $form;
 }
 
