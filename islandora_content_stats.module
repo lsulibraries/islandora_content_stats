@@ -1,6 +1,5 @@
 <?php
-//require_once dirname(__FILE__) . '/includes/queries.inc';
-//$current_time = time();
+require_once dirname(__FILE__) . '/includes/queries.inc';
 /**
  * Implements hook_menu().
  */
@@ -13,8 +12,8 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/reports/test'] = array(
-    'title' => 'Content Statistics',
+  $items['admin/reports/content_stats/test'] = array(
+    'title' => 'Content Statistics DB POPULATE',
     'page callback' => 'islandora_content_stats_test',
     'access arguments' => array(TRUE),
   );
@@ -30,16 +29,19 @@ function islandora_content_stats_menu() {
 }
 
 function islandora_content_stats_test(){
-  $nid = db_insert('islandora_content_stats')
-  ->fields(array('id', 'query', 'count', 'timestamp'))
-  ->values(array(
-    'id' => NULL,
-    'query' => 'large_image',
-    'count' => 1357,
-    'timestamp' => time(),
-  ))
-  ->execute();
-}
+    echo('populating db w/ queries');
+    $all_models = all_cmodel_counts();
+    foreach($all_models as $model){
+        db_insert('islandora_content_stats')
+        ->fields(array('id', 'query', 'count', 'timestamp'))
+        ->values(array(
+          'id' => NULL,
+          'query' => $model['cmodel']['value'],
+          'count' => intval($model['k0']['value']),
+          'timestamp' => time(),
+        ))
+        ->execute();
+}}
 
 //
 ///**
@@ -55,10 +57,10 @@ function islandora_content_stats_test(){
 //  return $blocks;
 //}
 
->>>>>>> Stashed changes
+
 //display all query results on demand
 //- as a report DONE
-//- as a block
+//- as a block 
   
 //  periodically run a set of queries
 //- save the results to a database table (with a timestamp)
@@ -73,8 +75,9 @@ function islandora_content_stats_test(){
 //- report display under ?/reports (with batch sets, etc) DONE
 //
 //database table (prob just one for now)
-//- id, count, timestamp
+//- id, count, timestamp --DONE
 //- store new records for each run, don't overwrite (so we can see growth over time...)
+//- display last query (highest id with specified query)
 
 /**
  * Implements hook_cron().

@@ -115,7 +115,6 @@ FROM <#ri>
 WHERE { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel . 
 ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll_pid> .
-?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
 }
 EOL;
     $results = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
@@ -147,7 +146,6 @@ EOL;
 /**
  * SPARQL that queries root for all existing collections
  * containing institutional prefix string
- * then, calls 
  */
 function all_institution_cmodel_query(){
   $institutions = ['lsm','lsu-','lsus-','lsuhsc-','lsuhscs-','latech','loyno','mcneese','nicholls','nsu','subr','state','hnoc','tulane','ull','ulm','uno','vville'];
@@ -170,6 +168,5 @@ EOQ;
   foreach($institution_coll_counts as $key => $val){
     $coll_models[$key] =  institution_cmodel_query($key);
   }
-  
   return $coll_models;
 }

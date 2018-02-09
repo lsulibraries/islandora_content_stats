@@ -2,22 +2,10 @@
 
 // overview
 //https://www.drupal.org/docs/7/creating-custom-modules/writing-install-files-drupal-7x
-
-// db schema def
-//https://www.drupal.org/node/146843
-
-
-//SCHEMA: 
+//SCHEMA: //https://www.drupal.org/node/146843
 //id: int, primary_key, auto_increment,
 //count: int,
 //timestamp: timestamp (unixtime)
-
-//
-//require_once dirname(__FILE__) . '/includes/queries.inc';
-//$counts = all_cmodel_counts();
-
-
-
         
 /**
  * Implements hook_schema().
@@ -27,18 +15,18 @@ function islandora_content_stats_schema() {
    'description' => 'Table that stores Islandora Content.',
    'fields' => array(
      'id'  => array(
-       'type' => serial,
+       'type' => 'serial',
        'unsigned' => true,
        'not_null' => true
      ),
-     'content model' => array(
+     'query' => array(
        'type' => 'varchar',
        'length' => 255,
-       'description' => 'content model',
+       'description' => 'query type',
        ),
      'count' => array(
        'type' => 'int',
-       'description' => 'count of active, and unique items of a particular cmodel',
+       'description' => 'count of items for query',
      ),
      'timestamp' => array(
        'type' => 'int',
@@ -49,8 +37,6 @@ function islandora_content_stats_schema() {
  );
  return $schema;
 }
-
-
 
 //
 //function islandora_contents_stats_update_7001(){

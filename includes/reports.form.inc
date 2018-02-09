@@ -14,7 +14,8 @@ function islandora_content_stats_reports_form($form, &$form_state) {
 //         '#description' => t('Current active items'),
 //        );
 //    }
-//    $col_counts = collection_cmodel_query('latech-cmprt:collection');
+$col_counts = collection_cmodel_query('latech-cmprt:collection');
+dpm($col_counts);
 //    foreach ($col_counts[1] as $col_count){
 //        $form[$col_counts[0].$col_count['cmodel']['value']] = array(
 //         '#type' => 'fieldset',
@@ -24,18 +25,43 @@ function islandora_content_stats_reports_form($form, &$form_state) {
 //        );
 //    }
   $institution_collection_audit = all_institution_cmodel_query();
+  dpm($institution_collection_audit);
+//  foreach($institution_collection_audit as $inst => $count){
+//    if(isset($count)){
+//      foreach($count as $key => $val){
+//        $form[$inst][$key] = array(
+//        '#type' => 'fieldset',
+//        '#value'=>$val,
+//        '#title'=>preg_replace('/-/',' ',$inst) .' Count of: ' .  $key,
+//        //'#description'=> $val,
+//        );
+//      }
+//    }  
+//  }
   
-  foreach($institution_collection_audit as $inst => $count){
-    if(isset($count)){
-      foreach($count as $key => $val){
-        $form[$inst][$key] = array(
-        '#type' => 'fieldset',
-        '#value'=>$val,
-        '#title'=>preg_replace('/-/',' ',$inst) .' Count of: ' .  $key,
-        //'#description'=> $val,
-        );
-      }
-    }  
+  $query_result = db_query('SELECT * FROM ldl.islandora_content_stats');
+  foreach($query_result as $record){
+//      
+//      foreach($query_result as $check){
+//          if($record->query == $check->query && $record->timestamp != $check->timestamp){
+//              dpm( $record );
+//           $form[$record->id] = array(
+//             '#type' => 'fieldset',
+//             '#value' =>"Results: " . $record->count . "@ " . $record->id ,
+//             '#title' => "Query for number of '" . $record->query . "' content model",
+//             '#description' => "Time of query ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
+//            );
+//          }      
+//          
+//        }
+//How do I conditionally return the last run id for a given query
+    $form[$record->id] = array(
+     '#type' => 'fieldset',
+     '#value' =>"Results: " . $record->count,
+     '#title' => "Query for number of '" . $record->query . "' content model",
+     '#description' => "Time of query ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
+    );
   }
-  return $form;
+return $form;
 }
+
