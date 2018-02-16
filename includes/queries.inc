@@ -170,3 +170,49 @@ EOQ;
   }
   return $coll_models;
 }
+
+/**
+ * Implements hook_cron().
+ *
+ * periodically run a set of queries
+ * save the results to a database table (with a timestamp)
+ */
+function islandora_content_stats_cron() {
+    dpm('cron did it thing' . time());
+    //islandora_content_stats_test();
+}
+
+function islandora_content_stats_test(){
+    echo('populating db w/ queries');
+    $all_models = all_cmodel_counts();
+    foreach($all_models as $model){
+        db_insert('islandora_content_stats')
+        ->fields(array('id', 'query', 'count', 'timestamp'))
+        ->values(array(
+          'id' => NULL,
+          'query' => $model['cmodel']['value'],
+          'count' => intval($model['k0']['value']),
+          'timestamp' => time(),
+        ))
+        ->execute();
+    }
+    $inst_models = all_institution_cmodel_query();
+    foreach($inst_models as $key1 => $val1){
+        if(isset($val1)){
+            foreach($val1 as $key2 => $val2){
+                    db_insert('islandora_content_stats')
+        ->fields(array('id', 'query', 'count', 'timestamp'))
+        ->values(array(
+          'id' => NULL,
+          'query' => $key1 . " " . $key2 ,
+          'count' => $val2,
+          'timestamp' => time(),
+        ))
+        ->execute();
+                
+            }
+        
+        }
+        
+    }
+}
