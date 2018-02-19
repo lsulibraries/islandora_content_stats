@@ -6,7 +6,7 @@ require_once dirname(__FILE__) . '/queries.inc';
  */
 function islandora_content_stats_reports_form($form, &$form_state) {
   $cmodels =[]; 
-  $ask = all_cmodel_counts();
+  $ask = cmodel_types();
   foreach($ask as $model){
       array_push($cmodels,$model['cmodel']['value']);
   }

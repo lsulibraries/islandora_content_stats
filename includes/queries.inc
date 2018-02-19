@@ -1,5 +1,8 @@
 <?php  
 // the RI (ITQL & SPARQL) queries 
+// 
+// 
+  $institutions = ['lsm','lsu-','lsus-','lsuhsc-','lsuhscs-','latech','loyno','mcneese','nicholls','nsu','subr','state','hnoc','tulane','ull','ulm','uno','vville'];
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
 /**
  * Query repository index for all cmodels and a count for each.
@@ -23,47 +26,24 @@ EOL;
   return $result;
 }
 
-//list of content models as variables (unused...)
-$audio = "<info:fedora/islandora:sp-audioCModel>";
-$large_image = "<info:fedora/islandora:sp_large_image_cmodel>";
-$compound = "<info:fedora/islandora:compoundCModel>";
-$books = "<info:fedora/islandora:bookCModel>";
-$video = "<info:fedora/islandora:sp_videoCModel>";
-$collection = "<info:fedora/islandora:collectionCModel>";
-$pdf = "<info:fedora/islandora:sp_pdf>";
-$newspaper = "<info:fedora/islandora:newspaperCModel>";
-$newspage = "<info:fedora/islandora:newspaperPageModel>";
-$newsissue = "<info:fedora/islandora:newspaperIssueCModel>";
-$oralhist = "<info:fedora/islandora:sp-ohCModel>";
-$remote = "<info:fedora/islandora:sp_remote_resource>";
-
-/**
- * Query the RI for a count of a single individual content models
- */
-function cmodel_query($model) {
+//return only cmodels no counts. wish I could figure it in sparql
+function cmodel_types(){
   $tuque = islandora_get_tuque_connection();
   $members = array();
-  $model_key = preg_replace('/>/','', preg_replace('/</', '',$model));
   
-  $query = <<<EOL
-select count(select \$item from <#ri>
-where \$item <info:fedora/fedora-system:def/model#hasModel>;
-$model and \$item <info:fedora/fedora-system:def/model#state> <fedora-model:Active>)
-from <#ri>
-where \$item <info:fedora/fedora-system:def/model#hasModel> $model
-having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ;";
+  $cmodel_types = <<<EOL
+select \$cmodel from <#ri>
+where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 EOL;
-  
-  $result = $tuque->repository->ri->itqlQuery($query, 'unlimited');
-  foreach ($result as $member) {
-    $count =  [$model_key, $member['k0']['value']];
-    //dpm($count);
-  }
-  return $count;
+
+  $result = $tuque->repository->ri->itqlQuery($cmodel_types, 'unlimited');
+
+  return $result;
 }
 
 /**
  * Query the ri for a count of a collection's content models
+ * use with institutions somehow
  */
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
@@ -86,8 +66,8 @@ EOL;
 }
 
 /**
- * SPARQLQuery the ri for the content models and counts within an institution
- * used by all_institution_cmodel_query(=
+ * SPARQLQuery for the content models and counts within an institution
+ * used by all_institution_cmodel_query
  */
 function institution_cmodel_query($ns_prefix){
   $tuque = islandora_get_tuque_connection();
@@ -147,8 +127,7 @@ EOL;
  * SPARQL that queries root for all existing collections
  * containing institutional prefix string
  */
-function all_institution_cmodel_query(){
-  $institutions = ['lsm','lsu-','lsus-','lsuhsc-','lsuhscs-','latech','loyno','mcneese','nicholls','nsu','subr','state','hnoc','tulane','ull','ulm','uno','vville'];
+function all_institution_cmodel_query_count($institutions){
   $tuque = islandora_get_tuque_connection();
   $institution_coll_counts = [];
   foreach($institutions as $lib){
@@ -166,10 +145,50 @@ EOQ;
   }
   $coll_models = [];
   foreach($institution_coll_counts as $key => $val){
+      dpm($val);
     $coll_models[$key] =  institution_cmodel_query($key);
   }
   return $coll_models;
 }
+
+/**
+ * SPARQL that queries root for all existing collections
+ * different from above. not a count query. store all the collections then use later
+ * containing institutional prefix string
+ * WIP
+ */
+function all_institution_each_collection_query_count($institutions){
+  $tuque = islandora_get_tuque_connection();
+  $institution_colls = [];
+  foreach($institutions as $lib){
+    $query = <<<EOQ
+SELECT ?pid
+FROM <#ri>
+WHERE {
+{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+FILTER regex(str(?pid), "$lib")
+}
+ORDER BY ?pid
+EOQ;
+    $result =  $tuque->repository->ri->sparqlQuery($query, 'sparql');
+    foreach($result as $key => $val){
+
+    $institution_colls[$lib.$key] = $val['pid']['value'];
+    }
+  }
+ 
+  dpm($institution_colls);
+  $coll_models = [];
+  foreach($institution_colls as $key => $val){
+      
+    $coll_models[$key] =  collection_cmodel_query($val);
+  }
+  dpm($coll_models);
+  return $coll_models;
+}
+
+
+all_institution_each_collection_query_count($institutions);
 
 /**
  * Implements hook_cron().
@@ -196,7 +215,7 @@ function islandora_content_stats_test(){
         ))
         ->execute();
     }
-    $inst_models = all_institution_cmodel_query();
+    $inst_models = all_institution_cmodel_query_count();
     foreach($inst_models as $key1 => $val1){
         if(isset($val1)){
             foreach($val1 as $key2 => $val2){
