@@ -6,8 +6,9 @@ require_once dirname(__FILE__) . '/queries.inc';
  */
 function islandora_content_stats_reports_form($form, &$form_state) {
   $cmodels =[]; 
-  $ask = cmodel_types();
-  foreach($ask as $model){
+  $cmodel_types = cmodel_types();
+  //$headers = ['ID','Query','Count','Timestamp'];
+  foreach($cmodel_types as $model){
       array_push($cmodels,$model['cmodel']['value']);
   }
   //select and format item counts for all content models
@@ -23,13 +24,6 @@ function islandora_content_stats_reports_form($form, &$form_state) {
             );
     }
   }
+  
   return $form;
 }
-
-  //$col_counts = collection_cmodel_query('latech-cmprt:collection');
-  //dpm($col_counts);
-
-  //$institution_collection_audit = all_institution_cmodel_query();
-  //dpm($institution_collection_audit);
-  //how to get the name of the collection into the datastructure.
-  //same way we got the name of the institution into the query  

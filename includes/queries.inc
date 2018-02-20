@@ -1,4 +1,7 @@
 <?php  
+module_load_include('php','islandora_namespace_homepage','includes/namespaces');
+module_load_include('php','islandora_namespace_homepage','includes/db');
+module_load_include('php','islandora_namespace_homepage','includes/utilities');
 // the RI (ITQL & SPARQL) queries 
 // 
 // 
@@ -59,9 +62,13 @@ from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ;
 EOL;
-  $result = [];
-  $result[0] = $collection;
-  $result[1] = $tuque->repository->ri->itqlQuery($query, 'unlimited');
+
+  $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
+  $sanitized_array = [];
+  foreach($cmodel_counts as $cmodel_count){
+      $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
+  }
+  $result[$collection] = [$sanitized_array];
   return $result;
 }
 
@@ -157,9 +164,10 @@ EOQ;
  * containing institutional prefix string
  * WIP
  */
-function all_institution_each_collection_query_count($institutions){
+function all_institution_each_collection_query_count(){
   $tuque = islandora_get_tuque_connection();
   $institution_colls = [];
+  $institutions = update_namespace_prefixes_cache();
   foreach($institutions as $lib){
     $query = <<<EOQ
 SELECT ?pid
@@ -170,25 +178,26 @@ FILTER regex(str(?pid), "$lib")
 }
 ORDER BY ?pid
 EOQ;
-    $result =  $tuque->repository->ri->sparqlQuery($query, 'sparql');
-    foreach($result as $key => $val){
-
-    $institution_colls[$lib.$key] = $val['pid']['value'];
+    $coll_results =  $tuque->repository->ri->sparqlQuery($query, 'sparql');
+    foreach($coll_results as $key => $coll){
+    $institution_colls[$lib.$key] = $coll['pid']['value'];
     }
   }
- 
-  dpm($institution_colls);
   $coll_models = [];
-  foreach($institution_colls as $key => $val){
-      
-    $coll_models[$key] =  collection_cmodel_query($val);
+  foreach($institution_colls as $inst_num => $collection){
+    $coll_count_results = collection_cmodel_query($collection);
+    foreach($coll_count_results as $collection => $array){
+        foreach($array as $key => $model_count){
+            foreach($model_count as $model => $count){
+                $coll_models[preg_replace('/\d/','',$inst_num)." : ".$collection." : ".$model] = $count;
+            }
+        }
+        
+    }
   }
-  dpm($coll_models);
   return $coll_models;
 }
 
-
-all_institution_each_collection_query_count($institutions);
 
 /**
  * Implements hook_cron().
@@ -197,8 +206,7 @@ all_institution_each_collection_query_count($institutions);
  * save the results to a database table (with a timestamp)
  */
 function islandora_content_stats_cron() {
-    dpm('cron did it thing' . time());
-    //islandora_content_stats_test();
+    islandora_content_stats_test();
 }
 
 function islandora_content_stats_test(){
@@ -219,7 +227,7 @@ function islandora_content_stats_test(){
     foreach($inst_models as $key1 => $val1){
         if(isset($val1)){
             foreach($val1 as $key2 => $val2){
-                    db_insert('islandora_content_stats')
+                    db_insert('islandora_con,taoeuent_stats')
         ->fields(array('id', 'query', 'count', 'timestamp'))
         ->values(array(
           'id' => NULL,
@@ -230,8 +238,18 @@ function islandora_content_stats_test(){
         ->execute();
                 
             }
-        
         }
-        
     }
-}
+    $inst_coll_cmodels = all_institution_each_collection_query_count();
+    foreach($inst_coll_cmodels as $key => $val){
+        db_insert('islandora_content_stats')
+        ->fields(array('id','query','count','timestamp'))
+        ->values(array(
+            'id'=> NULL,
+            'query'=> $key,
+            'count'=> $val,
+            'timestamp'=> time(),
+        ))
+        ->execute();
+    }
+ }
