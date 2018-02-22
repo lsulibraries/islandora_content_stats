@@ -134,8 +134,9 @@ EOL;
  * SPARQL that queries root for all existing collections
  * containing institutional prefix string
  */
-function all_institution_cmodel_query_count($institutions){
+function all_institution_cmodel_query_count(){
   $tuque = islandora_get_tuque_connection();
+  $institutions = update_namespace_prefixes_cache();
   $institution_coll_counts = [];
   foreach($institutions as $lib){
     $query = <<<EOQ
@@ -202,13 +203,21 @@ EOQ;
 /**
  * Implements hook_cron().
  *
- * periodically run a set of queries
- * save the results to a database table (with a timestamp)
+ *  run a set of queries every 10th cron run
+ * reset counter after 10
  */
+$elapsed = 0;
 function islandora_content_stats_cron() {
-    islandora_content_stats_test();
+    if($elapsed % 10 == 0){
+        islandora_content_stats_test();
+    }
+    elseif($elapsed > 10){
+        $elapsed = 0;
+    }
+    else{$elapsed += 1;}
 }
 
+// save the results to a database table (with a timestamp)
 function islandora_content_stats_test(){
     echo('populating db w/ queries');
     $all_models = all_cmodel_counts();
@@ -227,7 +236,7 @@ function islandora_content_stats_test(){
     foreach($inst_models as $key1 => $val1){
         if(isset($val1)){
             foreach($val1 as $key2 => $val2){
-                    db_insert('islandora_con,taoeuent_stats')
+                    db_insert('islandora_content_stats')
         ->fields(array('id', 'query', 'count', 'timestamp'))
         ->values(array(
           'id' => NULL,

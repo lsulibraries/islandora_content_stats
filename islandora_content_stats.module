@@ -13,11 +13,11 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
-//  $items['admin/reports/content_stats/test'] = array(
-//    'title' => 'DB POPULATE',
-//    'page callback' => 'islandora_content_stats_test',
-//    'access arguments' => array(TRUE),
-//  );
+  $items['admin/reports/content_stats/test'] = array(
+    'title' => 'DB POPULATE',
+    'page callback' => 'islandora_content_stats_test',
+    'access arguments' => array(TRUE),
+  );
   $items['admin/reports/content_stats'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
@@ -28,8 +28,6 @@ function islandora_content_stats_menu() {
 
   return $items;
 }
-
-//dpm('cron did it thing' . time());
 
 //
 ///**
