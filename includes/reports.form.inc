@@ -45,11 +45,12 @@ function islandora_content_stats_reports_form($form, &$form_state) {
 
 
 //same result as above but don't use page_arguments, use page_callback & comment out page_arguments.
+//function islandora_content_stats_table_theme_form($form, &$form_state){
 function islandora_content_stats_table_theme(){
   $variables = [];
   
     $headers = array(
-      array('data'=>'ID','field' =>'stats.id'),
+      array('data'=>'ID','field' =>'stats.id','sort' => 'desc'),
       array('data'=>'Query','field' =>'stats.query',),
       array('data'=>'Count','field' =>'stats.count',),
       array('data'=>'Timestamp','field' =>'stats.timestamp',),
@@ -59,8 +60,10 @@ function islandora_content_stats_table_theme(){
         $query = db_select("islandora_content_stats","stats")
                 ->extend('TableSort');
         
+        //somehow get a variable from a textfield with a submit into the db_like function...
         $results = $query->fields('stats',array('id','query','count','timestamp'))
                 ->orderByHeader($headers)
+                ->condition('query', '%'. db_like(''). '%', 'LIKE')
                 ->execute();
         
   $rows = [];
@@ -84,8 +87,22 @@ function islandora_content_stats_table_theme(){
       'empty' => 'No data available'      
   );
     
- $output = theme_table($variables);
-  return $output;  
+  //trying to add a user submitted filter from a textfield.
+  //haven't had luck turning this into a form function...
+//$form['like'] = array(
+//  '#type' => 'textfield',
+//   
+//);
+// $form['table'] = theme_table($variables);
+// 
+// $form['submit'] = array (
+//  '#type' => 'submit',
+//  '#value' => t('Submit')
+// );
+//  return $form;  
+  $output = theme_table($variables);
+  return $output;
+  
 }
 
 //islandora_content_stats_table_theme();
