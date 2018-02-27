@@ -206,16 +206,17 @@ EOQ;
  *  run a set of queries every 10th cron run
  * reset counter after 10
  */
-$elapsed = 0;
-function islandora_content_stats_cron() {
-    if($elapsed % 10 == 0){
-        islandora_content_stats_test();
-    }
-    elseif($elapsed > 10){
-        $elapsed = 0;
-    }
-    else{$elapsed += 1;}
+
+if(!variable_get('islandora_content_stats_interval')){
+    variable_set('islandora_content_stats_interval', '3 days');
 }
+$time = strtotime(variable_get('islandora_content_stats_interval'));
+$elapsed_time = variable_get('cron_last');
+function islandora_content_stats_cron() {
+  if($elapsed_time - $time > $time){
+      dpm(gmdate("Y-m-d\TH:i:s\Z",$elapsed_time - $time));
+    islandora_content_stats_test();
+}}
 
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_test(){

@@ -32,16 +32,21 @@ function islandora_content_stats_table_form($form, &$form_state){
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
      
-  if(isset($form_state['input']['filter'])){
+
+  if(!empty($form_state['input'])){
     //somehow get a variable from a textfield with a submit into the db_like function...
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)
-      ->condition('query', '%'. db_like($form_state['input']['filter']). '%', 'LIKE')
+      ->condition('query', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+      ->condition('query', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+      ->condition('query', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+      ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
-  } 
+  }
   else{ 
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)
+      ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
   }
   foreach($results as $record){
@@ -54,10 +59,30 @@ function islandora_content_stats_table_form($form, &$form_state){
   }
   $form =[];
   $form['filter'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Filter Results')
+    '#type' => 'fieldset',
+    '#title' => t('Filter Query Results'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
   );
-  $form['submit'] = array(
+  $form['filter']['institution'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Institution'),
+    '#size' => 15,
+    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")')
+  );
+  $form['filter']['cmodel'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Content Model'),
+    '#size' => 15,
+    '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
+  );
+  $form['filter']['collection'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Collection PID'),
+    '#size' => 15,
+       '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
+  );
+  $form['filter']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Filter'),
   );
@@ -67,6 +92,7 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#rows' => $rows,
     '#empty' => t('table is empty')
   );  
+  $form['pager'] = array('#markup' => theme('pager'));
   return $form;
 }
 
