@@ -17,100 +17,60 @@ function islandora_content_stats_reports_form($form, &$form_state) {
 //  $form['table'] = islandora_content_stats_theme_table();
   return $form;
 }
-
-////using a less sophisticated form api.
-//function islandora_content_stats_table_form($form, &$form_state){
-//  $latest_query = db_query("SELECT * FROM ldl.islandora_content_stats ORDER by id DESC");
-//  $headers = ['ID','Query','Count','Timestamp'];
-//  $form['header'] =array(
-//    '#prefix' => '<thead><tr><th>'.$headers[0].'</th><th>'.$headers[1].'</th><th>'.$headers[2].'</th><th>'.$headers[3],
-//      '#suffix' => '</th><tr><thead>',
-//      
-//  );
-//  $rows = array();
-//  $form['#prefix'] = '<table cellpadding=3 cellspacing=3 border=1px solid black>';
-//  $form['#suffix'] = '</table>';
-//  foreach($latest_query as $record){
-//      $class = ($record->id % 2 == 0) ? 'odd' :'even';
-//
-//      $row = array($record->id,$record->query,$record->count,gmdate("Y-m-d\TH:i:s\Z",$record->timestamp));
-//      $rows[$record->id] = $row;
-//           $form[$record->id] = array(
-//         '#prefix' => '<tr class='.$class.'><td>'.$record->id.'</td><td>'.$record->query.'<td>'.$record->count.'</td><td>'.gmdate("Y-m-d\TH:i:s\Z",$record->timestamp).'</td>',
-//         '#suffix' => '</td></tr>',
-//         );
-//  }
-//  return $form;
-//}
-
-
-//same result as above but don't use page_arguments, use page_callback & comment out page_arguments.
-//function islandora_content_stats_table_theme_form($form, &$form_state){
-function islandora_content_stats_table_theme(){
+ 
+//trying to do same above but with a form submit. 
+function islandora_content_stats_table_form($form, &$form_state){
   $variables = [];
-  
-    $headers = array(
-      array('data'=>'ID','field' =>'stats.id','sort' => 'desc'),
-      array('data'=>'Query','field' =>'stats.query',),
-      array('data'=>'Count','field' =>'stats.count',),
-      array('data'=>'Timestamp','field' =>'stats.timestamp',),
-    );
-    
-        //second argument in db select is an alias for the table(which is the first argument.)
-        $query = db_select("islandora_content_stats","stats")
-                ->extend('TableSort');
-        
-        //somehow get a variable from a textfield with a submit into the db_like function...
-        $results = $query->fields('stats',array('id','query','count','timestamp'))
-                ->orderByHeader($headers)
-                ->condition('query', '%'. db_like(''). '%', 'LIKE')
-                ->execute();
-        
   $rows = [];
-
-  foreach($results as $record){
-      $rows[$record->id] = array(
-          'id' => $record->id,
-          'query' => $record->query,
-          'count' => $record->count,
-          'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
-          );
-              
- }
-  $variables = array(
-      'header' => $headers,
-      'rows' => $rows,
-      'attributes' => array(),
-      'caption' => '',
-      'colgroups' => array(),
-      'sticky' => FALSE,
-      'empty' => 'No data available'      
+  $headers = array(
+    array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
+    array('data'=> t('Query'),'field' =>'stats.query',),
+    array('data'=> t('Count'),'field' =>'stats.count',),
+    array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
   );
-    
-  //trying to add a user submitted filter from a textfield.
-  //haven't had luck turning this into a form function...
-//$form['like'] = array(
-//  '#type' => 'textfield',
-//   
-//);
-// $form['table'] = theme_table($variables);
-// 
-// $form['submit'] = array (
-//  '#type' => 'submit',
-//  '#value' => t('Submit')
-// );
-//  return $form;  
-  $output = theme_table($variables);
-  return $output;
-  
+  //second argument in db select is an alias for the table(which is the first argument.)
+  $query = db_select("islandora_content_stats","stats")
+    ->extend('TableSort');
+     
+  if(isset($form_state['input']['filter'])){
+    //somehow get a variable from a textfield with a submit into the db_like function...
+    $results = $query->fields('stats',array('id','query','count','timestamp'))
+      ->orderByHeader($headers)
+      ->condition('query', '%'. db_like($form_state['input']['filter']). '%', 'LIKE')
+      ->execute();
+  } 
+  else{ 
+    $results = $query->fields('stats',array('id','query','count','timestamp'))
+      ->orderByHeader($headers)
+      ->execute();
+  }
+  foreach($results as $record){
+    $rows[$record->id] = array(
+      'id' => $record->id,
+      'query' => $record->query,
+      'count' => $record->count,
+      'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
+    );
+  }
+  $form =[];
+  $form['filter'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Filter Results')
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Filter'),
+  );
+  $form['table'] = array(
+    '#theme' => 'table',
+    '#header' => $headers,
+    '#rows' => $rows,
+    '#empty' => t('table is empty')
+  );  
+  return $form;
 }
 
-//islandora_content_stats_table_theme();
- //islandora_content_stats_theme_table(islandora_content_stats_table_prep());
-
-//  
-// function islandora_content_stats_theme_table($variables){
-//     $output = theme_table('islandora_content_stats',array('header'=>$variables['headers'],'rows'=>$variables['rows']));
-//     return $output;
-// }
- 
+function islandora_content_stats_table_form_submit($form, &$form_state){
+    //rebuild is totes required
+    $form_state['rebuild'] = TRUE;
+}
