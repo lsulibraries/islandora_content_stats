@@ -4,9 +4,6 @@ require_once dirname(__FILE__) . '/queries.inc';
  * Builds form out of query results from db.
  * accounts for custom content models
  */
-
- 
-//trying to do same above but with a form submit. 
 function islandora_content_stats_table_form($form, &$form_state){
   $variables = [];
   $rows = [];
@@ -24,12 +21,10 @@ function islandora_content_stats_table_form($form, &$form_state){
         $max_time = $value;
     }
   }
- dpm($max_time);
   //second argument in db select is an alias for the table(which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
  
-
   if(!empty($form_state['input'])){
     //somehow get a variable from a textfield with a submit into the db_like function...
     $results = $query->fields('stats',array('id','query','count','timestamp'))
@@ -56,7 +51,7 @@ function islandora_content_stats_table_form($form, &$form_state){
       'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
     );
   }
-  $form =[];
+  $form = [];
   $form['filter'] = array(
     '#type' => 'fieldset',
     '#title' => t('Filter Query Results'),
@@ -92,10 +87,22 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#empty' => t('table is empty')
   );  
   $form['pager'] = array('#markup' => theme('pager'));
+  
   return $form;
 }
 
 function islandora_content_stats_table_form_submit($form, &$form_state){
+//views has some way of handling this, putting it off for now.
+//    //redirect and rebuild cannot function together
+//    if(strlen($form_state['input']['institution']) > 0){
+//      $form_state['redirect'] = 'admin/reports/content_stats/'.'inst?'.$form_state['input']['institution'];
+//    }
+//    if(strlen($form_state['input']['cmodel']) > 0){
+//      $form_state['redirect'] = 'admin/reports/content_stats/'.'cmodel?'.$form_state['input']['cmodel'];
+//    }
+//    if(strlen($form_state['input']['collection']) > 0){
+//      $form_state['redirect'] = 'admin/reports/content_stats/'.'coll?'.$form_state['input']['collection'];
+//    }    
     //rebuild is totes required
     $form_state['rebuild'] = TRUE;
 }

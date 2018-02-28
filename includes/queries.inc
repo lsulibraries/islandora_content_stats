@@ -3,9 +3,7 @@ module_load_include('php','islandora_namespace_homepage','includes/namespaces');
 module_load_include('php','islandora_namespace_homepage','includes/db');
 module_load_include('php','islandora_namespace_homepage','includes/utilities');
 // the RI (ITQL & SPARQL) queries 
-// 
-// 
-  $institutions = ['lsm','lsu-','lsus-','lsuhsc-','lsuhscs-','latech','loyno','mcneese','nicholls','nsu','subr','state','hnoc','tulane','ull','ulm','uno','vville'];
+
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
 /**
  * Query repository index for all cmodels and a count for each.
@@ -206,17 +204,25 @@ EOQ;
  *  run a set of queries every 10th cron run
  * reset counter after 10
  */
-
 if(!variable_get('islandora_content_stats_interval')){
     variable_set('islandora_content_stats_interval', '3 days');
 }
-$time = strtotime(variable_get('islandora_content_stats_interval'));
-$elapsed_time = variable_get('cron_last');
+  
 function islandora_content_stats_cron() {
-  if($elapsed_time - $time > $time){
-      dpm(gmdate("Y-m-d\TH:i:s\Z",$elapsed_time - $time));
+  $time = intval(variable_get('islandora_content_stats_interval'));
+  $last_cron= intval(variable_get('cron_last'));
+  $last_q_run = '';
+  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  foreach($q_time as $return){
+    foreach($return as $key => $value){
+        $last_q_run = intval($value);
+    }
+  }   
+  if($time >= $last_cron - $last_q_run){
+      dpm( $time . '>='. $last_cron. '-' . $last_q_run);
     islandora_content_stats_test();
-}}
+  }
+}
 
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_test(){

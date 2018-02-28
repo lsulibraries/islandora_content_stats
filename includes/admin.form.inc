@@ -4,7 +4,6 @@
  * @file
  * Admin form and submission handler.
  */
-
 function islandora_content_stats_admin_form($form, &$form_state) {
    $form['duration'] = array(
     '#type' => 'textfield',
@@ -12,9 +11,9 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     '#description' => t('Inteval of time to update database w/ new queries statsistics.'),
   );
     $form['last'] = array(
-    '#title' => t('Latest runtime of cron.'),
+    '#title' => t('Current Interval'),
     '#type' => 'fieldset',
-    '#description' => gmdate("Y-m-d\TH:i:s\Z", variable_get('cron_last')),
+    '#description' => variable_get('islandora_content_stats_interval')
     );
   $form['submit'] = array(
     '#type' => 'submit',

@@ -13,7 +13,7 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/reports/content_stats'] = array(
+  $items['admin/reports/content_stats/'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_table_form', 1),
@@ -24,7 +24,11 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
-//
+
+//todo (later)
+
+//display all query results on demand
+//- as a block -
 ///**
 // * Implements hook_block_info().
 // */
@@ -38,26 +42,8 @@ function islandora_content_stats_menu() {
 //  return $blocks;
 //}
 
-
-//display all query results on demand
-//- as a report DONE
-//- as a block -
   
-//  periodically run a set of queries
-//- save the results to a database table (with a timestamp)
-//
-//
 //config:
 //- specify the time to wait before running queries again
-//-- if cron runs hourly, perhaps this module checks that the interval (eg 2 days) has or has not elapsed based on db timestamp
-//
-//menu_router (router)
-//- config should islandora/tools... DONE
-//- report display under ?/reports (with batch sets, etc) DONE
-//
-//database table (prob just one for now)
-//- id, count, timestamp --DONE
-//- store new records for each run, don't overwrite (so we can see growth over time...)
-//- display last query (highest id with specified query)
 
 
