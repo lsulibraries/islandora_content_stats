@@ -4,19 +4,7 @@ require_once dirname(__FILE__) . '/queries.inc';
  * Builds form out of query results from db.
  * accounts for custom content models
  */
-function islandora_content_stats_reports_form($form, &$form_state) {
-  $latest_query = db_query("SELECT * FROM ldl.islandora_content_stats  ORDER by timestamp DESC");
-  foreach($latest_query as $record){
-    $form[$record->id] = array(
-             '#type' => 'fieldset',
-             '#value' =>"Items: " . $record->count . " Query increment: " . $record->id ,
-             '#title' => "Number of items with '" . $record->query . "' content model",
-             '#description' => "Date:  ". gmdate("Y-m-d\TH:i:s\Z",$record->timestamp), 
-            );
-  }
-//  $form['table'] = islandora_content_stats_theme_table();
-  return $form;
-}
+
  
 //trying to do same above but with a form submit. 
 function islandora_content_stats_table_form($form, &$form_state){
@@ -28,15 +16,25 @@ function islandora_content_stats_table_form($form, &$form_state){
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
   );
+  //get latest timestamp from run queries
+  $max_time = '';
+  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  foreach($q_time as $return){
+    foreach($return as $key => $value){
+        $max_time = $value;
+    }
+  }
+ dpm($max_time);
   //second argument in db select is an alias for the table(which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-     
+ 
 
   if(!empty($form_state['input'])){
     //somehow get a variable from a textfield with a submit into the db_like function...
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)
+      ->condition('timestamp',$max_time)
       ->condition('query', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
@@ -45,6 +43,7 @@ function islandora_content_stats_table_form($form, &$form_state){
   }
   else{ 
     $results = $query->fields('stats',array('id','query','count','timestamp'))
+      ->condition('timestamp',$max_time)
       ->orderByHeader($headers)
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
