@@ -1,8 +1,8 @@
-<?php  
+<?php
 module_load_include('php','islandora_namespace_homepage','includes/namespaces');
 module_load_include('php','islandora_namespace_homepage','includes/db');
 module_load_include('php','islandora_namespace_homepage','includes/utilities');
-// the RI (ITQL & SPARQL) queries 
+// the RI (ITQL & SPARQL) queries
 
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
 /**
@@ -11,7 +11,7 @@ module_load_include('php','islandora_namespace_homepage','includes/utilities');
 function all_cmodel_counts(){
   $tuque = islandora_get_tuque_connection();
   $members = array();
-  
+
   $all_cmodels_query = <<<EOL
 select \$cmodel
 count(select \$item from <#ri>
@@ -19,7 +19,7 @@ where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 and \$item <info:fedora/fedora-system:def/model#state> <fedora-model:Active>)
 from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
-having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ; 
+having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ;
 EOL;
 
   $result = $tuque->repository->ri->itqlQuery($all_cmodels_query, 'unlimited');
@@ -31,7 +31,7 @@ EOL;
 function cmodel_types(){
   $tuque = islandora_get_tuque_connection();
   $members = array();
-  
+
   $cmodel_types = <<<EOL
 select \$cmodel from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
@@ -48,13 +48,13 @@ EOL;
  */
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
-  
+
   $query = <<<EOL
 select \$cmodel
 count(select \$item from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 and \$item <info:fedora/fedora-system:def/model#state> <fedora-model:Active>
-and \$item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> 
+and \$item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection>
 )
 from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
@@ -97,7 +97,7 @@ EOQ;
     $query_cm = <<<EOL
 SELECT ?cmodel ?item
 FROM <#ri>
-WHERE { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel . 
+WHERE { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
 ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll_pid> .
 }
@@ -107,7 +107,7 @@ EOL;
   //check that the institution exists
   if(isset($results)){
     $models = [];
-    foreach($results as $item ){ 
+    foreach($results as $item ){
       if($item['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
         $models[$item['cmodel']['value']] = array();
       }
@@ -191,7 +191,7 @@ EOQ;
                 $coll_models[preg_replace('/\d/','',$inst_num)." : ".$collection." : ".$model] = $count;
             }
         }
-        
+
     }
   }
   return $coll_models;
@@ -204,22 +204,50 @@ EOQ;
  *  run a set of queries every 10th cron run
  * reset counter after 10
  */
+
+//no debugging available at time of cron, this is a workaround.
+// dpm('time: '.time());
+//  $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
+// dpm("interval: ".$interval);
+//  $last_cron= intval(variable_get('cron_last',REQUEST_TIME));
+//  $last_q_run = '';
+//  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+//  foreach($q_time as $return){
+//    foreach($return as $key => $value){
+//        $last_q_run = intval($value);
+//    }
+//  }
+//  $last_q_plus_inteval =  $last_q_run + $interval;
+//  dpm('last db query plus interval: '.$last_q_plus_inteval);
+//  dpm('last cron: '.$last_cron);
+//  $diff = $last_cron - $last_q_plus_inteval;
+//  dpm('diff last cron and sum of last query and interval: '. $diff);
+//  if($last_cron >= $last_q_plus_inteval){
+//    dpm('lost cron run greater than or equal to last db query plus interval ');
+//  }
+
+//if an empty texfield is submitted it defaults to a resonable interval.
 if(!variable_get('islandora_content_stats_interval')){
     variable_set('islandora_content_stats_interval', '3 days');
 }
-  
+
+/**
+ * Implements hook_cron().
+ * Runs our queries
+ * IF the current cron time is greater than the interval of time plus the last query runtime 
+ */
 function islandora_content_stats_cron() {
-  $time = intval(variable_get('islandora_content_stats_interval'));
-  $last_cron= intval(variable_get('cron_last'));
+  $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
+  $last_cron= intval(variable_get('cron_last',REQUEST_TIME));
   $last_q_run = '';
   $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   foreach($q_time as $return){
     foreach($return as $key => $value){
         $last_q_run = intval($value);
     }
-  }   
-  if($time >= $last_cron - $last_q_run){
-      dpm( $time . '>='. $last_cron. '-' . $last_q_run);
+  }
+  $last_q_plus_inteval = $interval + $last_q_run;
+  if($last_cron >= $last_q_plus_inteval){
     islandora_content_stats_test();
   }
 }
@@ -252,7 +280,7 @@ function islandora_content_stats_test(){
           'timestamp' => time(),
         ))
         ->execute();
-                
+
             }
         }
     }
