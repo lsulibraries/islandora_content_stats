@@ -197,57 +197,43 @@ EOQ;
   return $coll_models;
 }
 
-
-/**
- * Implements hook_cron().
- *
- *  run a set of queries every 10th cron run
- * reset counter after 10
- */
-
 //no debugging available at time of cron, this is a workaround.
 // dpm('time: '.time());
-//  $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
+// $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
 // dpm("interval: ".$interval);
-//  $last_cron= intval(variable_get('cron_last',REQUEST_TIME));
 //  $last_q_run = '';
-//  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+//  $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
 //  foreach($q_time as $return){
-//    foreach($return as $key => $value){
-//        $last_q_run = intval($value);
-//    }
+//      $last_q_run = (isset ($return) ? intval($return->{'max(timestamp)'}) : 0);
 //  }
-//  $last_q_plus_inteval =  $last_q_run + $interval;
-//  dpm('last db query plus interval: '.$last_q_plus_inteval);
-//  dpm('last cron: '.$last_cron);
-//  $diff = $last_cron - $last_q_plus_inteval;
-//  dpm('diff last cron and sum of last query and interval: '. $diff);
-//  if($last_cron >= $last_q_plus_inteval){
-//    dpm('lost cron run greater than or equal to last db query plus interval ');
+//  $last_q_plus_interval =  $last_q_run + $interval;
+//  dpm('last db query plus interval: '.$last_q_plus_interval);
+//  $diff = time() - $last_q_plus_interval;
+//  dpm('diff from now and sum(last query and interval): '. $diff);
+//  if(time() >= $last_q_plus_interval){
+//    dpm('last cron run greater than or equal to last db query plus interval ');
 //  }
 
-//if an empty texfield is submitted it defaults to a resonable interval.
-if(!variable_get('islandora_content_stats_interval')){
-    variable_set('islandora_content_stats_interval', '3 days');
-}
-
+ //if an empty texfield is submitted it defaults to a resonable interval.
+ if(!variable_get('islandora_content_stats_interval')){
+     variable_set('islandora_content_stats_interval', '3 days');
+ }
 /**
  * Implements hook_cron().
  * Runs our queries
- * IF the current cron time is greater than the interval of time plus the last query runtime 
+ * IF the current cron time is greater than the interval of time plus the last query runtime
  */
 function islandora_content_stats_cron() {
+
   $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
-  $last_cron= intval(variable_get('cron_last',REQUEST_TIME));
   $last_q_run = '';
-  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
   foreach($q_time as $return){
-    foreach($return as $key => $value){
-        $last_q_run = intval($value);
-    }
+    $last_q_run = (isset ($return) ? intval($return->{'max(timestamp)'}) : 0);
   }
-  $last_q_plus_inteval = $interval + $last_q_run;
-  if($last_cron >= $last_q_plus_inteval){
+  $last_q_plus_interval = $interval + $last_q_run;
+  if(time() >= $last_q_plus_interval){
+    var_dump('aoeuaoeuaoeu');
     islandora_content_stats_test();
   }
 }
