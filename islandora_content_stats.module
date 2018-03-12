@@ -7,14 +7,14 @@ require_once dirname(__FILE__) . '/includes/queries.inc';
 function islandora_content_stats_menu() {
   $items = array();
   $items['admin/islandora/tools/content_stats'] = array(
-    'title' => 'Content Statistics',
+    'title' => 'Content Statistics Admin',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_admin_form',1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/reports/content_stats/'] = array(
-    'title' => 'Content Statistics',
+  $items['admin/reports/content_stats'] = array(
+    'title' => 'Content Statistics Report',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_table_form', 1),
     'access arguments' => array('administer site configuration'),
