@@ -19,7 +19,6 @@ function islandora_content_stats_menu() {
     'page arguments' => array('islandora_content_stats_table_form', 1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports.form.inc',
-    'type' => MENU_CALLBACK
   );
   return $items;
 }
@@ -42,8 +41,6 @@ function islandora_content_stats_menu() {
 //  return $blocks;
 //}
 
-  
+
 //config:
 //- specify the time to wait before running queries again
-
-

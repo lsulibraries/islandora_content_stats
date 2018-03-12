@@ -151,7 +151,7 @@ EOQ;
   }
   $coll_models = [];
   foreach($institution_coll_counts as $key => $val){
-      dpm($val);
+      //dpm($val);
     $coll_models[$key] =  institution_cmodel_query($key);
   }
   return $coll_models;
@@ -233,7 +233,6 @@ function islandora_content_stats_cron() {
   }
   $last_q_plus_interval = $interval + $last_q_run;
   if(time() >= $last_q_plus_interval){
-    var_dump('aoeuaoeuaoeu');
     islandora_content_stats_test();
   }
 }
