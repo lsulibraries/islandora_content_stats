@@ -41,6 +41,13 @@ function islandora_content_stats_menu() {
 //  return $blocks;
 //}
 
+islandora_content_stats_print_path();
 
-//config:
-//- specify the time to wait before running queries again
+function islandora_content_stats_print_path(){
+  if(strpos(current_path(),'collection')){
+    $str =current_path();
+    $coll = str_replace('islandora/object/','',$str);
+    islandora_content_stats_root_page($coll);
+  }
+  // dpm(current_path());
+}
