@@ -284,24 +284,22 @@ function islandora_content_stats_test(){
  }
 
 
- function islandora_content_stats_root_page($path){
-    $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
-    $last_q_time = '';
-    foreach($last_query_time_db as $return){
-      $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
-    }
-    //dpm($last_q_time);
-    $query ="select * from ldl.islandora_content_stats where query like ";
-    $query_suf = " and timestamp = ";
-    $result = db_query($query .  '\''. '%'. $path . '%'. '\'' . $query_suf . '\'' .$last_q_time . '\'');
-    $results = $result->fetchAll();
-    $display = [];
-    foreach($results as $query_r){
-      if(!strpos($query_r->query,'fedora-system')){
-        $display[$query_r->query] = $query_r->count;
-      }
-    }
-    dpm($display);
-    //return $display;
-  }
- islandora_content_stats_print_path();
+ function islandora_content_stats_page_cmodels($path){
+   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+   $last_q_time = '';
+   foreach($last_query_time_db as $return){
+     $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
+   }
+   $query ="select * from ldl.islandora_content_stats where query like ";
+   $query_suf = " and timestamp = ";
+   $result = db_query($query .  '\''. '%'. $path . '%'. '\'' . $query_suf . '\'' .$last_q_time . '\'');
+   $results = $result->fetchAll();
+   $display = [];
+   foreach($results as $query_r){
+     if(!strpos($query_r->query,'fedora-system')){
+       $display[$query_r->query] = $query_r->count;
+     }
+   }
+   dpm($display);
+   return $display;
+ }

@@ -40,14 +40,32 @@ function islandora_content_stats_menu() {
 //  );
 //  return $blocks;
 //}
-
-islandora_content_stats_print_path();
-
-function islandora_content_stats_print_path(){
+islandora_content_stats_post_collection_stats();
+function islandora_content_stats_post_collection_stats(){
   if(strpos(current_path(),'collection')){
     $str =current_path();
     $coll = str_replace('islandora/object/','',$str);
-    islandora_content_stats_root_page($coll);
+    islandora_content_stats_page_cmodels($coll);
   }
-  // dpm(current_path());
+}
+
+function islandora_content_stats_preprocess_html(&$variables){
+  $node = get_menu_object();
+  dpm($node);
+}
+
+function check_path(){
+  $one_of_these = update_namespace_prefixes_cache();
+      if(in_array(str_replace('/','',request_uri()), $one_of_these)){
+        return true;
+      }
+}
+
+islandora_content_stats_post_institution_stats();
+function islandora_content_stats_post_institution_stats(){
+  if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
+    if(check_path()){
+      islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
+    }
+  }
 }
