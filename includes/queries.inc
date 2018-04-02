@@ -239,7 +239,7 @@ function islandora_content_stats_cron() {
 
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_test(){
-    echo('populating db w/ queries');
+    //echo('populating db w/ queries');
     $all_models = all_cmodel_counts();
     foreach($all_models as $model){
         db_insert('islandora_content_stats')

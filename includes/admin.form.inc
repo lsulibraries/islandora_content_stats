@@ -1,5 +1,8 @@
 <?php
 
+require_once dirname(__FILE__) . '/queries.inc';
+
+
 /**
  * @file
  * Admin form and submission handler.
@@ -19,7 +22,13 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     '#type' => 'submit',
     '#value' => t('Submit'),
   );
-  
+  $form['now'] = array(
+  '#type' => 'button',
+  '#value' => t('Run Query Now'),
+  '#process' => array('islandora_content_stats_test'),
+);
+
+
   return $form;
 }
 
