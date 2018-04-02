@@ -51,6 +51,14 @@ function islandora_content_stats_post_institution_stats(){
   }
 }
 
+function islandora_content_stats_block_info() {
+  $blocks['islandora_content_stats_block'] = array(
+    'info' => t("Content Stats Block"),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
 function islandora_content_stats_block_view($delta = ''){
 $blocks = array();
   switch ($delta) {
