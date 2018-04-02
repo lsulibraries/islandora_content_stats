@@ -53,7 +53,7 @@ function islandora_content_stats_post_institution_stats(){
       islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
     }
   }
-
+}
 
 function islandora_content_stats_block_view($delta = ''){
 $blocks = array();
