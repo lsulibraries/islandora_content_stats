@@ -34,10 +34,6 @@ function islandora_content_stats_post_collection_stats(){
   }
 }
 
-function islandora_content_stats_preprocess_html(&$variables){
-  $node = get_menu_object();
-  dpm($node);
-}
 
 function check_path(){
   $one_of_these = update_namespace_prefixes_cache();
