@@ -31,11 +31,6 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
-
-//todo (later)
-
-//display all query results on demand
-//- as a block -
 /**
 * Implements hook_block_info().
 */
@@ -47,17 +42,6 @@ function islandora_content_stats_block_info() {
     );
   return $blocks;
 }
-
-//do we really need to configure?
-// function islandora_content_stats_block_configure(){
-//   $form = array();
-//   $form['content_stats_block'] = array(
-//     '#title' => 'it a block form',
-//
-//   );
-//   return $form;
-//}
-
 
 function islandora_content_stats_block_view($delta = ''){
 $blocks = array();

@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
 /**
- * Builds form out of query results from db.
+ * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
 function islandora_content_stats_table_form($form, &$form_state){
@@ -92,8 +92,6 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#value' => t('Show All Queries'),
     '#submit' => array('go_to_all')
   );
-
-
   return $form;
 }
 
@@ -101,19 +99,6 @@ function go_to_all(){
   drupal_goto('/admin/reports/content_stats/all');
 }
 
-
 function islandora_content_stats_table_form_submit($form, &$form_state){
-//views has some way of handling this, putting it off for now.
-//    //redirect and rebuild cannot function together
-//    if(strlen($form_state['input']['institution']) > 0){
-//      $form_state['redirect'] = 'admin/reports/content_stats/'.'inst?'.$form_state['input']['institution'];
-//    }
-//    if(strlen($form_state['input']['cmodel']) > 0){
-//      $form_state['redirect'] = 'admin/reports/content_stats/'.'cmodel?'.$form_state['input']['cmodel'];
-//    }
-//    if(strlen($form_state['input']['collection']) > 0){
-//      $form_state['redirect'] = 'admin/reports/content_stats/'.'coll?'.$form_state['input']['collection'];
-//    }
-    //rebuild is totes required
-    $form_state['rebuild'] = TRUE;
+  $form_state['rebuild'] = TRUE;
 }
