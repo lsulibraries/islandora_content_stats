@@ -38,7 +38,6 @@ where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 EOL;
 
   $result = $tuque->repository->ri->itqlQuery($cmodel_types, 'unlimited');
-
   return $result;
 }
 
@@ -196,23 +195,6 @@ EOQ;
   }
   return $coll_models;
 }
-
-//no debugging available at time of cron, this is a workaround.
-// dpm('time: '.time());
-// $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
-// dpm("interval: ".$interval);
-//  $last_q_run = '';
-//  $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
-//  foreach($q_time as $return){
-//      $last_q_run = (isset ($return) ? intval($return->{'max(timestamp)'}) : 0);
-//  }
-//  $last_q_plus_interval =  $last_q_run + $interval;
-//  dpm('last db query plus interval: '.$last_q_plus_interval);
-//  $diff = time() - $last_q_plus_interval;
-//  dpm('diff from now and sum(last query and interval): '. $diff);
-//  if(time() >= $last_q_plus_interval){
-//    dpm('last cron run greater than or equal to last db query plus interval ');
-//  }
 
  //if an empty texfield is submitted it defaults to a resonable interval.
  if(!variable_get('islandora_content_stats_interval')){
