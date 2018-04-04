@@ -1,10 +1,12 @@
+
+
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
 /**
- * Builds form out of query results from db with latest timestamp.
+ * Builds form out of query of all results from db.
  * accounts for custom content models
  */
-function islandora_content_stats_table_form($form, &$form_state){
+function islandora_content_stats_table_all_form($form, &$form_state){
   $variables = [];
   $rows = [];
   $headers = array(
@@ -13,14 +15,6 @@ function islandora_content_stats_table_form($form, &$form_state){
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
   );
-  //get latest timestamp from run queries
-  $max_time = '';
-  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-  foreach($q_time as $return){
-    foreach($return as $key => $value){
-        $max_time = $value;
-    }
-  }
   //second argument in db select is an alias for the table(which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
@@ -29,7 +23,6 @@ function islandora_content_stats_table_form($form, &$form_state){
     //somehow get a variable from a textfield with a submit into the db_like function...
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)
-      ->condition('timestamp',$max_time)
       ->condition('query', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
@@ -38,7 +31,6 @@ function islandora_content_stats_table_form($form, &$form_state){
   }
   else{
     $results = $query->fields('stats',array('id','query','count','timestamp'))
-      ->condition('timestamp',$max_time)
       ->orderByHeader($headers)
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
@@ -95,10 +87,6 @@ function islandora_content_stats_table_form($form, &$form_state){
   return $form;
 }
 
-function go_to_all(){
-  drupal_goto('/admin/reports/content_stats/all');
-}
-
-function islandora_content_stats_table_form_submit($form, &$form_state){
+function islandora_content_stats_table_all_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
 }

@@ -15,11 +15,18 @@ function islandora_content_stats_menu() {
     'file' => 'includes/admin.form.inc',
   );
   $items['admin/reports/content_stats'] = array(
-    'title' => 'Content Statistics Report',
+    'title' => 'Content Statistics Report Last Run',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_table_form', 1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports.form.inc',
+  );
+  $items['admin/reports/content_stats/all'] = array(
+    'title' => 'Content Statistics Report All Queries',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_content_stats_table_all_form', 1),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/reports-all.form.inc',
   );
   return $items;
 }
@@ -56,6 +63,19 @@ function islandora_content_stats_block_info() {
     'info' => t("Content Stats Block"),
     'cache' => DRUPAL_NO_CACHE,
   );
+  return $blocks;
+}
+
+
+/**
+* Implements hook_block_info().
+*/
+function islandora_content_stats_block_info() {
+  $blocks = array();
+    $blocks['content_stats'] = array(
+      'info' => t('Content Stats'),
+      'cache' => DRUPAL_CACHE_PER_USER
+    );
   return $blocks;
 }
 
