@@ -3,6 +3,11 @@
 require_once dirname(__FILE__) . '/queries.inc';
 
 
+function direct_to_reports(){
+  drupal_goto('admin/reports/content_stats');
+}
+
+
 /**
  * @file
  * Admin form and submission handler.
@@ -18,17 +23,15 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#description' => variable_get('islandora_content_stats_interval')
     );
+    $form['now'] = array(
+    '#type' => 'submit',
+    '#value' => t('Run Query Now'),
+    '#submit' => array('islandora_content_stats_test', 'direct_to_reports'),
+    );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
   );
-  $form['now'] = array(
-  '#type' => 'button',
-  '#value' => t('Run Query Now'),
-  '#process' => array('islandora_content_stats_test'),
-);
-
-
   return $form;
 }
 
