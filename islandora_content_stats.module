@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/includes/queries.inc';
 require_once dirname(__FILE__) . '/includes/reports.form.inc';
+require_once dirname(__FILE__) . '/includes/reports-page.form.inc';
 
 /**
  * Implements hook_menu().
@@ -32,12 +33,11 @@ function islandora_content_stats_menu() {
 }
 
 
-islandora_content_stats_post_collection_stats();
 function islandora_content_stats_post_collection_stats(){
   if(strpos(current_path(),'collection')){
     $str =current_path();
     $coll = str_replace('islandora/object/','',$str);
-    islandora_content_stats_page_cmodels($coll);
+    return islandora_content_stats_page_cmodels($coll);
   }
 }
 
@@ -49,11 +49,10 @@ function check_path(){
       }
 }
 
-islandora_content_stats_post_institution_stats();
 function islandora_content_stats_post_institution_stats(){
   if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
     if(check_path()){
-      islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
+      return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
     }
   }
 }
@@ -67,6 +66,10 @@ function islandora_content_stats_block_info() {
       'info' => t('Content Stats'),
       'cache' => DRUPAL_CACHE_PER_USER
     );
+    $blocks['content_stats_page'] = array(
+      'info' => t('Content Stats Page Cmodels'),
+      'cache' => DRUPAL_CACHE_PER_USER
+    );
   return $blocks;
 }
 
@@ -77,6 +80,10 @@ $blocks = array();
       $blocks['subject'] = t('Content Stats Block');
       $blocks['content'] = drupal_get_form('islandora_content_stats_table_form');
       break;
+    case 'content_stats_page':
+        $blocks['subject'] = t('Content Stats Page Cmodles');
+        $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
+        break;
   }
   return $blocks;
 }

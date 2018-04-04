@@ -79,12 +79,16 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#empty' => t('table is empty')
   );
   $form['pager'] = array('#markup' => theme('pager'));
-  $form['show_all'] = array (
+  $form['show_latest'] = array (
     '#type' => 'submit',
-    '#value' => t('Show All Queries'),
-    '#submit' => array('go_to_all')
+    '#value' => t('Show Most Recent Queries'),
+    '#submit' => array('go_to_recent')
   );
   return $form;
+}
+
+function go_to_recent(){
+  drupal_goto('/admin/reports/content_stats');
 }
 
 function islandora_content_stats_table_all_form_submit($form, &$form_state){
