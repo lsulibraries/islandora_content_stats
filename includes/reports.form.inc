@@ -25,7 +25,8 @@ function islandora_content_stats_table_form($form, &$form_state){
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
 
-  if(!empty($form_state['input'])){
+  if(!empty($form_state['input']) && empty($form_state['input']['op'])){
+    dpm($form_state);
     //somehow get a variable from a textfield with a submit into the db_like function...
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)

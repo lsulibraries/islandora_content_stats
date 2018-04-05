@@ -282,6 +282,6 @@ function islandora_content_stats_test(){
        $display[$query_r->query] = $query_r->count;
      }
    }
-   dpm($display);
+   //dpm($display);
    return $display;
  }
