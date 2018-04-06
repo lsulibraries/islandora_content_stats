@@ -11,7 +11,8 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('Cmodel'),'field' =>'stats.id','sort' => 'desc'),
-    array('data'=> t('Count'),'field' =>'stats.query',),
+    array('data' =>t('Collection'),'field' => 'stats.coll', 'sort'=>'desc'),
+    array('data'=> t('Count'),'field' =>'stats.query','sort'=> 'desc'),
   );
   //get latest timestamp from run queries
   $max_time = '';
@@ -30,12 +31,24 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   }
 
   if($counts){
-  foreach($counts as $id => $count){
-    $id_part =explode('islandora:', $id);
-    $rows[$id] = array(
-      'model' => $id_part[1],
-      'count' => $count,
-    );
+    dpm($counts);
+    foreach($counts as $id => $count){
+      $id_part =explode(' ', $id);
+      if(count($id_part) == 5){
+        $rows[$id] = array(
+          'model' => $id_part[4],
+          'collection' => $id_part[2],
+          'count' => $count,
+        );
+      }
+      else{
+        $rows[$id] = array(
+          'model' => $id_part[1],
+          'collection' => $id_part[0],
+          'count' => $count,
+        );
+      }
+    }
   }
   $form = [];
   $form['table'] = array(
@@ -44,10 +57,9 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     '#rows' => $rows,
     '#empty' => t('table is empty')
   );
-
   return $form;
 }
-}
+
 
 function islandora_content_stats_table_page_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;

@@ -76,6 +76,7 @@ EOL;
 function institution_cmodel_query($ns_prefix){
   $tuque = islandora_get_tuque_connection();
   //first query gets all the collections that contain the ns_prefix string.
+  $ns_prefix = $ns_prefix.'-';
   $query_ns = <<<EOQ
 SELECT ?pid
 FROM <#ri>
@@ -87,44 +88,45 @@ ORDER BY ?pid
 EOQ;
   $members = [];
   $result =  $tuque->repository->ri->sparqlQuery($query_ns, 'unlimited');
+  $int = 0;
   foreach ($result as $member) {
+    $count = count($result);
     $member_pid = preg_replace('/info:fedora\//', '', $member['pid']['value']);
-    $members[$ns_prefix] = $member_pid;
+    $members[$ns_prefix.$int] = $member_pid;
+    $int = $int + 1;
   }
   foreach($members as $coll_pid){
-    //same query as collection_cmodel_query but in sparql
+    //Filters out fedora system object cmodel +1
     $query_cm = <<<EOL
 SELECT ?cmodel ?item
 FROM <#ri>
 WHERE { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
 ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll_pid> .
+FILTER (!sameterm(str(?cmodel), "info:fedora/fedora-system:FedoraObject-3.0"))
 }
 EOL;
-    $results = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
+    $results_model = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');//sparqlQuery($query_cm, 'unlimited');
   }
-  //check that the institution exists
-  if(isset($results)){
+
     $models = [];
-    foreach($results as $item ){
-      if($item['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
-        $models[$item['cmodel']['value']] = array();
-      }
+    foreach($results_model as $item ){
+        $prefix =explode('-',$item['item']['value']);
+        $models[$item['item']['value'].' '.$item['cmodel']['value']] = array();
     }
-    foreach($models as $ctype => $value){
-      foreach($results as $item ){
-        if($item['cmodel']['value'] == $ctype){
+    dpm($models);
+    foreach($models as $ctype){
+      foreach($results_model as $item ){
+        if($item['cmodel']['value'] == $ctype){ //&& explode(':',$item['item']['value'])
           array_push($models[$ctype],$item['item']['value']);
         }
       }
     }
     $cmodel_collection = [];
     foreach($models as $key => $value){
-      if($value){
-        $cmodel_collection[$key] = count($value);  }
+
       }
       return $cmodel_collection;
-  }
 }
 
 /**
@@ -150,7 +152,6 @@ EOQ;
   }
   $coll_models = [];
   foreach($institution_coll_counts as $key => $val){
-      //dpm($val);
     $coll_models[$key] =  institution_cmodel_query($key);
   }
   return $coll_models;
@@ -278,9 +279,12 @@ function islandora_content_stats_test(){
    $results = $result->fetchAll();
    $display = [];
    foreach($results as $query_r){
+     $split_q = explode(' ', $query_r->query);
+     if($path == $split_q[0]){
      if(!strpos($query_r->query,'fedora-system')){
        $display[$query_r->query] = $query_r->count;
      }
+   }
    }
    //dpm($display);
    return $display;

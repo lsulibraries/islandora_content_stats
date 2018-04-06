@@ -44,9 +44,12 @@ function islandora_content_stats_post_collection_stats(){
 
 function check_path(){
   $one_of_these = update_namespace_prefixes_cache();
-      if(in_array(str_replace('/','',request_uri()), $one_of_these)){
+      foreach($one_of_these as $ns_prefix){
+      if(preg_match('/'.$ns_prefix.'/', str_replace('/','',request_uri()))){
+        dpm($ns_prefix);
         return true;
       }
+    }
 }
 
 function islandora_content_stats_post_institution_stats(){
