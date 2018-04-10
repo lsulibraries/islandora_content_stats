@@ -36,7 +36,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
-        dpm('part count 3');
         $rows[$id] = array(
           'collection' => $id_part[1],
           'model' => $id_part[2],
