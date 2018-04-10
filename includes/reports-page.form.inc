@@ -10,8 +10,8 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   $variables = [];
   $rows = [];
   $headers = array(
-    array('data'=> t('Cmodel'),'field' =>'stats.id','sort' => 'desc'),
     array('data' =>t('Collection/Institution'),'field' => 'stats.coll', 'sort'=>'desc'),
+    array('data'=> t('Cmodel'),'field' =>'stats.id','sort' => 'desc'),
     array('data'=> t('Count'),'field' =>'stats.query','sort'=> 'desc'),
   );
   //get latest timestamp from run queries
@@ -32,28 +32,35 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   else{
     $counts = islandora_content_stats_post_institution_stats();
   }
-
   if($counts){
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
+        dpm('part count 3');
         $rows[$id] = array(
-          'model' => $id_part[2],
           'collection' => $id_part[1],
+          'model' => $id_part[2],
+          'count' => $count,
+        );
+      }
+      elseif(count($id_part == 1) && request_uri() == '/'){
+        $rows[$id] = array(
+          'collection' => 'islandora:root',
+          'model' => $id,
           'count' => $count,
         );
       }
       elseif(count($id_part == 1)){
         $rows[$id] = array(
-          'model' => $id,
-          'collection' => 'islandora:root',
+          'collection' => $id_part[0],
+          'model' => $id_part[1],
           'count' => $count,
         );
       }
       else{
         $rows[$id] = array(
-          'model' => $id_part[1],
           'collection' => $id_part[0],
+          'model' => $id_part[1],
           'count' => $count,
         );
       }
