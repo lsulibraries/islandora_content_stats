@@ -316,6 +316,9 @@ function islandora_content_stats_test(){
 
 
  function islandora_content_stats_page_cmodels($path){
+   if(!strpos($path,'collection')){
+     $path = $path.'-';
+   }
    $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
    $last_q_time = '';
    foreach($last_query_time_db as $return){
@@ -328,12 +331,29 @@ function islandora_content_stats_test(){
    $display = [];
    foreach($results as $query_r){
      $split_q = explode(' ', $query_r->query);
-     if($path == $split_q[0]){
+     if($path == $split_q[0] || $split_q[1]){
      if(!strpos($query_r->query,'fedora-system')){
        $display[$query_r->query] = $query_r->count;
      }
    }
    }
-   //dpm($display);
    return $display;
  }
+
+function islandora_root_stats_queries(){
+  $ns_prefixes = update_namespace_prefixes_cache();
+  $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $last_q_time = '';
+  foreach($last_query_time_db as $return){
+    $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
+  }
+  $query ="select * from ldl.islandora_content_stats where query not like '%-%' ";
+  $query_suf = " and timestamp = ";
+  $result = db_query($query. $query_suf . '\'' .$last_q_time . '\'');
+  $results = $result->fetchAll();
+  $display = [];
+  foreach($results as $query_r){
+    $display[$query_r->query] = $query_r->count;
+  }
+  return $display;
+}

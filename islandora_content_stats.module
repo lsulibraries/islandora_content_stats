@@ -59,6 +59,10 @@ function islandora_content_stats_post_institution_stats(){
   }
 }
 
+function islandora_root_page_stats(){
+  return islandora_root_stats_queries();
+}
+
 /**
 * Implements hook_block_info().
 */
