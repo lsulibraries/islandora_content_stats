@@ -196,7 +196,11 @@ function institution_cmodel_totals($ns_prefix){
   $cmodels = cmodel_types();
   foreach($cmodels as $model){
     $model = $model['cmodel']['value'];
-    $inst_cmodel_counts[$model] = 0;
+    if($model =='fedora-system:ContentModel-3.0'||$model == 'islandora:collectionCModel'){
+    }
+    else{
+      $inst_cmodel_counts[$model] = 0;
+    }
   }
   $tuque = islandora_get_tuque_connection();
   //first query gets all the collections that contain the ns_prefix string.
@@ -212,22 +216,26 @@ function institution_cmodel_totals($ns_prefix){
 EOQ;
 
   $member_colls= $tuque->repository->ri->sparqlQuery($ns_member_q, 'unlimited');
+  $inst_cmodel_counts[$ns_prefix.' '.'islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
   foreach($member_colls as $coll){
     $coll = $coll['pid']['value'];
     //for each cmodel, count members of each collection
 
     foreach($cmodels as $model){
-      $model = $model['cmodel']['value'];
 
-      $query_cm = <<<EOL
+      $model = $model['cmodel']['value'];
+      if($model == 'islandora:collectionCModel'){}
+      else{
+        $query_cm = <<<EOL
       SELECT ?cmodel ?item
       FROM <#ri>
       WHERE {{ ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
-        ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
-        ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> .}
-        FILTER (!sameterm(str(?cmodel), "$model"))}
+      ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
+      ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> .}
+      FILTER (!sameterm(str(?cmodel), "$model"))}
 EOL;
-      $coll_cmodel_items =  $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
+        $coll_cmodel_items =  $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
+      }
       foreach ($coll_cmodel_items as $item_model) {
         $item_model = $item_model['cmodel']['value'];
         //$member_pid = preg_replace('/info:fedora\//', '', $member['pid']['value']);
