@@ -1,18 +1,18 @@
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
-
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
+ * to be displayed as a block on homepage, institution page, and collection page
  */
 function islandora_content_stats_table_page_form($form, &$form_state){
   $variables = [];
   $rows = [];
   $headers = array(
-    array('data' =>t('Collection/Institution'),'field' => 'stats.coll', 'sort'=>'desc'),
-    array('data'=> t('Cmodel'),'field' =>'stats.id','sort' => 'desc'),
-    array('data'=> t('Count'),'field' =>'stats.query','sort'=> 'desc'),
+    array('data' =>t('Collection/Institution'),'field' => 'stats.coll' ),
+    array('data'=> t('Cmodel'),'field' =>'stats.id'),
+    array('data'=> t('Count'),'field' =>'stats.query'),
   );
   //get latest timestamp from run queries
   $max_time = '';
@@ -22,7 +22,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
         $max_time = $value;
     }
   }
-
+  //check path to populate queries according to path
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
   }
@@ -56,7 +56,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
           'count' => $count,
         );
       }
-
     }
   }
   $form = [];
