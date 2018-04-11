@@ -42,13 +42,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
           'count' => $count,
         );
       }
-      elseif(count($id_part == 1) && request_uri() == '/'){
-        $rows[$id] = array(
-          'collection' => 'islandora:root',
-          'model' => $id,
-          'count' => $count,
-        );
-      }
       elseif(count($id_part == 1)){
         $rows[$id] = array(
           'collection' => $id_part[0],
@@ -75,7 +68,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   );
   return $form;
 }
-
 
 function islandora_content_stats_table_page_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
