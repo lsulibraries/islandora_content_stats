@@ -48,7 +48,7 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#type' => 'fieldset',
     '#title' => t('Filter Query Results'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
   );
   $form['filter']['institution'] = array(
     '#type' => 'textfield',
