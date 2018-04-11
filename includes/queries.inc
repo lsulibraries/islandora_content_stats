@@ -201,7 +201,7 @@ function islandora_content_stats_run_queries(){
         ->fields(array('id', 'query', 'count', 'timestamp'))
         ->values(array(
           'id' => NULL,
-          'query' => $model['cmodel']['value'],
+          'query' =>  'islandora:root '.$model['cmodel']['value'],
           'count' => intval($model['k0']['value']),
           'timestamp' => time(),
         ))
@@ -211,7 +211,7 @@ function islandora_content_stats_run_queries(){
     foreach($ns_prefixes as $ns){
     $inst_model_counts = institution_cmodel_totals($ns);
       foreach($inst_model_counts as $model => $count){
-        if($model !='islandora:collectionCModel'){
+        if($model =='islandora:collectionCModel'){
           db_insert('islandora_content_stats')
             ->fields(array('id', 'query', 'count', 'timestamp'))
             ->values(array(
