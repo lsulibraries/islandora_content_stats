@@ -266,12 +266,12 @@ function islandora_content_stats_cron() {
   }
   $last_q_plus_interval = $interval + $last_q_run;
   if(time() >= $last_q_plus_interval){
-    islandora_content_stats_test();
+    islandora_content_stats_run_queries();
   }
 }
 
 // save the results to a database table (with a timestamp)
-function islandora_content_stats_test(){
+function islandora_content_stats_run_queries(){
     //echo('populating db w/ queries');
     $all_models = all_cmodel_counts();
     foreach($all_models as $model){

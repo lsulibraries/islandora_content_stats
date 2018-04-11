@@ -26,7 +26,7 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     $form['now'] = array(
     '#type' => 'submit',
     '#value' => t('Run Query Now'),
-    '#submit' => array('islandora_content_stats_test', 'direct_to_reports'),
+    '#submit' => array('islandora_content_stats_run_queries', 'direct_to_reports'),
     );
   $form['submit'] = array(
     '#type' => 'submit',
