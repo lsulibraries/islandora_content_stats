@@ -37,23 +37,51 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
         $rows[$id] = array(
-          'collection' => $id_part[1],
-          'model' => $id_part[2],
-          'count' => $count,
+          'collection' => array(
+            'data' => $id_part[1],
+            'class' => array('content_stats_origin'),
+          ),
+          'model' => array(
+            'data' => $id_part[2],
+            'class' => array('content_stats_model'),
+          ),
+
+          'count' => array(
+            'data' => $count,
+            'class' => array('content_stats_count',),
+          ),
         );
       }
       elseif(count($id_part == 1)){
         $rows[$id] = array(
-          'collection' => $id_part[0],
-          'model' => $id_part[1],
-          'count' => $count,
+          'collection' => array(
+            'data' => $id_part[0],
+            'class' => array('content_stats_origin'),
+          ),
+          'model' => array(
+            'data' => $id_part[1],
+            'class' => array('content_stats_model'),
+          ),
+          'count' => array(
+            'data' => $count,
+            'class' => array ('content_stats_count'),
+          ),
         );
       }
       else{
         $rows[$id] = array(
-          'collection' => $id_part[0],
-          'model' => $id_part[1],
-          'count' => $count,
+          'collection' => array(
+            'data' => $id_part[0],
+            'class' => array('content_stats_origin'),
+          ),
+          'model' => array(
+            'data' => $id_part[1],
+            'class' => array('content_stats_model'),
+          ),
+          'count' => array(
+            'data' => $count,
+            'class' => array('content_stats_count'),
+          ),
         );
       }
     }
@@ -63,7 +91,8 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     '#theme' => 'table',
     '#header' => $headers,
     '#rows' => $rows,
-    '#empty' => t('table is empty')
+    '#empty' => t('table is empty'),
+    '#attributes' => array('content_stats' => array('a','b','c')),
   );
   return $form;
 }
