@@ -8,10 +8,10 @@ function islandora_content_stats_table_form($form, &$form_state){
   $variables = [];
   $rows = [];
   $headers = array(
-    array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
-    array('data'=> t('Query'),'field' =>'stats.query',),
-    array('data'=> t('Count'),'field' =>'stats.count',),
-    array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
+    array('data'=> t('ID'),'field' =>'stats.id', 'sort' => 'desc',),
+    array('data'=> t('Query'),'field' => 'stats.query',),
+    array('data'=> t('Count'),'field' => 'stats.count',),
+    array('data'=> t('Timestamp'),'field' => 'stats.timestamp',),
   );
   //get latest timestamp from run queries
   $max_time = '';

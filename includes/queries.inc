@@ -185,6 +185,7 @@ function islandora_content_stats_cron() {
   $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
   foreach($q_time as $return){
     $last_q_run = (isset ($return) ? intval($return->{'max(timestamp)'}) : 0);
+    //dpm($return);
   }
   $last_q_plus_interval = $interval + $last_q_run;
   if(time() >= $last_q_plus_interval){

@@ -9,10 +9,10 @@ require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 function islandora_content_stats_table_page_form($form, &$form_state){
   $variables = [];
   $rows = [];
-  $headers = array(
-    array('data' =>t('Collection/Institution'),'field' => 'stats.coll' ),
-    array('data'=> t('Cmodel'),'field' =>'stats.id'),
-    array('data'=> t('Count'),'field' =>'stats.query'),
+  $headers =  array(
+    array('data' =>t('Collection/Institution'),'field' => 'stats.coll','class' => array('islandora_content_stats_trow_coll'),),
+    array('data'=> t('Cmodel'),'field' =>'stats.id','class' => array('islandora_content_stats_trow_model'),),
+    array('data'=> t('Count'),'field' =>'stats.query','class' => array('islandora_content_stats_trow_count'),),
   );
   //get latest timestamp from run queries
   $max_time = '';
@@ -92,10 +92,11 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     '#header' => $headers,
     '#rows' => $rows,
     '#empty' => t('table is empty'),
-    '#attributes' => array('content_stats' => array('a','b','c')),
-  );
+    '#attributes' => array('class' => array('islandora_content_stats_page_table')),
+    );
   return $form;
 }
+
 
 function islandora_content_stats_table_page_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
