@@ -83,11 +83,19 @@ function islandora_content_stats_block_info() {
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Cmodels'),
       'status' => TRUE,
-      'region' => 'Content',
+      // 'region' => 'Content',
       'visibility' => BLOCK_VISIBILITY_NOTLISTED,
       'pages' => 'islandora/search',
     );
   return $blocks;
+}
+
+function islandora_content_stats_block_info_alter(&$blocks,$theme,$code_blocks){
+  if($theme == variable_get('theme_default', '0')){
+    if(isset($blocks['islandora_content_stats']['content_stats_page'])){
+      $blocks['islandora_content_stats']['content_stats_page']['region'] ='Content';
+    }
+  }
 }
 
 function islandora_content_stats_block_view($delta = ''){

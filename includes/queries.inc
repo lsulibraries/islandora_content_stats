@@ -23,8 +23,6 @@ having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.or
 EOL;
 
   $result = $tuque->repository->ri->itqlQuery($all_cmodels_query, 'unlimited');
-  //dpm('all_cmodel_counts');
-  //dpm($result);
   return $result;
 }
 
@@ -35,6 +33,7 @@ EOL;
  * use with institutions somehow
  */
 function collection_cmodel_query($collection) {
+  $cmodel_map = islandora_get_content_models();
   $tuque = islandora_get_tuque_connection();
 
   $query = <<<EOL
@@ -52,7 +51,12 @@ EOL;
   $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
   $sanitized_array = [];
   foreach($cmodel_counts as $cmodel_count){
-      $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
+    if($cmodel_count['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
+      $sanitized_array[$cmodel_map[$cmodel_count['cmodel']['value']]['label']] = $cmodel_count['k0']['value'];
+    }
+    else{
+        $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
+    }
   }
   $result[$collection] = $sanitized_array;
   //dpm('collection_cmodel_query');
@@ -101,6 +105,7 @@ EOQ;
 
 //return only cmodels no counts. wish I could figure it in sparql
 function cmodel_types(){
+  $cmodel_map = islandora_get_content_models();
   $tuque = islandora_get_tuque_connection();
   $members = array();
   $cmodel_types = <<<EOL
@@ -156,16 +161,13 @@ EOL;
         $coll_cmodel_items =  $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
       }
     }
-      //dpm($ns_prefix);
-      //dpm($coll_cmodel_items);
       foreach ($coll_cmodel_items as $item_model) {
         $item_model = $item_model['cmodel']['value'];
         $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
 
     }
   }
-    //dpm('inst_cmodel_totals');
-    //dpm($inst_cmodel_counts);
+    dpm($inst_cmodel_counts);
      return $inst_cmodel_counts;
 }
 
