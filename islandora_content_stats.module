@@ -63,6 +63,14 @@ function islandora_root_page_stats(){
   return islandora_root_stats_queries();
 }
 
+// attempt to add classes to <tr> or <thead>
+// function islandora_content_stats_form_alter(&$form,&$form_state,$form_id){
+//   if( $form_id == 'islandora_content_stats_table_page_form'){
+//     //$form['table']['#header']['#attributes']['class'][] = 'header_rows';
+//     dpm($form);
+//   }
+//}
+
 /**
 * Implements hook_block_info().
 */

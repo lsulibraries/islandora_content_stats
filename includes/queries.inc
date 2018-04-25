@@ -196,6 +196,7 @@ function islandora_content_stats_cron() {
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_run_queries(){
     //echo('populating db w/ queries');
+    $time = time();
     $all_models = all_cmodel_counts();
     foreach($all_models as $model){
         db_insert('islandora_content_stats')
@@ -204,7 +205,7 @@ function islandora_content_stats_run_queries(){
           'id' => NULL,
           'query' =>  'islandora:root '.$model['cmodel']['value'],
           'count' => intval($model['k0']['value']),
-          'timestamp' => time(),
+          'timestamp' => $time,
         ))
         ->execute();
     }
