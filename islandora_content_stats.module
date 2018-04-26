@@ -83,7 +83,7 @@ function islandora_content_stats_block_info() {
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Cmodels'),
       'status' => TRUE,
-      // 'region' => 'Content',
+      'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_NOTLISTED,
       'pages' => 'islandora/search',
     );
