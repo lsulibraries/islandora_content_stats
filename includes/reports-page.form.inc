@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
+module_load_include('inc','islandora','/includes/utilities');
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models

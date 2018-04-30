@@ -103,7 +103,6 @@ EOQ;
 
 //return only cmodels no counts. wish I could figure it in sparql
 function cmodel_types(){
-  $cmodel_map = islandora_get_content_models();
   $tuque = islandora_get_tuque_connection();
   $members = array();
   $cmodel_types = <<<EOL
