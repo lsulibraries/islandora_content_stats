@@ -85,8 +85,8 @@ function islandora_content_stats_block_info() {
       'info' => t('Content Stats Page Content Models'),
 //      'status' => TRUE,
 //      'region' => '2',
-      //'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-      //'pages' => 'islandora/search',
+      'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+      'pages' => 'islandora/search',
     );
   return $blocks;
 }

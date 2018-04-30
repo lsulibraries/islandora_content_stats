@@ -33,9 +33,7 @@ EOL;
  * use with institutions somehow
  */
 function collection_cmodel_query($collection) {
-  $cmodel_map = islandora_get_content_models();
   $tuque = islandora_get_tuque_connection();
-
   $query = <<<EOL
 select \$cmodel
 count(select \$item from <#ri>
@@ -52,7 +50,7 @@ EOL;
   $sanitized_array = [];
   foreach($cmodel_counts as $cmodel_count){
     if($cmodel_count['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
-      $sanitized_array[$cmodel_map[$cmodel_count['cmodel']['value']]['label']] = $cmodel_count['k0']['value'];
+      $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
     }
     else{
         $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
