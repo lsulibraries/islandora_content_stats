@@ -7,6 +7,7 @@ require_once dirname(__FILE__) . '/../islandora_content_stats.module';
  * to be displayed as a block on homepage, institution page, and collection page
  */
 function islandora_content_stats_table_page_form($form, &$form_state){
+  $cmodel_map = islandora_get_content_models();
   $variables = [];
   $rows = [];
   $headers =  array(
@@ -33,6 +34,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     $counts = islandora_content_stats_post_institution_stats();
   }
   if($counts){
+    dpm($counts);
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){

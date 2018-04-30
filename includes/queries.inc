@@ -167,7 +167,7 @@ EOL;
 
     }
   }
-    dpm($inst_cmodel_counts);
+    //dpm($inst_cmodel_counts);
      return $inst_cmodel_counts;
 }
 
@@ -222,7 +222,7 @@ function islandora_content_stats_run_queries(){
               'id' => NULL,
               'query' => $model,
               'count' => $count,
-              'timestamp' => time(),
+              'timestamp' => $time,
             ))
             ->execute();
         }
@@ -233,7 +233,7 @@ function islandora_content_stats_run_queries(){
               'id' => NULL,
               'query' => $ns.'- '.$model,
               'count' => $count,
-              'timestamp' => time(),
+              'timestamp' => $time,
             ))
             ->execute();
         }
@@ -247,7 +247,7 @@ function islandora_content_stats_run_queries(){
           'id'=> NULL,
           'query'=> $key,
           'count'=> $val,
-          'timestamp'=> time(),
+          'timestamp'=> $time,
       ))
       ->execute();
   }
