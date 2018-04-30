@@ -52,6 +52,7 @@ function check_path(){
 }
 
 function islandora_content_stats_post_institution_stats(){
+  dpm(request_uri());
   if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
     if(check_path()){
       return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
@@ -84,8 +85,8 @@ function islandora_content_stats_block_info() {
       'info' => t('Content Stats Page Content Models'),
 //      'status' => TRUE,
 //      'region' => '2',
-      'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-      'pages' => 'islandora/search',
+      //'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+      //'pages' => 'islandora/search',
     );
   return $blocks;
 }
@@ -99,18 +100,18 @@ function islandora_content_stats_block_info() {
 // }
 
 
-//
-// function islandora_content_stats_block_view($delta = ''){
-// $blocks = array();
-//   switch ($delta) {
-//     case 'content_stats':
-//       $blocks['subject'] = t('Content Stats Block');
-//       $blocks['content'] = drupal_get_form('islandora_content_stats_table_form');
-//       break;
-//     case 'content_stats_page':
-//         $blocks['subject'] = t('Content Stats Page Content Models');
-//         $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
-//         break;
-//   }
-//   return $blocks;
-// }
+
+function islandora_content_stats_block_view($delta = ''){
+$blocks = array();
+  switch ($delta) {
+    case 'content_stats':
+      $blocks['subject'] = t('Content Stats Block');
+      $blocks['content'] = drupal_get_form('islandora_content_stats_table_form');
+      break;
+    case 'content_stats_page':
+        $blocks['subject'] = t('Content Stats Page Content Models');
+        $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
+        break;
+  }
+  return $blocks;
+}

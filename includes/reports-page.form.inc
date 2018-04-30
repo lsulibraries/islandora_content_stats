@@ -34,7 +34,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     $counts = islandora_content_stats_post_institution_stats();
   }
   if($counts){
-    dpm($counts);
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
