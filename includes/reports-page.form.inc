@@ -34,7 +34,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     $counts = islandora_content_stats_post_institution_stats();
   }
   if($counts){
-    dpm($counts);
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
@@ -44,7 +43,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
             'class' => array('content_stats_origin'),
           ),
           'model' => array(
-            'data' => $id_part[2],
+            'data' => $cmodel_map[$id_part[2]]['label'],
             'class' => array('content_stats_model'),
           ),
 
@@ -61,7 +60,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
             'class' => array('content_stats_origin'),
           ),
           'model' => array(
-            'data' => $id_part[1],
+            'data' => $cmodel_map[$id_part[1]]['label'],
             'class' => array('content_stats_model'),
           ),
           'count' => array(
@@ -77,7 +76,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
             'class' => array('content_stats_origin'),
           ),
           'model' => array(
-            'data' => $id_part[1],
+            'data' => $cmodel_map[$id_part[1]]['label'],
             'class' => array('content_stats_model'),
           ),
           'count' => array(

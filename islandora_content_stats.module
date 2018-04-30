@@ -52,7 +52,6 @@ function check_path(){
 }
 
 function islandora_content_stats_post_institution_stats(){
-  dpm(request_uri());
   if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
     if(check_path()){
       return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
