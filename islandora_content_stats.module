@@ -81,7 +81,7 @@ function islandora_content_stats_block_info() {
       'cache' => DRUPAL_CACHE_PER_USER
     );
     $blocks['content_stats_page'] = array(
-      'info' => t('Content Stats Page Cmodels'),
+      'info' => t('Content Stats Page Content Models'),
       'status' => TRUE,
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_NOTLISTED,
