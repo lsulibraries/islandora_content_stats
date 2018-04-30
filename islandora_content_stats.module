@@ -83,7 +83,7 @@ function islandora_content_stats_block_info() {
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Content Models'),
       'status' => TRUE,
-      'region' => 'content',
+      'region' => 2,
       'visibility' => BLOCK_VISIBILITY_NOTLISTED,
       'pages' => 'islandora/search',
     );
@@ -106,7 +106,7 @@ $blocks = array();
       $blocks['content'] = drupal_get_form('islandora_content_stats_table_form');
       break;
     case 'content_stats_page':
-        $blocks['subject'] = t('Content Stats Page Cmodles');
+        $blocks['subject'] = t('Content Stats Page Content Models');
         $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
         break;
   }
