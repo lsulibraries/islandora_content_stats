@@ -85,7 +85,7 @@ function islandora_content_stats_block_info() {
       'status' => 1,
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-      'pages' => 'islandora/
+      'pages' => 'islandora/search
 admin/*',
     );
   return $blocks;
