@@ -28,7 +28,7 @@ EOL;
 
 function all_ns_prefix_incl_subs(){
   $tuque = islandora_get_tuque_connection();
-  $mebers = array();
+  $prefixes = array();
   $all_root_members = <<<EOL
 SELECT ?pid
 FROM <#ri>
@@ -40,12 +40,11 @@ EOL;
   $prefixes = array();
   foreach($result as $key => $val){
     $plode = explode('-', $result[$key]['pid']['value']);
-    if(count($plode) > 2 ){
-      $objects[$plode[0].'-'.$plode[1]] = $plode[0].'-'.$plode[1].'-*';
-    }
-    $objects[$plode[0]] =$plode[0].'-*';
+    array_pop($plode);
+      $joined = implode('-',$plode);
+      $prefixes[$joined] =$joined;
   }
-  return array_unique($objects);
+  return array_unique($prefixes);
 }
 
 

@@ -3,6 +3,23 @@ require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
 
+//row building function
+function getRow($context, $cmodel, $count) {
+ return array(
+       'collection' => array(
+        'data' => $context,
+        'class' => array('content_stats_origin'),
+       ),
+       'model' => array(
+        'data' => $cmodel,
+        'class' => array('content_stats_model'),
+       ),
+       'count' => array(
+        'data' => $count,
+        'class' => array('content_stats_count'),
+       ),
+      );
+}
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
@@ -33,20 +50,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     if(isset($counts)){
       foreach($counts as $id => $count){
         $id_part =explode(' ', $id);
-          $rows[$id] = array(
-            'collection' => array(
-              'data' => $id_part[1],
-              'class' => array('content_stats_origin'),
-            ),
-            'model' => array(
-              'data' => $cmodel_map[$id_part[2]]['label'],
-              'class' => array('content_stats_model'),
-            ),
-            'count' => array(
-              'data' => $count,
-              'class' => array('content_stats_count',),
-            ),
-          );
+          $rows[$id] = getRow($id_part[1], $cmodel_map[$id_part[2]]['label'], $count);
       }
     }
   }
@@ -55,20 +59,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     if(isset($counts)){
       foreach($counts as $id => $count){
         $id_part =explode(' ', $id);
-        $rows[$id] = array(
-          'collection' => array(
-            'data' => $id_part[0],
-            'class' => array('content_stats_origin'),
-          ),
-          'model' => array(
-            'data' => $cmodel_map[$id_part[1]]['label'],
-            'class' => array('content_stats_model'),
-          ),
-          'count' => array(
-            'data' => $count,
-            'class' => array ('content_stats_count'),
-          ),
-        );
+        $rows[$id] =  getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
       }
     }
   }
@@ -79,38 +70,12 @@ function islandora_content_stats_table_page_form($form, &$form_state){
         $id_part =explode(' ', $id);
         if(count($id_part) == 3){
           if(isset($cmodel_map[$id_part[2]])){
-            $rows[$id] = array(
-              'collection' => array(
-                'data' => $id_part[0] .' '. $id_part[1],
-                'class' => array('content_stats_origin'),
-              ),
-              'model' => array(
-                'data' => $cmodel_map[$id_part[2]]['label'],
-                'class' => array('content_stats_model'),
-              ),
-              'count' => array(
-                'data' => $count,
-                'class' => array('content_stats_count'),
-              ),
-            );
+            $rows[$id] = getRow($id_part[0].' '.$id_part[1], $cmodel_map[$id_part[2]]['label'], $count);
           }
         }
         else{
           if(isset($cmodel_map[$id_part[1]])){
-            $rows[$id] = array(
-              'collection' => array(
-                'data' => $id_part[0],
-                'class' => array('content_stats_origin'),
-              ),
-              'model' => array(
-                'data' => $cmodel_map[$id_part[1]]['label'],
-                'class' => array('content_stats_model'),
-              ),
-              'count' => array(
-                'data' => $count,
-                'class' => array('content_stats_count'),
-              ),
-            );
+            $rows[$id] = getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
           }
         }
       }
