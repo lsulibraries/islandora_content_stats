@@ -26,6 +26,27 @@ EOL;
   return $result;
 }
 
+function all_ns_prefix_incl_subs(){
+  $tuque = islandora_get_tuque_connection();
+  $mebers = array();
+  $all_root_members = <<<EOL
+SELECT ?pid
+FROM <#ri>
+WHERE
+{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+EOL;
+
+  $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
+  $prefixes = array();
+  foreach($result as $key => $val){
+    $plode = explode('-', $result[$key]['pid']['value']);
+    if(count($plode) > 2 ){
+      $objects[$plode[0].'-'.$plode[1]] = $plode[0].'-'.$plode[1].'-*';
+    }
+    $objects[$plode[0]] =$plode[0].'-*';
+  }
+  return array_unique($objects);
+}
 
 
 /**

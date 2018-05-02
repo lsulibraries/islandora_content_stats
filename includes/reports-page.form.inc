@@ -2,7 +2,6 @@
 require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
-module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 
 /**
  * Builds form out of query results from db with latest timestamp.
@@ -26,7 +25,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
         $max_time = $value;
     }
   }
-  $all_inst = get_all_collections_inst();
+  $all_inst = all_ns_prefix_incl_subs();
   $uri_split = explode('/', request_uri());
 
   if(strpos(request_uri(), 'collection')){

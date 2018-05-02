@@ -79,7 +79,7 @@ function islandora_content_stats_block_info() {
       'status' => 1,
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_PHP,
-      'pages' =>"<?php  if (  (arg(0) =='node') || (strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues') || ( arg(0) == 'islandora' && strpos(arg(2),'collection' ))){return true;} return false; ?>",
+      'pages' =>"<?php  if (  (arg(0) =='node') || (strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues') || ( arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4  ) ){return true;} return false; ?>",
     );
   return $blocks;
 }
