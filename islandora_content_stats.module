@@ -2,6 +2,7 @@
 require_once dirname(__FILE__) . '/includes/queries.inc';
 require_once dirname(__FILE__) . '/includes/reports.form.inc';
 require_once dirname(__FILE__) . '/includes/reports-page.form.inc';
+module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 
 /**
  * Implements hook_menu().
@@ -63,13 +64,6 @@ function islandora_root_page_stats(){
   return islandora_root_stats_queries();
 }
 
-// attempt to add classes to <tr> or <thead>
-// function islandora_content_stats_form_alter(&$form,&$form_state,$form_id){
-//   if( $form_id == 'islandora_content_stats_table_page_form'){
-//     //$form['table']['#header']['#attributes']['class'][] = 'header_rows';
-//     dpm($form);
-//   }
-//}
 
 /**
 * Implements hook_block_info().
@@ -84,21 +78,11 @@ function islandora_content_stats_block_info() {
       'info' => t('Content Stats Page Content Models'),
       'status' => 1,
       'region' => 'content',
-      'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-      'pages' => 'islandora/search
-admin/*',
+      'visibility' => BLOCK_VISIBILITY_PHP,
+      'pages' =>"<?php  if ( arg(0) =='node' || strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues' || arg(0) == 'islandora' && strpos(arg(2),'collection')){return true;} return false; ?>",
     );
   return $blocks;
 }
-
-// function islandora_content_stats_block_info_alter(&$blocks,$theme,$code_blocks){
-//   if($theme == variable_get('theme_default', '0')){
-//     if(isset($blocks['islandora_content_stats']['content_stats_page'])){
-//       $blocks['islandora_content_stats']['content_stats_page']['region'] ='Content';
-//     }
-//   }
-// }
-
 
 
 function islandora_content_stats_block_view($delta = ''){

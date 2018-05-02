@@ -2,6 +2,7 @@
 require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
+module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
@@ -24,17 +25,19 @@ function islandora_content_stats_table_page_form($form, &$form_state){
         $max_time = $value;
     }
   }
-  //check path to populate queries according to path
+  $all_inst = get_all_collections_inst();
+  $uri_split = explode('/', request_uri());
+
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
   }
-  elseif(request_uri() == '/'){
+  elseif(arg(0) == 'node' ){
     $counts = islandora_root_page_stats();
   }
-  else{
+  elseif(isset($all_inst[$uri_split[1]])){
     $counts = islandora_content_stats_post_institution_stats();
   }
-  if($counts){
+  if(isset($counts)){
     foreach($counts as $id => $count){
       $id_part =explode(' ', $id);
       if(count($id_part) == 3){
@@ -47,7 +50,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
             'data' => $cmodel_map[$id_part[2]]['label'],
             'class' => array('content_stats_model'),
           ),
-
           'count' => array(
             'data' => $count,
             'class' => array('content_stats_count',),
@@ -98,7 +100,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     );
   return $form;
 }
-
 
 function islandora_content_stats_table_page_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
