@@ -3,6 +3,7 @@ require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
 module_load_include('php','islandora_namespace_homepage','includes/utilities;');
+
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
@@ -30,33 +31,31 @@ function islandora_content_stats_table_page_form($form, &$form_state){
 
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
+    if(isset($counts)){
+      foreach($counts as $id => $count){
+        $id_part =explode(' ', $id);
+          $rows[$id] = array(
+            'collection' => array(
+              'data' => $id_part[1],
+              'class' => array('content_stats_origin'),
+            ),
+            'model' => array(
+              'data' => $cmodel_map[$id_part[2]]['label'],
+              'class' => array('content_stats_model'),
+            ),
+            'count' => array(
+              'data' => $count,
+              'class' => array('content_stats_count',),
+            ),
+          );
+      }
+    }
   }
   elseif(arg(0) == 'node' ){
     $counts = islandora_root_page_stats();
-  }
-  elseif(isset($all_inst[$uri_split[1]])){
-    $counts = islandora_content_stats_post_institution_stats();
-  }
-  if(isset($counts)){
-    foreach($counts as $id => $count){
-      $id_part =explode(' ', $id);
-      if(count($id_part) == 3){
-        $rows[$id] = array(
-          'collection' => array(
-            'data' => $id_part[1],
-            'class' => array('content_stats_origin'),
-          ),
-          'model' => array(
-            'data' => $cmodel_map[$id_part[2]]['label'],
-            'class' => array('content_stats_model'),
-          ),
-          'count' => array(
-            'data' => $count,
-            'class' => array('content_stats_count',),
-          ),
-        );
-      }
-      elseif(count($id_part == 1)){
+    if(isset($counts)){
+      foreach($counts as $id => $count){
+        $id_part =explode(' ', $id);
         $rows[$id] = array(
           'collection' => array(
             'data' => $id_part[0],
@@ -72,21 +71,49 @@ function islandora_content_stats_table_page_form($form, &$form_state){
           ),
         );
       }
-      else{
-        $rows[$id] = array(
-          'collection' => array(
-            'data' => $id_part[0],
-            'class' => array('content_stats_origin'),
-          ),
-          'model' => array(
-            'data' => $cmodel_map[$id_part[1]]['label'],
-            'class' => array('content_stats_model'),
-          ),
-          'count' => array(
-            'data' => $count,
-            'class' => array('content_stats_count'),
-          ),
-        );
+    }
+  }
+  elseif(isset($all_inst[$uri_split[1]])){
+    $counts = islandora_content_stats_post_institution_stats();
+    if(isset($counts)){
+      foreach($counts as $id => $count){
+        $id_part =explode(' ', $id);
+        if(count($id_part) == 3){
+          if(isset($cmodel_map[$id_part[2]])){
+            $rows[$id] = array(
+              'collection' => array(
+                'data' => $id_part[0] .' '. $id_part[1],
+                'class' => array('content_stats_origin'),
+              ),
+              'model' => array(
+                'data' => $cmodel_map[$id_part[2]]['label'],
+                'class' => array('content_stats_model'),
+              ),
+              'count' => array(
+                'data' => $count,
+                'class' => array('content_stats_count'),
+              ),
+            );
+          }
+        }
+        else{
+          if(isset($cmodel_map[$id_part[1]])){
+            $rows[$id] = array(
+              'collection' => array(
+                'data' => $id_part[0],
+                'class' => array('content_stats_origin'),
+              ),
+              'model' => array(
+                'data' => $cmodel_map[$id_part[1]]['label'],
+                'class' => array('content_stats_model'),
+              ),
+              'count' => array(
+                'data' => $count,
+                'class' => array('content_stats_count'),
+              ),
+            );
+          }
+        }
       }
     }
   }

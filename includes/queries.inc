@@ -91,15 +91,13 @@ EOQ;
   foreach($institution_colls as $inst_num => $collection){
     $coll_count_results = collection_cmodel_query($collection);
     foreach($coll_count_results as $collection => $array){
-        foreach($array as $model => $count){
-                $coll_models[preg_replace('/\d/','',$inst_num)." ".$collection." ".$model] = $count;
-        }
-
+      foreach($array as $model => $count){
+        $coll_models[preg_replace('/\d/','',$inst_num)." ".$collection." ".$model] = $count;
+      }
     }
   }
   return $coll_models;
 }
-
 
 //return only cmodels no counts. wish I could figure it in sparql
 function cmodel_types(){
@@ -161,7 +159,6 @@ EOL;
       foreach ($coll_cmodel_items as $item_model) {
         $item_model = $item_model['cmodel']['value'];
         $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
-
     }
   }
     //dpm($inst_cmodel_counts);
@@ -212,7 +209,7 @@ function islandora_content_stats_run_queries(){
     foreach($ns_prefixes as $ns){
     $inst_model_counts = institution_cmodel_totals($ns);
       foreach($inst_model_counts as $model => $count){
-        if($model =='islandora:collectionCModel'){
+        if(strpos($model,'islandora:collectionCModel')){
           db_insert('islandora_content_stats')
             ->fields(array('id', 'query', 'count', 'timestamp'))
             ->values(array(
