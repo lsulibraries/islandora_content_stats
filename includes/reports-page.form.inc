@@ -54,7 +54,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       }
     }
   }
-  elseif(arg(0) == 'node' ){
+  elseif( drupal_is_front_page() ){
     $counts = islandora_root_page_stats();
     if(isset($counts)){
       foreach($counts as $id => $count){
@@ -63,7 +63,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       }
     }
   }
-  elseif(isset($all_inst[$uri_split[1]])){
+  else{
     $counts = islandora_content_stats_post_institution_stats();
     if(isset($counts)){
       foreach($counts as $id => $count){
