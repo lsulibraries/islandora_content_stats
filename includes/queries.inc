@@ -7,6 +7,8 @@ module_load_include('php','islandora_namespace_homepage','includes/utilities');
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
 /**
  * Query repository index for all cmodels and a count for each.
+ * Special thanks to rebecca.s.koeser@princeton.edu for this query
+ * https://rlskoeser.github.io/2010/04/06/fedora-risearch-query-get-object-totals-cmodel
  */
 function all_cmodel_counts(){
   $tuque = islandora_get_tuque_connection();
