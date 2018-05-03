@@ -49,33 +49,43 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     $counts = islandora_content_stats_post_collection_stats();
     if(isset($counts)){
       foreach($counts as $id => $count){
-        $id_part =explode(' ', $id);
+        if($count != 0){
+          $id_part =explode(' ', $id);
           $rows[$id] = getRow($id_part[1], $cmodel_map[$id_part[2]]['label'], $count);
+        }
       }
     }
   }
   elseif( drupal_is_front_page() ){
     $counts = islandora_root_page_stats();
     if(isset($counts)){
-      foreach($counts as $id => $count){
-        $id_part =explode(' ', $id);
-        $rows[$id] =  getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
+        foreach($counts as $id => $count){
+          if($count != 0){
+            $id_part =explode(' ', $id);
+            if(isset($cmodel_map[$id_part[1]])){
+              $rows[$id] =  getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
+            }
+          }
+        }
       }
     }
-  }
   else{
     $counts = islandora_content_stats_post_institution_stats();
     if(isset($counts)){
       foreach($counts as $id => $count){
-        $id_part =explode(' ', $id);
-        if(count($id_part) == 3){
-          if(isset($cmodel_map[$id_part[2]])){
-            $rows[$id] = getRow($id_part[0].' '.$id_part[1], $cmodel_map[$id_part[2]]['label'], $count);
+        if($count != 0){
+          $id_part =explode(' ', $id);
+          if(count($id_part) == 3){
+            if(isset($cmodel_map[$id_part[2]])){
+              $rows[$id] = getRow($id_part[0].' '.$id_part[1], $cmodel_map[$id_part[2]]['label'], $count);
+            }
           }
         }
         else{
-          if(isset($cmodel_map[$id_part[1]])){
-            $rows[$id] = getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
+          if($count != 0){
+            if(isset($cmodel_map[$id_part[1]])){
+              $rows[$id] = getRow($id_part[0], $cmodel_map[$id_part[1]]['label'], $count);
+            }
           }
         }
       }
