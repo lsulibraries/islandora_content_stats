@@ -90,7 +90,7 @@ EOL;
 function all_institution_each_collection_query_count(){
   $tuque = islandora_get_tuque_connection();
   $institution_colls = [];
-  $institutions = update_namespace_prefixes_cache();
+  $institutions = all_ns_prefix_incl_subs();
   foreach($institutions as $lib){
     $lib = $lib.'-';
     $query = <<<EOQ
@@ -133,6 +133,7 @@ EOL;
 }
 
 function institution_cmodel_totals($ns_prefix){
+  //dpm($ns_prefix);
   $inst_cmodel_counts = [];
   $cmodels = cmodel_types();
   foreach($cmodels as $model){
@@ -177,8 +178,11 @@ EOL;
       }
     }
       foreach ($coll_cmodel_items as $item_model) {
-        $item_model = $item_model['cmodel']['value'];
-        $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
+        if($item_model['cmodel']['value']=='islandora:collectionCModel'){}
+        else{
+          $item_model = $item_model['cmodel']['value'];
+          $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
+        }
     }
   }
     //dpm($inst_cmodel_counts);
@@ -225,7 +229,7 @@ function islandora_content_stats_run_queries(){
         ))
         ->execute();
     }
-    $ns_prefixes = update_namespace_prefixes_cache();
+    $ns_prefixes = all_ns_prefix_incl_subs();
     foreach($ns_prefixes as $ns){
     $inst_model_counts = institution_cmodel_totals($ns);
       foreach($inst_model_counts as $model => $count){
@@ -295,7 +299,7 @@ function islandora_content_stats_run_queries(){
  }
 
 function islandora_root_stats_queries(){
-  $ns_prefixes = update_namespace_prefixes_cache();
+  $ns_prefixes = all_ns_prefix_incl_subs();
   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
   $last_q_time = '';
   foreach($last_query_time_db as $return){
