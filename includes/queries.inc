@@ -26,6 +26,26 @@ EOL;
   return $result;
 }
 
+function all_ns_prefix_incl_subs(){
+  $tuque = islandora_get_tuque_connection();
+  $prefixes = array();
+  $all_root_members = <<<EOL
+SELECT ?pid
+FROM <#ri>
+WHERE
+{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+EOL;
+
+  $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
+  $prefixes = array();
+  foreach($result as $key => $val){
+    $plode = explode('-', $result[$key]['pid']['value']);
+    array_pop($plode);
+      $joined = implode('-',$plode);
+      $prefixes[$joined] =$joined;
+  }
+  return array_unique($prefixes);
+}
 
 
 /**
@@ -70,7 +90,7 @@ EOL;
 function all_institution_each_collection_query_count(){
   $tuque = islandora_get_tuque_connection();
   $institution_colls = [];
-  $institutions = update_namespace_prefixes_cache();
+  $institutions = all_ns_prefix_incl_subs();
   foreach($institutions as $lib){
     $lib = $lib.'-';
     $query = <<<EOQ
@@ -91,15 +111,13 @@ EOQ;
   foreach($institution_colls as $inst_num => $collection){
     $coll_count_results = collection_cmodel_query($collection);
     foreach($coll_count_results as $collection => $array){
-        foreach($array as $model => $count){
-                $coll_models[preg_replace('/\d/','',$inst_num)." ".$collection." ".$model] = $count;
-        }
-
+      foreach($array as $model => $count){
+        $coll_models[preg_replace('/\d/','',$inst_num)." ".$collection." ".$model] = $count;
+      }
     }
   }
   return $coll_models;
 }
-
 
 //return only cmodels no counts. wish I could figure it in sparql
 function cmodel_types(){
@@ -115,6 +133,7 @@ EOL;
 }
 
 function institution_cmodel_totals($ns_prefix){
+  //dpm($ns_prefix);
   $inst_cmodel_counts = [];
   $cmodels = cmodel_types();
   foreach($cmodels as $model){
@@ -159,9 +178,11 @@ EOL;
       }
     }
       foreach ($coll_cmodel_items as $item_model) {
-        $item_model = $item_model['cmodel']['value'];
-        $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
-
+        if($item_model['cmodel']['value']=='islandora:collectionCModel'){}
+        else{
+          $item_model = $item_model['cmodel']['value'];
+          $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
+        }
     }
   }
     //dpm($inst_cmodel_counts);
@@ -208,11 +229,11 @@ function islandora_content_stats_run_queries(){
         ))
         ->execute();
     }
-    $ns_prefixes = update_namespace_prefixes_cache();
+    $ns_prefixes = all_ns_prefix_incl_subs();
     foreach($ns_prefixes as $ns){
     $inst_model_counts = institution_cmodel_totals($ns);
       foreach($inst_model_counts as $model => $count){
-        if($model =='islandora:collectionCModel'){
+        if(strpos($model,'islandora:collectionCModel')){
           db_insert('islandora_content_stats')
             ->fields(array('id', 'query', 'count', 'timestamp'))
             ->values(array(
@@ -278,7 +299,7 @@ function islandora_content_stats_run_queries(){
  }
 
 function islandora_root_stats_queries(){
-  $ns_prefixes = update_namespace_prefixes_cache();
+  $ns_prefixes = all_ns_prefix_incl_subs();
   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
   $last_q_time = '';
   foreach($last_query_time_db as $return){
