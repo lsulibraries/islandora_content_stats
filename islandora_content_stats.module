@@ -72,6 +72,7 @@ function islandora_content_stats_block_info() {
   $blocks = array();
     $blocks['content_stats'] = array(
       'info' => t('Content Stats'),
+      'cache' => DRUPAL_NO_CACHE,
     );
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Content Models'),
