@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
+
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
@@ -76,6 +77,11 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#size' => 15,
     '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
   );
+  $form['filter']['download'] = array(
+    '#type' => 'submit',
+    '#value' => t('Download as CSV'),
+    '#submit' => array('dl'),
+  );
   $form['filter']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Filter'),
@@ -95,10 +101,14 @@ function islandora_content_stats_table_form($form, &$form_state){
   return $form;
 }
 
+function dl(){
+  drupal_goto('/admin/reports/content_stats/download');
+}
+
 function go_to_all(){
   drupal_goto('/admin/reports/content_stats/all');
 }
 
-function islandora_content_stats_table_form_submit($form, &$form_state){
-  $form_state['rebuild'] = TRUE;
+function islandora_content_stats_table_form_alter(&$form,&$form_state,$form_id ){
+  $form['actions']['submit']['#submit'][] = 'csv_download_all';
 }
