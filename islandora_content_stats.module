@@ -34,15 +34,35 @@ function islandora_content_stats_menu() {
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
     'access arguments' => TRUE,
-    'type' => MENU_CALLBACK,
+    //'type' => MENU_CALLBACK,
   );
   return $items;
 }
 
 
 function islandora_content_stats_csv_download(){
+  $filters = [];
+  foreach($_GET as $filter){
+      if($filter != 'admin/reports/content_stats/download'){
+        $filters[] = $filter;
+      }
+  }
+
   $query = "SELECT * FROM ldl.islandora_content_stats";
+  foreach($filters as $filter){
+    if($filter === reset($filters)){
+      if(strlen($filter)> 0){
+        $query .= ' WHERE query LIKE \'%'.$filter.'%\'';
+      }
+    }
+    else{
+      if(strlen($filter)> 0){
+        $query .= ' AND query LIKE \'%'.$filter.'%\'';
+      }
+    }
+  }
   $results = db_query($query) or die ("Sql error : ".mysql_error());
+
   drupal_add_http_header("Content-type", "text/csv; utf-8");
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
    $fh = fopen('php://output','w');

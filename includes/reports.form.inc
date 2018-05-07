@@ -80,7 +80,7 @@ function islandora_content_stats_table_form($form, &$form_state){
   $form['filter']['download'] = array(
     '#type' => 'submit',
     '#value' => t('Download as CSV'),
-    '#submit' => array('dl'),
+    '#submit' => array('download_data'),
   );
   $form['filter']['submit'] = array(
     '#type' => 'submit',
@@ -101,14 +101,12 @@ function islandora_content_stats_table_form($form, &$form_state){
   return $form;
 }
 
-function dl(){
-  drupal_goto('/admin/reports/content_stats/download');
+//$form['filter']['cmodel'],$form['filter']['institution'],$form['filter']['collection']
+function download_data(&$form,&$form_state){
+  $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
+  drupal_goto('/admin/reports/content_stats/download', $options);
 }
 
 function go_to_all(){
   drupal_goto('/admin/reports/content_stats/all');
-}
-
-function islandora_content_stats_table_form_alter(&$form,&$form_state,$form_id ){
-  $form['actions']['submit']['#submit'][] = 'csv_download_all';
 }
