@@ -43,7 +43,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   $cmodel_map = islandora_get_content_models();
   $variables = [];
   $rows = [];
-
   //get latest timestamp from run queries
   $max_time = '';
   $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');

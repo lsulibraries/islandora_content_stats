@@ -1,5 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/queries.inc';
+require_once dirname(__FILE__) . '/utilities.inc';
+
 
 /**
  * Builds form out of query results from db with latest timestamp.
@@ -45,12 +47,18 @@ function islandora_content_stats_table_form($form, &$form_state){
       ->execute();
   }
   foreach($results as $record){
-    $rows[$record->id] = array(
-      'id' => $record->id,
-      'query' => $record->query,
-      'count' => $record->count,
-      'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
-    );
+    if($record->count != 0){
+      if(strpos($record->query,'fedora-system:FedoraObject-3.0') || strpos($record->query,'fedora-system:ContentModel-3.0')){}
+      else{
+        $label = map_islandora_cmodels($record->query);
+        $rows[$record->id] = array(
+          'id' => $record->id,
+          'query' => $label,
+          'count' => $record->count,
+          'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
+        );
+      }
+    }
   }
   $form = [];
   $form['filter'] = array(
