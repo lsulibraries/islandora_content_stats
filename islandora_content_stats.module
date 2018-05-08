@@ -82,7 +82,7 @@ function islandora_content_stats_csv_download(){
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
    $fh = fopen('php://output','w');
   foreach($results as $result){
-   fputcsv($fh,array($result->id,$result->query,$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
+   fputcsv($fh,array($result->id,map_islandora_cmodels($result->query),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
  } // strftime('%d:%m:%Y:%r' , $result->timestamp )
 }
 
