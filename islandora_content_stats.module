@@ -76,7 +76,6 @@ function islandora_content_stats_csv_download(){
       $query .= ' AND query LIKE \'%'.$filter.'%\'';
     }
   }
-  dpm($query);
   $results = db_query($query) or die ("Sql error : ".mysql_error());
 
   drupal_add_http_header("Content-type", "text/csv; utf-8");
