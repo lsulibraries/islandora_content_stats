@@ -34,33 +34,49 @@ function islandora_content_stats_menu() {
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
     'access arguments' => TRUE,
-    //'type' => MENU_CALLBACK,
   );
   return $items;
 }
 
-
 function islandora_content_stats_csv_download(){
+  $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
   foreach($_GET as $filter){
-      if($filter != 'admin/reports/content_stats/download'){
-        $filters[] = $filter;
-      }
-  }
-
-  $query = "SELECT * FROM ldl.islandora_content_stats";
-  foreach($filters as $filter){
-    if($filter === reset($filters)){
-      if(strlen($filter)> 0){
-        $query .= ' WHERE query LIKE \'%'.$filter.'%\'';
-      }
-    }
-    else{
-      if(strlen($filter)> 0){
-        $query .= ' AND query LIKE \'%'.$filter.'%\'';
-      }
+    if($filter != 'admin/reports/content_stats/download'){
+      $filters[] = $filter;
     }
   }
+  //if coming from all queries page add max timestamp to query
+  if(in_array('all', $filters)){
+    array_pop($filters);
+    foreach($filters as $filter){
+      if($filter === reset($filters)){
+        if(strlen($filter)> 0){
+          $query .= ' WHERE query LIKE \'%'.$filter.'%\'';
+        }
+      }
+      else{
+        if(strlen($filter)> 0){
+          $query .= ' AND query LIKE \'%'.$filter.'%\'';
+        }
+      }
+    }
+  }
+  //when come from only latest queries page no timestamp limit.
+  else{
+    $max_time = '';
+    $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    foreach($q_time as $return){
+      foreach($return as $key => $value){
+          $max_time = $value;
+      }
+    }
+    $query .= " WHERE timestamp = ".$max_time;
+    foreach($filters as $filter){
+      $query .= ' AND query LIKE \'%'.$filter.'%\'';
+    }
+  }
+  dpm($query);
   $results = db_query($query) or die ("Sql error : ".mysql_error());
 
   drupal_add_http_header("Content-type", "text/csv; utf-8");

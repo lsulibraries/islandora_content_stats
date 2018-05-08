@@ -101,7 +101,6 @@ function islandora_content_stats_table_form($form, &$form_state){
   return $form;
 }
 
-//$form['filter']['cmodel'],$form['filter']['institution'],$form['filter']['collection']
 function download_data(&$form,&$form_state){
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
   drupal_goto('/admin/reports/content_stats/download', $options);

@@ -48,7 +48,7 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#type' => 'fieldset',
     '#title' => t('Filter Query Results'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
   );
   $form['filter']['institution'] = array(
     '#type' => 'textfield',
@@ -68,6 +68,11 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#size' => 15,
        '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
   );
+  $form['filter']['download'] = array(
+    '#type' => 'submit',
+    '#value' => t('Download as CSV'),
+    '#submit' => array('download_data_all'),
+  );
   $form['filter']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Filter'),
@@ -85,6 +90,11 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#submit' => array('go_to_recent')
   );
   return $form;
+}
+
+function download_data_all(&$form,&$form_state){
+  $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection'], 'all' => 'all'));
+  drupal_goto('/admin/reports/content_stats/download', $options);
 }
 
 function go_to_recent(){
