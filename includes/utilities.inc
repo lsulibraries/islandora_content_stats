@@ -5,6 +5,12 @@ module_load_include('inc','islandora','/includes/utilities');
 function map_islandora_cmodels($query){
     $cmodel_map = islandora_get_content_models();
     $query_pop = explode(' ',$query);
+    if(count($query_pop) == 3){
+      if(strpos($query_pop[1],'collection')){
+        $obj = islandora_object_load($query_pop[1]);
+        $query_pop[1] = $obj->label;
+      }
+    }
     $front = reset($query_pop);
     $query_pop[0] = map_institutional_prefix_to_title($front);
     $end = end($query_pop);
