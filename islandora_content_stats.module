@@ -33,7 +33,8 @@ function islandora_content_stats_menu() {
   $items['admin/reports/content_stats/download'] = array(
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
-    'access arguments' => TRUE,
+    'access arguments' =>  array('administer site configuration'),
+    'access callback' => array(TRUE),
   );
   return $items;
 }
@@ -82,7 +83,10 @@ function islandora_content_stats_csv_download(){
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
    $fh = fopen('php://output','w');
   foreach($results as $result){
-   fputcsv($fh,array($result->id,map_islandora_cmodels($result->query),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
+    if(strpos($result->query,'fedora-system:FedoraObject-3.0') || strpos($result->query,'fedora-system:ContentModel-3.0')){}
+    else{
+      fputcsv($fh,array($result->id,map_islandora_cmodels($result->query),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
+    }
  } // strftime('%d:%m:%Y:%r' , $result->timestamp )
 }
 

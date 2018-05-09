@@ -14,7 +14,8 @@ function map_islandora_cmodels($query){
     $pre_filtered = implode(' ', $query_pop);
     $pre_plural = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','',$pre_filtered)));
     $fixend = explode(' ',$pre_plural);
-    return $pre_plural.'s';
+    $pre_plural = (end($fixend) == ' ' ? $pre_plural : $pre_plural.'s');
+    return $pre_plural;
 }
 
 function map_institutional_prefix_to_title($prefix){
