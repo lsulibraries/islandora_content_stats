@@ -30,7 +30,7 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports-all.form.inc',
   );
-  $items['admin/reports/content_stats/data'] = array(
+  $items['/admin/reports/content_stats/data'] = array(
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
     'access arguments' =>  array('administer site configuration'),
@@ -86,7 +86,8 @@ function islandora_content_stats_csv_download(){
     else{
       fputcsv($fh,array($result->id,map_islandora_cmodels($result->query,'download'),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
     }
- } // strftime('%d:%m:%Y:%r' , $result->timestamp )
+  }
+  //drupal_goto('data/',$filters);
 }
 
 function islandora_content_stats_table_form_submit($form, &$form_state){
@@ -136,7 +137,7 @@ function islandora_content_stats_block_info() {
     );
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Content Models'),
-      'status' => 1,
+      'status' => 0, //change to 1
       'region' => 'content',
 
       'visibility' => BLOCK_VISIBILITY_PHP,

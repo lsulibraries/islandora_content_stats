@@ -11,7 +11,7 @@ function islandora_content_stats_table_form($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id', 'sort' => 'desc',),
-    array('data'=> t('Query'),'field' => 'stats.query',),
+    array('data'=> t('Instituton/Context | Collection (optional) | Content Model| Collection Link (optional)'),'field' => 'stats.query',),
     array('data'=> t('Count'),'field' => 'stats.count',),
     array('data'=> t('Timestamp'),'field' => 'stats.timestamp',),
   );
@@ -132,10 +132,11 @@ function islandora_content_stats_table_form($form, &$form_state){
 }
 
 function download_data(&$form,&$form_state){
+
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
   drupal_goto('/admin/reports/content_stats/data', $options);
 }
 
 function go_to_all(){
-  drupal_goto('/admin/reports/content_stats/all');
+  drupal_goto('/admin/reports/content_stats/data/all',$options);
 }

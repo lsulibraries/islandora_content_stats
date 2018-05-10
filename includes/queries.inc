@@ -63,7 +63,7 @@ function institutions_for_form(){
   $prefixes = all_ns_prefix_incl_subs();
   $return = [];
   foreach($prefixes as $inst){
-    $return[$inst] = map_institutional_prefix_to_title($inst);
+    $return[$inst.'-'] = str_replace(' |','', map_institutional_prefix_to_title($inst));
   }
   return $return;
 }
@@ -90,9 +90,6 @@ EOL;
   foreach($cmodel_counts as $cmodel_count){
     if($cmodel_count['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
       $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
-    }
-    else{
-        $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
     }
   }
   $result[$collection] = $sanitized_array;

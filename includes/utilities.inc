@@ -10,7 +10,7 @@ function map_islandora_cmodels($query,$csv = FALSE){
       if(strpos($query_pop[1],'collection')){
         $pid = $query_pop[1];
         $obj = islandora_object_load($query_pop[1]);
-        $query_pop[1] = $obj->label;
+        $query_pop[1] = $obj->label.' |';
         if($csv){
           $coll_link = '=HYPERLINK("http://'.$_SERVER['SERVER_NAME'].':8000/islandora/object/'.$pid;
         }
@@ -28,7 +28,7 @@ function map_islandora_cmodels($query,$csv = FALSE){
     $pre_filtered = implode(' ', $query_pop);
     $pre_plural = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','',$pre_filtered)));
     $fixend = explode(' ',$pre_plural);
-    $pre_plural = (end($fixend) == ' ' ? $pre_plural : $pre_plural.'s');
+    $pre_plural = (end($fixend) == ' ' ? $pre_plural.' |' : $pre_plural.'s |');
     if($coll_link != ''){
       ($csv != '' ? $return = $coll_link.'";"'.$pre_plural.'")' : $return = $pre_plural.$coll_link);
       return $return;
@@ -39,14 +39,14 @@ function map_islandora_cmodels($query,$csv = FALSE){
 }
 
 function map_institutional_prefix_to_title($prefix){
-  if($prefix == 'islandora:root'){return $prefix;}
+  if($prefix == 'islandora:root'){return $prefix.' |';}
   $prefix = rtrim($prefix,'-');
   $query = "select * from islandora_namespace_homepage where prefix = '".$prefix."'";
   $ns_homepage_table = db_query($query);
-  if($ns_homepage_table->rowCount()==0){return $prefix;}
+  if($ns_homepage_table->rowCount()==0){return $prefix.' |';}
   else{
     foreach($ns_homepage_table as $row){
-      return $row->title;
+      return $row->title.' |';
     }
   }
 }
