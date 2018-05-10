@@ -3,7 +3,6 @@ module_load_include('php','islandora_namespace_homepage','includes/namespaces');
 module_load_include('php','islandora_namespace_homepage','includes/db');
 module_load_include('php','islandora_namespace_homepage','includes/utilities');
 // the RI (ITQL & SPARQL) queries
-
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
 /**
  * Query repository index for all cmodels and a count for each.
@@ -23,9 +22,21 @@ from <#ri>
 where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
 having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ;
 EOL;
-
   $result = $tuque->repository->ri->itqlQuery($all_cmodels_query, 'unlimited');
   return $result;
+}
+
+function cmodel_types_for_form(){
+  $cmodel_label_map = islandora_get_content_models();
+  $all = all_cmodel_counts();
+  $return = [];
+  foreach($all as $one){
+  $string = $one['cmodel']['value'];
+    if( ($string != 'fedora-system:FedoraObject-3.0') && ($string != 'fedora-system:ContentModel-3.0') ){
+       $return[$string] = t(str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','',$cmodel_label_map[$string]['label']))));
+     }
+  }
+  return $return;
 }
 
 function all_ns_prefix_incl_subs(){
@@ -37,7 +48,6 @@ FROM <#ri>
 WHERE
 {?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
 EOL;
-
   $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
   $prefixes = array();
   foreach($result as $key => $val){
@@ -49,7 +59,14 @@ EOL;
   return array_unique($prefixes);
 }
 
-
+function institutions_for_form(){
+  $prefixes = all_ns_prefix_incl_subs();
+  $return = [];
+  foreach($prefixes as $inst){
+    $return[$inst] = map_institutional_prefix_to_title($inst);
+  }
+  return $return;
+}
 /**
  * Query the ri for a count of a collection's content models
  * use with institutions somehow
@@ -79,9 +96,24 @@ EOL;
     }
   }
   $result[$collection] = $sanitized_array;
-  //dpm('collection_cmodel_query');
-  //dpm($result);
   return $result;
+}
+
+function collection_pid_labels_for_form(){
+  $return = [];
+  $tuque = islandora_get_tuque_connection();
+  $query = <<<EOL
+SELECT ?pid
+FROM <#RI>
+{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+EOL;
+
+  $collections = $tuque->repository->ri->sparqlQuery($query,'unlimited');
+  foreach($collections as $coll){
+    $obj = islandora_object_load($coll['pid']['value']);
+    $return[$coll['pid']['value']] = $obj->label;
+  }
+  return $return;
 }
 
 /**

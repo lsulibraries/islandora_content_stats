@@ -30,20 +30,19 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports-all.form.inc',
   );
-  $items['admin/reports/content_stats/download'] = array(
+  $items['admin/reports/content_stats/data'] = array(
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
     'access arguments' =>  array('administer site configuration'),
-    'access callback' => array(TRUE),
-  );
+    );
   return $items;
 }
 
 function islandora_content_stats_csv_download(){
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
-  foreach($_GET as $filter){
-    if($filter != 'admin/reports/content_stats/download'){
+  foreach($_GET as $key => $filter){
+    if($filter != 'admin/reports/content_stats/data'){
       $filters[] = $filter;
     }
   }
@@ -85,7 +84,7 @@ function islandora_content_stats_csv_download(){
   foreach($results as $result){
     if(strpos($result->query,'fedora-system:FedoraObject-3.0') || strpos($result->query,'fedora-system:ContentModel-3.0')){}
     else{
-      fputcsv($fh,array($result->id,map_islandora_cmodels($result->query),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
+      fputcsv($fh,array($result->id,map_islandora_cmodels($result->query,'download'),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
     }
  } // strftime('%d:%m:%Y:%r' , $result->timestamp )
 }

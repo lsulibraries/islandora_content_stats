@@ -56,24 +56,47 @@ function islandora_content_stats_table_all_form($form, &$form_state){
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['filter']['institution'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Institution'),
-    '#size' => 15,
-    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")')
-  );
   $form['filter']['cmodel'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Content Model'),
-    '#size' => 15,
-    '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
+    '#type' => 'select',
+    '#title' => t('Filter by type of object'),
+    '#options' => cmodel_types_for_form(),
+    '#description' => t('content model names'),
+    '#required' => FALSE,
+    '#empty_option' => '--none--',
+  );
+  $form['filter']['institution'] = array(
+    '#type' => 'select',
+    '#title' => t('Filter by institution or sub-institution'),
+    '#options' => institutions_for_form(),
+    '#required' => FALSE,
+    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")'),
+    '#empty_option' => '--none--',
   );
   $form['filter']['collection'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Collection PID'),
-    '#size' => 15,
-       '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
+    '#type' => 'select',
+    '#title' => t('Filter by specific Collection'),
+    '#options' => collection_pid_labels_for_form(),
+    '#required' => FALSE,
+    '#empty_option' => '--none--',
   );
+  // $form['filter']['institution'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Institution'),
+  //   '#size' => 15,
+  //   '#description' => t('institution or sub-institution prefix (.i.e. "lsu")')
+  // );
+  // $form['filter']['cmodel'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Content Model'),
+  //   '#size' => 15,
+  //   '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
+  // );
+  // $form['filter']['collection'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Collection PID'),
+  //   '#size' => 15,
+  //      '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
+  // );
   $form['filter']['download'] = array(
     '#type' => 'submit',
     '#value' => t('Download as CSV'),

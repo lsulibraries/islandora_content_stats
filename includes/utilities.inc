@@ -2,13 +2,21 @@
 module_load_include('inc','islandora','/includes/utilities');
 
 
-function map_islandora_cmodels($query){
+function map_islandora_cmodels($query,$csv = FALSE){
     $cmodel_map = islandora_get_content_models();
     $query_pop = explode(' ',$query);
+    $coll_link = '';
     if(count($query_pop) == 3){
       if(strpos($query_pop[1],'collection')){
+        $pid = $query_pop[1];
         $obj = islandora_object_load($query_pop[1]);
         $query_pop[1] = $obj->label;
+        if($csv){
+          $coll_link = '=HYPERLINK("http://'.$_SERVER['SERVER_NAME'].':8000/islandora/object/'.$pid;
+        }
+        else{
+          $coll_link = ' <a href = "../../islandora/object/'.$pid.'">Link</a>';
+        }
       }
     }
     $front = reset($query_pop);
@@ -21,7 +29,13 @@ function map_islandora_cmodels($query){
     $pre_plural = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','',$pre_filtered)));
     $fixend = explode(' ',$pre_plural);
     $pre_plural = (end($fixend) == ' ' ? $pre_plural : $pre_plural.'s');
-    return $pre_plural;
+    if($coll_link != ''){
+      ($csv != '' ? $return = $coll_link.'";"'.$pre_plural.'")' : $return = $pre_plural.$coll_link);
+      return $return;
+    }
+    else{
+      return $pre_plural;
+  }
 }
 
 function map_institutional_prefix_to_title($prefix){

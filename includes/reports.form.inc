@@ -2,7 +2,6 @@
 require_once dirname(__FILE__) . '/queries.inc';
 require_once dirname(__FILE__) . '/utilities.inc';
 
-
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
@@ -16,7 +15,7 @@ function islandora_content_stats_table_form($form, &$form_state){
     array('data'=> t('Count'),'field' => 'stats.count',),
     array('data'=> t('Timestamp'),'field' => 'stats.timestamp',),
   );
-  //get latest timestamp from run queries
+  //get latest timestamp from run queries //this code is a duplication, need to write a function.
   $max_time = '';
   $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   foreach($q_time as $return){
@@ -67,24 +66,47 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $form['filter']['institution'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Institution'),
-    '#size' => 15,
-    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")')
-  );
   $form['filter']['cmodel'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Content Model'),
-    '#size' => 15,
-    '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
+    '#type' => 'select',
+    '#title' => t('Filter by type of object'),
+    '#options' => cmodel_types_for_form(),
+    '#description' => t('content model names'),
+    '#required' => FALSE,
+    '#empty_option' => '--none--',
+  );
+  $form['filter']['institution'] = array(
+    '#type' => 'select',
+    '#title' => t('Filter by institution or sub-institution'),
+    '#options' => institutions_for_form(),
+    '#required' => FALSE,
+    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")'),
+    '#empty_option' => '--none--',
   );
   $form['filter']['collection'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Collection PID'),
-    '#size' => 15,
-    '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
+    '#type' => 'select',
+    '#title' => t('Filter by specific Collection'),
+    '#options' => collection_pid_labels_for_form(),
+    '#required' => FALSE,
+    '#empty_option' => '--none--',
   );
+  // $form['filter']['institution'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Institution'),
+  //   '#size' => 15,
+  //   '#description' => t('institution or sub-institution prefix (.i.e. "lsu")'),
+  // );
+  // $form['filter']['cmodel'] = array(
+  //   '#type' => 'textfield',
+  //   '#title' => t('Content Model'),
+  //   '#size' => 15,
+  //   '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
+  //);
+    // $form['filter']['collection'] = array(
+    //   '#type' => 'textfield',
+    //   '#title' => t('Collection PID'),
+    //   '#size' => 15,
+    //   '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
+    // );
   $form['filter']['download'] = array(
     '#type' => 'submit',
     '#value' => t('Download as CSV'),
@@ -111,7 +133,7 @@ function islandora_content_stats_table_form($form, &$form_state){
 
 function download_data(&$form,&$form_state){
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
-  drupal_goto('/admin/reports/content_stats/download', $options);
+  drupal_goto('/admin/reports/content_stats/data', $options);
 }
 
 function go_to_all(){

@@ -53,7 +53,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   }
   $all_inst = all_ns_prefix_incl_subs();
   $uri_split = explode('/', request_uri());
-
+  //find the context of the page, is it front, institution or collection
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
     if(isset($counts)){
@@ -100,6 +100,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       }
     }
   }
+  //build up the form
   $form = [];
   if(drupal_is_front_page()){
     $headers =  array(
