@@ -6,7 +6,7 @@ require_once dirname(__FILE__) . '/utilities.inc';
  * Builds form out of query of all results from db.
  * accounts for custom content models
  */
-function islandora_content_stats_table_all_form($form, &$form_state){
+function islandora_content_stats_all($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
@@ -48,7 +48,7 @@ function islandora_content_stats_table_all_form($form, &$form_state){
   $form = [];
   $form['filter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Filter Query Results'),
+    '#title' => t('Filter query results'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
@@ -108,6 +108,6 @@ function go_to_recent(){
   drupal_goto('/admin/reports/content_stats');
 }
 
-function islandora_content_stats_table_all_form_submit($form, &$form_state){
+function islandora_content_stats_all_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
 }

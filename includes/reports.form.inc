@@ -51,7 +51,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
   $form = [];
   $form['filter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Filter Query Results'),
+    '#title' => t('Filter query results'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
