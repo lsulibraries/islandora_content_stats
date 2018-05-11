@@ -19,7 +19,7 @@ function islandora_content_stats_menu() {
   $items['admin/reports/content_stats'] = array(
     'title' => 'Content Statistics Report Last Run',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_content_stats_table_form', 1),
+    'page arguments' => array('islandora_content_stats_recent_form', 1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports.form.inc',
   );
@@ -30,7 +30,7 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports-all.form.inc',
   );
-  $items['/admin/reports/content_stats/data'] = array(
+  $items['admin/reports/content_stats/data'] = array(
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download',
     'access arguments' =>  array('administer site configuration'),
@@ -43,26 +43,25 @@ function islandora_content_stats_csv_download(){
   $filters = [];
   foreach($_GET as $key => $filter){
     if($filter != 'admin/reports/content_stats/data'){
-      $filters[] = $filter;
+      $filters[$key] = $filter;
     }
   }
-  //if coming from all queries page add max timestamp to query
+  //if coming from all queries page
   if(in_array('all', $filters)){
     array_pop($filters);
-    foreach($filters as $filter){
-      if($filter === reset($filters)){
-        if(strlen($filter)> 0){
+    dpm($filters);
+    foreach($filters as $key => $filter){
+      if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
+        if(!strpos($query,'WHERE')){
           $query .= ' WHERE query LIKE \'%'.$filter.'%\'';
         }
-      }
-      else{
-        if(strlen($filter)> 0){
+        else{
           $query .= ' AND query LIKE \'%'.$filter.'%\'';
         }
       }
     }
   }
-  //when come from only latest queries page no timestamp limit.
+  //when on 'latest queries' page add timestamp
   else{
     $max_time = '';
     $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
@@ -76,6 +75,7 @@ function islandora_content_stats_csv_download(){
       $query .= ' AND query LIKE \'%'.$filter.'%\'';
     }
   }
+  dpm($query);
   $results = db_query($query) or die ("Sql error : ".mysql_error());
 
   drupal_add_http_header("Content-type", "text/csv; utf-8");
@@ -89,42 +89,6 @@ function islandora_content_stats_csv_download(){
   }
   //drupal_goto('data/',$filters);
 }
-
-function islandora_content_stats_table_form_submit($form, &$form_state){
-  $form_state['rebuild'] = TRUE;
-}
-
-
-function islandora_content_stats_post_collection_stats(){
-  if(strpos(current_path(),'collection')){
-    $str =current_path();
-    $coll = str_replace('islandora/object/','',$str);
-    return islandora_content_stats_page_cmodels($coll);
-  }
-}
-
-
-function check_path(){
-  $one_of_these = update_namespace_prefixes_cache();
-      foreach($one_of_these as $ns_prefix){
-      if(preg_match('/'.$ns_prefix.'/', str_replace('/','',request_uri()))){
-        return true;
-      }
-    }
-}
-
-function islandora_content_stats_post_institution_stats(){
-  if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
-    if(check_path()){
-      return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
-    }
-  }
-}
-
-function islandora_root_page_stats(){
-  return islandora_root_stats_queries();
-}
-
 
 /**
 * Implements hook_block_info().
@@ -146,13 +110,12 @@ function islandora_content_stats_block_info() {
   return $blocks;
 }
 
-
 function islandora_content_stats_block_view($delta = ''){
 $blocks = array();
   switch ($delta) {
     case 'content_stats':
       $blocks['subject'] = t('Content Stats Block');
-      $blocks['content'] = drupal_get_form('islandora_content_stats_table_form');
+      $blocks['content'] = drupal_get_form('islandora_content_stats_recent_form');
       break;
     case 'content_stats_page':
         $blocks['subject'] = t('Content Stats Page Content Models');

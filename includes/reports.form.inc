@@ -6,8 +6,7 @@ require_once dirname(__FILE__) . '/utilities.inc';
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
-function islandora_content_stats_table_form($form, &$form_state){
-  $variables = [];
+function islandora_content_stats_recent_form($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id', 'sort' => 'desc',),
@@ -15,23 +14,14 @@ function islandora_content_stats_table_form($form, &$form_state){
     array('data'=> t('Count'),'field' => 'stats.count',),
     array('data'=> t('Timestamp'),'field' => 'stats.timestamp',),
   );
-  //get latest timestamp from run queries //this code is a duplication, need to write a function.
-  $max_time = '';
-  $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-  foreach($q_time as $return){
-    foreach($return as $key => $value){
-        $max_time = $value;
-    }
-  }
-  //second argument in db select is an alias for the table(which is the first argument.)
+  $max_timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-  if(!empty($form_state['input']) && $form_state['input']['op'] != 'filter'){
-
-    //somehow get a variable from a textfield with a submit into the db_like function...
+  if(!empty($form_state['input'])){
     $results = $query->fields('stats',array('id','query','count','timestamp'))
       ->orderByHeader($headers)
-      ->condition('timestamp',$max_time)
+      ->condition('timestamp',$max_timestamp->fetchField())
       ->condition('query', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->condition('query', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
@@ -40,15 +30,14 @@ function islandora_content_stats_table_form($form, &$form_state){
   }
   else{
     $results = $query->fields('stats',array('id','query','count','timestamp'))
-      ->condition('timestamp',$max_time)
+      ->condition('timestamp',$max_timestamp->fetchField())
       ->orderByHeader($headers)
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
   }
   foreach($results as $record){
     if($record->count != 0){
-      if(strpos($record->query,'fedora-system:FedoraObject-3.0') || strpos($record->query,'fedora-system:ContentModel-3.0')){}
-      else{
+      if(!strpos($record->query,'fedora-system:FedoraObject-3.0') && !strpos($record->query,'fedora-system:ContentModel-3.0')){
         $label = map_islandora_cmodels($record->query);
         $rows[$record->id] = array(
           'id' => $record->id,
@@ -89,24 +78,6 @@ function islandora_content_stats_table_form($form, &$form_state){
     '#required' => FALSE,
     '#empty_option' => '--none--',
   );
-  // $form['filter']['institution'] = array(
-  //   '#type' => 'textfield',
-  //   '#title' => t('Institution'),
-  //   '#size' => 15,
-  //   '#description' => t('institution or sub-institution prefix (.i.e. "lsu")'),
-  // );
-  // $form['filter']['cmodel'] = array(
-  //   '#type' => 'textfield',
-  //   '#title' => t('Content Model'),
-  //   '#size' => 15,
-  //   '#description' => t('content model string/sub-string (.i.e. "large_image" or "FedoraObject")')
-  //);
-    // $form['filter']['collection'] = array(
-    //   '#type' => 'textfield',
-    //   '#title' => t('Collection PID'),
-    //   '#size' => 15,
-    //   '#description' => t('PID string/sub-string (.i.e. "dolls:collection" or "lsu-hpl")')
-    // );
   $form['filter']['download'] = array(
     '#type' => 'submit',
     '#value' => t('Download as CSV'),
@@ -132,11 +103,14 @@ function islandora_content_stats_table_form($form, &$form_state){
 }
 
 function download_data(&$form,&$form_state){
-
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
-  drupal_goto('/admin/reports/content_stats/data', $options);
+  drupal_goto('admin/reports/content_stats/data', $options);
 }
 
 function go_to_all(){
-  drupal_goto('/admin/reports/content_stats/data/all',$options);
+  drupal_goto('/admin/reports/content_stats/all');
+}
+
+function islandora_content_stats_recent_form_submit($form, &$form_state){
+  $form_state['rebuild'] = TRUE;
 }

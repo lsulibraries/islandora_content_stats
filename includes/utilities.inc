@@ -1,7 +1,6 @@
 <?php
 module_load_include('inc','islandora','/includes/utilities');
 
-
 function map_islandora_cmodels($query,$csv = FALSE){
     $cmodel_map = islandora_get_content_models();
     $query_pop = explode(' ',$query);
@@ -49,4 +48,34 @@ function map_institutional_prefix_to_title($prefix){
       return $row->title.' |';
     }
   }
+}
+
+
+function islandora_content_stats_post_collection_stats(){
+  if(strpos(current_path(),'collection')){
+    $str =current_path();
+    $coll = str_replace('islandora/object/','',$str);
+    return islandora_content_stats_page_cmodels($coll);
+  }
+}
+
+function check_path(){
+  $one_of_these = update_namespace_prefixes_cache();
+      foreach($one_of_these as $ns_prefix){
+      if(preg_match('/'.$ns_prefix.'/', str_replace('/','',request_uri()))){
+        return true;
+      }
+    }
+}
+
+function islandora_content_stats_post_institution_stats(){
+  if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
+    if(check_path()){
+      return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
+    }
+  }
+}
+
+function islandora_root_page_stats(){
+  return islandora_root_stats_queries();
 }
