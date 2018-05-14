@@ -2,10 +2,6 @@
 
 require_once dirname(__FILE__) . '/queries.inc';
 
-
-
-
-
 /**
  * @file
  * Admin form and submission handler.

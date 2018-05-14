@@ -1,7 +1,7 @@
 <?php
 module_load_include('inc','islandora','/includes/utilities');
 
-function map_islandora_cmodels($query,$csv = FALSE){
+function map_islandora_cmodels($query, $csv = FALSE){
     $cmodel_map = islandora_get_content_models();
     $query_array = explode(' ',$query);
     $coll_link = '';
