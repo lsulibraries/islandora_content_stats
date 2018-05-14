@@ -1,30 +1,39 @@
 <?php
 module_load_include('inc','islandora','/includes/utilities');
 
-
-
 function map_cmodels($model){
-  $cmodel_map = islandora_get_content_models();
-  $label = $cmodel_map[$model];
-  dpm($label);
-  return $label;
-}
-function map_institution($inst){
-  if($inst == 'islandora:root'){return $inst;}
-  $inst = rtrim($inst,'-');
-  $query = "select * from islandora_namespace_homepage where prefix = '".$inst."'";
-  $ns_homepage_table = db_query($query);
-  if($ns_homepage_table->rowCount()==0){return $inst;}
+  if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
   else{
-    foreach($ns_homepage_table as $row){
-      return $row->title;
+    $cmodel_map = islandora_get_content_models();
+    if($model != ''){
+      $label = $cmodel_map[$model];
+      $label_f = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','', $label['label'])));
+    return $label_f.'s';
     }
   }
 }
+
+function map_institution($inst){
+  if($inst == 'islandora:root'){return $inst;}
+  else{
+    $inst = rtrim($inst,'-');
+    $query = "select * from islandora_namespace_homepage where prefix = '".$inst."'";
+    $ns_homepage_table = db_query($query);
+    if($ns_homepage_table->rowCount()==0){return $inst;}
+    else{
+      foreach($ns_homepage_table as $row){
+        return $row->title;
+      }
+    }
+  }
+}
+
 function map_collection($pid){
-  $obj = islandora_object_load($pid);
-  $title = $obj->label;
-  return $title;
+  if($pid != '' ){
+    $obj = islandora_object_load($pid);
+    $title = $obj->label;
+    return $title;
+  }
 }
 
 

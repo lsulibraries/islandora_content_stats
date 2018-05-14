@@ -22,8 +22,8 @@ function islandora_content_stats_all($form, &$form_state){
   if(!empty($form_state['input'])){
     $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
       ->orderByHeader($headers)
-      ->condition('institution', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-      ->condition('collection', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+      ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+      ->condition('coll', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
       ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
@@ -39,8 +39,8 @@ function islandora_content_stats_all($form, &$form_state){
       if(!strpos($record->cmodel,'fedora-system:FedoraObject-3.0') && !strpos($record->cmodel,'fedora-system:ContentModel-3.0')){
         $rows[$record->id] = array(
           'id' => $record->id,
-          'inst' => map_institution($record->institution),
-          'coll' => map_collection($record->collection),
+          'inst' => map_institution($record->inst),
+          'coll' => map_collection($record->coll),
           'cmodel' => map_cmodels($record->cmodel),
           'count' => $record->count,
           'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)

@@ -64,7 +64,6 @@ function islandora_content_stats_csv_download(){
   else{
     $max_time = '';
     $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-    dpm($q_time->fetchAll());
     foreach($q_time as $return){
       foreach($return as $key => $value){
           $max_time = $value;

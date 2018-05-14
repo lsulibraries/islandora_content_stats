@@ -20,22 +20,22 @@ function islandora_content_stats_schema() {
         'id'  => array(
           'type' => 'serial',
           'unsigned' => true,
-          'not_null' => true
+          'not_null' => true,
         ),
-        'institution' => array(
+        'inst' => array(
           'type' => 'varchar',
           'length' => 255,
           'description' => 'ownership/branding',
         ),
-        'collection' => array(
+        'coll' => array(
           'type' => 'varchar',
           'length' => 255,
-          'description' => 'query type',
+          'description' => 'collection pid',
         ),
         'cmodel' => array(
           'type' => 'varchar',
           'length' => 255,
-          'description' => 'query type',
+          'description' => 'content model',
         ),
         'count' => array(
           'type' => 'int',

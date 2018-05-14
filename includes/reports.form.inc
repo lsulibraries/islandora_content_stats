@@ -24,8 +24,8 @@ function islandora_content_stats_recent_form($form, &$form_state){
     $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
       ->orderByHeader($headers)
       ->condition('timestamp',$max_timestamp->fetchField())
-      ->condition('institution', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-      ->condition('collection', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+      ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+      ->condition('coll', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
       ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
@@ -39,14 +39,14 @@ function islandora_content_stats_recent_form($form, &$form_state){
   }
   foreach($results as $record){
     if($record->count != 0){
-      if(!strpos($record->cmodel,'fedora-system:FedoraObject-3.0') && !strpos($record->cmodel,'fedora-system:ContentModel-3.0')){
+      if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0')){
         $rows[$record->id] = array(
           'id' => $record->id,
-          'inst' => map_institution($record->institution),
-          'coll' => map_collection($record->collection),
+          'inst' => ($record->inst == '' ? 'Site Wide Count' : map_institution($record->inst)),
+          'coll' => ($record->coll == '' ? 'institution total' : map_collection($record->coll)),
           'cmodel' =>  map_cmodels($record->cmodel),
           'count' => $record->count,
-          'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
+          'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp),
         );
       }
     }
@@ -115,5 +115,6 @@ function go_to_all(){
 }
 
 function islandora_content_stats_recent_form_submit($form, &$form_state){
+  dpm($form_state);
   $form_state['rebuild'] = TRUE;
 }
