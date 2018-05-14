@@ -10,7 +10,9 @@ function islandora_content_stats_all($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
-    array('data'=> t('Instituton/Context | Collection (optional) | Content Model| Collection Link (optional)'),'field' =>'stats.query',),
+    array('data'=> t('Instituton/Context'), 'field' =>'stats.inst',),
+    array('data' => t('Collection (optional'), 'field' =>'stats.coll',),
+    array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
   );
@@ -18,30 +20,31 @@ function islandora_content_stats_all($form, &$form_state){
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
   if(!empty($form_state['input'])){
-    $results = $query->fields('stats',array('id','query','count','timestamp'))
+    $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
       ->orderByHeader($headers)
-      ->condition('query', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-      ->condition('query', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-      ->condition('query', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+      ->condition('institution', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+      ->condition('collection', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+      ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
   }
   else{
-    $results = $query->fields('stats',array('id','query','count','timestamp'))
+    $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
       ->orderByHeader($headers)
       ->extend('TableSort')->extend('PagerDefault')->limit(144)
       ->execute();
   }
   foreach($results as $record){
     if($record->count != 0){
-      if(!strpos($record->query,'fedora-system:FedoraObject-3.0') && !strpos($record->query,'fedora-system:ContentModel-3.0')){
-          $label = map_islandora_cmodels($record->query);
-          $rows[$record->id] = array(
-            'id' => $record->id,
-            'query' => $label,
-            'count' => $record->count,
-            'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
-          );
+      if(!strpos($record->cmodel,'fedora-system:FedoraObject-3.0') && !strpos($record->cmodel,'fedora-system:ContentModel-3.0')){
+        $rows[$record->id] = array(
+          'id' => $record->id,
+          'inst' => map_institution($record->institution),
+          'coll' => map_collection($record->collection),
+          'cmodel' => map_cmodels($record->cmodel),
+          'count' => $record->count,
+          'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp)
+        );
       }
     }
   }

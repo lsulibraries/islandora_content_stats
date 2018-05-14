@@ -52,10 +52,10 @@ function islandora_content_stats_csv_download(){
     foreach($filters as $key => $filter){
       if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
         if(!strpos($query,'WHERE')){
-          $query .= ' WHERE query LIKE \'%'.$filter.'%\'';
+          $query .= ' WHERE '.$key.' LIKE \'%'.$filter.'%\'';
         }
         else{
-          $query .= ' AND query LIKE \'%'.$filter.'%\'';
+          $query .= ' AND '.$key.' LIKE \'%'.$filter.'%\'';
         }
       }
     }
@@ -64,22 +64,21 @@ function islandora_content_stats_csv_download(){
   else{
     $max_time = '';
     $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    dpm($q_time->fetchAll());
     foreach($q_time as $return){
       foreach($return as $key => $value){
           $max_time = $value;
       }
     }
     $query .= " WHERE timestamp = ".$max_time;
-    foreach($filters as $filter){
-      $query .= ' AND query LIKE \'%'.$filter.'%\'';
+    foreach($filters as $key => $filter){
+      $query .= ' AND '.$key.' LIKE \'%'.$filter.'%\'';
     }
   }
-  dpm($query);
   $results = db_query($query) or die ("Sql error : ".mysql_error());
-
   drupal_add_http_header("Content-type", "text/csv; utf-8");
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
-   $fh = fopen('php://output','w');
+  $fh = fopen('php://output','w');
   foreach($results as $result){
     if(strpos($result->query,'fedora-system:FedoraObject-3.0') || strpos($result->query,'fedora-system:ContentModel-3.0')){}
     else{

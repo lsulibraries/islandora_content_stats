@@ -4,37 +4,50 @@
 //https://www.drupal.org/docs/7/creating-custom-modules/writing-install-files-drupal-7x
 //SCHEMA: //https://www.drupal.org/node/146843
 //id: int, primary_key, auto_increment,
+//inst
+//collection
+//cmodel
 //count: int,
 //timestamp: timestamp (unixtime)
-        
+
 /**
  * Implements hook_schema().
  */
 function islandora_content_stats_schema() {
- $schema['islandora_content_stats'] = array(
-   'description' => 'Table that stores Islandora Content.',
-   'fields' => array(
-     'id'  => array(
-       'type' => 'serial',
-       'unsigned' => true,
-       'not_null' => true
-     ),
-     'query' => array(
-       'type' => 'varchar',
-       'length' => 255,
-       'description' => 'query type',
-       ),
-     'count' => array(
-       'type' => 'int',
-       'description' => 'count of items for query',
-     ),
-     'timestamp' => array(
-       'type' => 'int',
-       'description' => 'timestamp on latest run of queries',
+  $schema['islandora_content_stats'] = array(
+    'description' => 'Table that stores Islandora Content.',
+      'fields' => array(
+        'id'  => array(
+          'type' => 'serial',
+          'unsigned' => true,
+          'not_null' => true
+        ),
+        'institution' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'description' => 'ownership/branding',
+        ),
+        'collection' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'description' => 'query type',
+        ),
+        'cmodel' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'description' => 'query type',
+        ),
+        'count' => array(
+          'type' => 'int',
+          'description' => 'count of items for query',
+        ),
+        'timestamp' => array(
+          'type' => 'int',
+          'description' => 'timestamp on latest run of queries',
+        ),
       ),
-   ),
-   'primary key' => array('id'),
- );
+      'primary key' => array('id'),
+    );
  return $schema;
 }
 
