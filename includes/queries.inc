@@ -60,8 +60,9 @@ function institutions_for_form(){
   $prefixes = all_ns_prefix_incl_subs();
   $return = [];
   foreach($prefixes as $inst){
-    $return[$inst.'-'] = map_institution($inst);
+    $return[$inst.'-'] = map_institution($inst,'form');
   }
+  $return['All'] = 'All';
   return $return;
 }
 /**
@@ -106,6 +107,7 @@ EOL;
   foreach($collections as $coll){
     $return[$coll['pid']['value']] = map_collection($coll['pid']['value']);
   }
+  $return['All'] = 'All';
   return $return;
 }
 

@@ -13,7 +13,8 @@ function map_cmodels($model){
   }
 }
 
-function map_institution($inst){
+function map_institution($inst,$form = ''){
+  if($form != ''){}
   if($inst == 'islandora:root'){return $inst;}
   else{
     $inst = rtrim($inst,'-');

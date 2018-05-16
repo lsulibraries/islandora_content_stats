@@ -20,16 +20,61 @@ function islandora_content_stats_recent_form($form, &$form_state){
   //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-  if(!empty($form_state['input'])){
-    $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-      ->orderByHeader($headers)
-      ->condition('timestamp',$max_timestamp->fetchField())
-      ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-      ->condition('coll', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
-      ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-      ->extend('TableSort')->extend('PagerDefault')->limit(144)
-      ->execute();
-  }
+    if(!empty($form_state['input'])){
+      if($form_state['input']['institution'] == 'All'  && $form_state['input']['collection'] == '' ){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->isNull('inst')
+        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+        ->condition('timestamp', $max_timestamp->fetchField())
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      elseif($form_state['input']['collection'] == 'All' && $form_state['input']['institution'] != 'All'){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->isNull('coll')
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      elseif($form_state['input']['collection'] != 'All' && $form_state['input']['collection'] != ''){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->condition('coll', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      elseif($form_state['input']['collection'] == 'All' && $form_state['input']['institution'] == ''){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->isNull('coll')
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      elseif($form_state['input']['cmodel'] != 'All' && $form_state['input']['cmodel'] != '' && $form_state['input']['institution'] ==''){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      elseif($form_state['input']['cmodel'] != 'All' && $form_state['input']['cmodel'] != '' && $form_state['input']['institution'] !=''){
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
+        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
+        ->orderByHeader($headers)
+        ->execute();
+      }
+      else{
+        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+        ->condition('timestamp',$max_timestamp->fetchField())
+        ->orderByHeader($headers)
+        ->execute();
+      }
+    }
   else{
     $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
       ->condition('timestamp',$max_timestamp->fetchField())
@@ -42,8 +87,8 @@ function islandora_content_stats_recent_form($form, &$form_state){
       if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0')){
         $rows[$record->id] = array(
           'id' => $record->id,
-          'inst' => ($record->inst == '' ? 'Site Wide Count' : map_institution($record->inst)),
-          'coll' => ($record->coll == '' ? 'institution total' : map_collection($record->coll)),
+          'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
           'cmodel' =>  map_cmodels($record->cmodel),
           'count' => $record->count,
           'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp),
@@ -115,6 +160,5 @@ function go_to_all(){
 }
 
 function islandora_content_stats_recent_form_submit($form, &$form_state){
-  dpm($form_state);
   $form_state['rebuild'] = TRUE;
 }
