@@ -20,68 +20,9 @@ function islandora_content_stats_recent_form($form, &$form_state){
   //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-    if(!empty($form_state['input'])){
-      if($form_state['input']['institution'] == 'All'  && $form_state['input']['collection'] == '' ){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->isNull('inst')
-        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-        ->condition('timestamp', $max_timestamp->fetchField())
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      elseif($form_state['input']['collection'] == 'All' && $form_state['input']['institution'] != 'All'){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->isNull('coll')
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      elseif($form_state['input']['collection'] != 'All' && $form_state['input']['collection'] != ''){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->condition('coll', '%'. db_like($form_state['input']['collection']). '%', 'LIKE')
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      elseif($form_state['input']['collection'] == 'All' && $form_state['input']['institution'] == ''){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->isNull('coll')
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      elseif($form_state['input']['cmodel'] != 'All' && $form_state['input']['cmodel'] != '' && $form_state['input']['institution'] ==''){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      elseif($form_state['input']['cmodel'] != 'All' && $form_state['input']['cmodel'] != '' && $form_state['input']['institution'] !=''){
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->condition('inst', '%'. db_like($form_state['input']['institution']). '%', 'LIKE')
-        ->condition('cmodel', '%'. db_like($form_state['input']['cmodel']). '%', 'LIKE')
-        ->orderByHeader($headers)
-        ->execute();
-      }
-      else{
-        $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-        ->condition('timestamp',$max_timestamp->fetchField())
-        ->orderByHeader($headers)
-        ->execute();
-      }
-    }
-  else{
-    $results = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-      ->condition('timestamp',$max_timestamp->fetchField())
-      ->orderByHeader($headers)
-      ->extend('TableSort')->extend('PagerDefault')->limit(144)
-      ->execute();
-  }
+
+  $results = apply_query_filters($form_state,$query,$max_timestamp);
+
   foreach($results as $record){
     if($record->count != 0){
       if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0')){
@@ -148,6 +89,37 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#submit' => array('go_to_all')
   );
   return $form;
+}
+
+function apply_query_filters($form_state, $mysqlpart,$timestamp){
+$filters = $form_state['input'];
+  if(isset($form_state['filters'])){
+    foreach($filters as $filter){
+      if($filter == ''){
+        //do nothing to the sqlpart
+      }
+      if($filter == 'All'){
+        //'All' is same as NULL in mysql field
+        $mysqlpart = $mysqlpart->isNull($filter);
+      }
+      else{
+        //apply filter if not '' or 'All'
+        $mysqlpart = $mysqlpart->condition($filter.'%'.db_like($filter).'%','LIKE');
+      }
+    }
+    $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField())
+    ->orderByHeader($headers)
+    ->extend('TableSort')->extend('PagerDefault')->limit(144)
+    ->execute();
+  }
+  else{
+  $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField())
+    ->orderByHeader($headers)
+    ->extend('TableSort')->extend('PagerDefault')->limit(144)
+    ->execute();
+  }
+
+    return $mysqlpart;
 }
 
 function download_data(&$form,&$form_state){
