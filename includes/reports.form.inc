@@ -21,7 +21,9 @@ function islandora_content_stats_recent_form($form, &$form_state){
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
 
-  $results = apply_query_filters($form_state,$query,$max_timestamp);
+  $query = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'));
+
+  $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
 
   foreach($results as $record){
     if($record->count != 0){
@@ -91,35 +93,30 @@ function islandora_content_stats_recent_form($form, &$form_state){
   return $form;
 }
 
-function apply_query_filters($form_state, $mysqlpart,$timestamp){
-$filters = $form_state['input'];
-  if(isset($form_state['filters'])){
-    foreach($filters as $filter){
-      if($filter == ''){
+function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
+  if(isset($form_state['input'])){
+    $filters = [];
+    $filters['inst'] = $form_state['input']['institution'];
+    $filters['coll'] = $form_state['input']['collection'];
+    $filters['cmodel'] = $form_state['input']['cmodel'];
+    foreach($filters as $key => $val){
+      if($val == ''){
         //do nothing to the sqlpart
       }
-      if($filter == 'All'){
+      elseif($val == 'All'){
         //'All' is same as NULL in mysql field
-        $mysqlpart = $mysqlpart->isNull($filter);
+        $mysqlpart = $mysqlpart->isNull($key);
       }
       else{
         //apply filter if not '' or 'All'
-        $mysqlpart = $mysqlpart->condition($filter.'%'.db_like($filter).'%','LIKE');
+        $mysqlpart = $mysqlpart->condition($key,'%'.db_like($val).'%','LIKE');
       }
     }
-    $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField())
+  }
+  return $mysqlpart->condition('timestamp', $timestamp->fetchField())
     ->orderByHeader($headers)
     ->extend('TableSort')->extend('PagerDefault')->limit(144)
     ->execute();
-  }
-  else{
-  $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField())
-    ->orderByHeader($headers)
-    ->extend('TableSort')->extend('PagerDefault')->limit(144)
-    ->execute();
-  }
-
-    return $mysqlpart;
 }
 
 function download_data(&$form,&$form_state){
