@@ -17,7 +17,7 @@ function islandora_content_stats_menu() {
     'file' => 'includes/admin.form.inc',
   );
   $items['admin/reports/content_stats'] = array(
-    'title' => 'Content Statistics Report Last Run',
+    'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_recent_form', 1),
     'access arguments' => array('administer site configuration'),
@@ -30,10 +30,12 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports-all.form.inc',
   );
-  $items['admin/reports/content_stats/data'] = array(
+  $items['admin/reports/content_stats/data'] = array( //data
     'title' => t('Download Content Stats to CSV'),
-    'page callback' => 'islandora_content_stats_csv_download',
-    'access arguments' =>  array('administer site configuration'),
+    'page callback' => 'islandora_content_stats_csv_download', //drupal_get_form?
+    'access arguments' =>  array('administer site configuration'), //needed?
+    //'type' => MENU_NORMAL_ITEM,
+    //'file' => 'includes/reports.form.inc'
     );
   return $items;
 }

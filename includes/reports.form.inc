@@ -69,6 +69,10 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#required' => FALSE,
     '#empty_option' => '--none--',
   );
+  $form['filter']['all'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show all results (history)')
+  );
   $form['filter']['download'] = array(
     '#type' => 'submit',
     '#value' => t('Download as CSV'),
@@ -94,7 +98,10 @@ function islandora_content_stats_recent_form($form, &$form_state){
 }
 
 function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
-  if(isset($form_state['input'])){
+  if(isset($form_state['input']['all'])){
+    $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
+  }
+  if(isset($form_state['input']['institution'])){
     $filters = [];
     $filters['inst'] = $form_state['input']['institution'];
     $filters['coll'] = $form_state['input']['collection'];
@@ -113,8 +120,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
       }
     }
   }
-  return $mysqlpart->condition('timestamp', $timestamp->fetchField())
-    ->orderByHeader($headers)
+  return $mysqlpart->orderByHeader($headers)
     ->extend('TableSort')->extend('PagerDefault')->limit(144)
     ->execute();
 }

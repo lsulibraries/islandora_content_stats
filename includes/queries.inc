@@ -11,7 +11,6 @@ module_load_include('php','islandora_namespace_homepage','includes/utilities');
  */
 function all_cmodels(){
   $tuque = islandora_get_tuque_connection();
-  $members = array();
   $all_cmodels_query = <<<EOL
 select \$cmodel
 count(select \$item from <#ri>
