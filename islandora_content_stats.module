@@ -73,7 +73,6 @@ function islandora_content_stats_csv_download(){
     }
     $query .= " WHERE timestamp = ".$max_time;
     foreach($filters as $key => $filter){
-      dpm($key.' '.$filter);
       $query .= ' AND '.$key.' LIKE \'%'.$filter.'%\'';
     }
   }
@@ -84,7 +83,7 @@ function islandora_content_stats_csv_download(){
   foreach($results as $result){
     if(strpos($result->cmodel,'fedora-system:FedoraObject-3.0') || strpos($result->cmodel,'fedora-system:ContentModel-3.0')){}
     else{
-      fputcsv($fh,array($result->id,map_institution($result->inst),map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp )));
+      fputcsv($fh,array($result->id,map_institution($result->inst),map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
     }
   }
   //drupal_goto('data/',$filters);

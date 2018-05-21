@@ -9,8 +9,8 @@ require_once dirname(__FILE__) . '/queries.inc';
 function islandora_content_stats_admin_form($form, &$form_state) {
    $form['interval'] = array(
     '#type' => 'textfield',
-    '#title' => t('Update Interval'),
-    '#description' => t('Inteval of time to update database w/ new queries statsistics.'),
+    '#title' => t('Update Interval: can be set to "1 WEEK" or "2 MONTHS" etc. Defaults to 3 days '),
+    '#description' => t('Interval of time to update database after. only checks time after cron has run.'),
   );
     $form['current_interval'] = array(
     '#title' => t('Current Interval'),
@@ -19,7 +19,8 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     );
     $form['run'] = array(
     '#type' => 'submit',
-    '#value' => t('Run Query Now'),
+    '#value' => t('Run Queries Now'),
+    '#description' => t('press to populate database. (must press)'),
     '#submit' => array('islandora_content_stats_run_queries', 'direct_to_reports'),
     );
   $form['submit'] = array(

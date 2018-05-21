@@ -28,7 +28,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
         $rows[$record->id] = array(
           'id' => $record->id,
           'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
+          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll,'table')),
           'cmodel' =>  map_cmodels($record->cmodel),
           'count' => $record->count,
           'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp),
@@ -36,7 +36,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
       }
     }
   }
-
+  //I cannot explain why but I could not re-use $query or $max_timestamp after using them above. I cannot tell why...
   $total_headers = array(
     array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
     array('data'=> t('Count'),'field' =>'stats.count',),
@@ -50,7 +50,6 @@ function islandora_content_stats_recent_form($form, &$form_state){
     ->condition('timestamp', $timestamp->fetchField())
     ->orderByHeader($total_headers)
     ->execute();
-
   foreach($totals_cond as $total){
     if($total->count != 0){
       if( ($total->cmodel != 'fedora-system:FedoraObject-3.0') && ($total->cmodel !='fedora-system:ContentModel-3.0')){
@@ -62,6 +61,10 @@ function islandora_content_stats_recent_form($form, &$form_state){
     }
   }
   $form = [];
+  $form['totals']['item'] = array(
+    '#type' => 'item',
+    '#title' => t('Site-wide Counts of items by type, (islandora:root counts as a collection)'),
+  );
   $form['totals']['table'] = array(
     '#theme' => 'table',
     '#header' => $total_headers,
@@ -81,6 +84,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#description' => t('content model names'),
     '#required' => FALSE,
     '#empty_option' => '--none--',
+    //'#attributes' => array('onchange' => 'this.form.submit();'), //currently causes csv download...
   );
   $form['filter']['institution'] = array(
     '#type' => 'select',
@@ -110,6 +114,10 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#type' => 'submit',
     '#value' => t('Filter'),
   );
+  $form['tabletitle'] = array(
+    '#type' => 'item',
+    '#title' => t('Content from institutions and collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button. (not every choice combination will return results)'),
+  );
   $form['table'] = array(
     '#theme' => 'table',
     '#header' => $headers,
@@ -117,11 +125,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#empty' => t('table is empty')
   );
   $form['pager'] = array('#markup' => theme('pager'));
-  $form['show_all'] = array (
-    '#type' => 'submit',
-    '#value' => t('Show All Queries'),
-    '#submit' => array('go_to_all')
-  );
+
   return $form;
 }
 
@@ -156,10 +160,6 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
 function download_data(&$form,&$form_state){
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection']));
   drupal_goto('admin/reports/content_stats/data', $options);
-}
-
-function go_to_all(){
-  drupal_goto('/admin/reports/content_stats/all');
 }
 
 function islandora_content_stats_recent_form_submit($form, &$form_state){

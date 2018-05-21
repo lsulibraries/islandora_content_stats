@@ -29,11 +29,20 @@ function map_institution($inst,$form = ''){
   }
 }
 
-function map_collection($pid){
+function map_collection($pid, $context = FALSE){
   if($pid != '' ){
     $obj = islandora_object_load($pid);
-    $title = $obj->label;
-    return $title;
+    $label = $obj->label;
+    if($context == 'csv'){
+      $link = 'http://'.$_SERVER['SERVER_NAME'].':8000/islandora/object/'.$pid;
+    }
+    elseif($context == 'table'){
+      $link = '<a href = "../../islandora/object/'.$pid.'">'.$label.'</a>';
+    }
+    else{
+      $link = $label;
+    }
+    return $link;
   }
 }
 
