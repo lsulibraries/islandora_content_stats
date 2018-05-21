@@ -11,7 +11,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
     array('data'=> t('Instituton/Context'), 'field' =>'stats.inst',),
-    array('data' => t('Collection (optional'), 'field' =>'stats.coll',),
+    array('data' => t('Collection (optional)'), 'field' =>'stats.coll',),
     array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
@@ -20,14 +20,11 @@ function islandora_content_stats_recent_form($form, &$form_state){
   //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-
   $query = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'));
-
   $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
-
   foreach($results as $record){
     if($record->count != 0){
-      if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0')){
+      if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0') && ($record->inst != NULL) ){
         $rows[$record->id] = array(
           'id' => $record->id,
           'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
@@ -39,7 +36,38 @@ function islandora_content_stats_recent_form($form, &$form_state){
       }
     }
   }
+
+  $total_headers = array(
+    array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
+    array('data'=> t('Count'),'field' =>'stats.count',),
+  );
+  $total_counts = [];
+  $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  $total_query = db_select("islandora_content_stats","stats");
+  $totals = $total_query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'));
+    $totals_cond = $totals->extend('TableSort')
+    ->condition('inst', NULL)
+    ->condition('timestamp', $timestamp->fetchField())
+    ->orderByHeader($total_headers)
+    ->execute();
+
+  foreach($totals_cond as $total){
+    if($total->count != 0){
+      if( ($total->cmodel != 'fedora-system:FedoraObject-3.0') && ($total->cmodel !='fedora-system:ContentModel-3.0')){
+        $total_counts[$total->id] = array(
+          'cmodel' =>  map_cmodels($total->cmodel),
+          'count' => $total->count,
+        );
+      }
+    }
+  }
   $form = [];
+  $form['totals']['table'] = array(
+    '#theme' => 'table',
+    '#header' => $total_headers,
+    '#rows' => $total_counts,
+    '#empty' => t('table is empty'),
+  );
   $form['filter'] = array(
     '#type' => 'fieldset',
     '#title' => t('Filter query results'),
@@ -98,7 +126,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
 }
 
 function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
-  if(isset($form_state['input']['all'])){
+  if(!isset($form_state['input']['all'])){
     $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
   }
   if(isset($form_state['input']['institution'])){

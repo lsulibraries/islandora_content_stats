@@ -61,7 +61,6 @@ function institutions_for_form(){
   foreach($prefixes as $inst){
     $return[$inst.'-'] = map_institution($inst,'form');
   }
-  $return['All'] = 'All';
   return $return;
 }
 /**
