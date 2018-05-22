@@ -23,13 +23,6 @@ function islandora_content_stats_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/reports.form.inc',
   );
-  $items['admin/reports/content_stats/all'] = array(
-    'title' => 'Content Statistics Report All Queries',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_content_stats_all', 1),
-    'access arguments' => array('administer site configuration'),
-    'file' => 'includes/reports-all.form.inc',
-  );
   $items['admin/reports/content_stats/data'] = array( //data
     'title' => t('Download Content Stats to CSV'),
     'page callback' => 'islandora_content_stats_csv_download', //drupal_get_form?

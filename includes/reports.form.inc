@@ -28,7 +28,7 @@ function islandora_content_stats_recent_form($form, &$form_state){
         $rows[$record->id] = array(
           'id' => $record->id,
           'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll,'table')),
+          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll,'form')),
           'cmodel' =>  map_cmodels($record->cmodel),
           'count' => $record->count,
           'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp),
@@ -37,18 +37,18 @@ function islandora_content_stats_recent_form($form, &$form_state){
     }
   }
   //I cannot explain why but I could not re-use $query or $max_timestamp after using them above. I cannot tell why...
-  $total_headers = array(
-    array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
-    array('data'=> t('Count'),'field' =>'stats.count',),
-  );
+  //Multiple tables on the same page cannot be sorted independently, refer to: https://www.drupal.org/node/94058
+  //Putting the results below into prose is better.
+  // $total_headers = array(
+  //   array('data' => t('Content Model'), 'field' =>'total.cmodel', 'sort' => 'desc'),
+  //   array('data'=> t('Count'),'field' =>'total.count',),
+  // );
   $total_counts = [];
   $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-  $total_query = db_select("islandora_content_stats","stats");
-  $totals = $total_query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'));
-    $totals_cond = $totals->extend('TableSort')
-    ->condition('inst', NULL)
+  $total_query = db_select("islandora_content_stats","total");
+  $totals = $total_query->fields('total', array('id','inst','cmodel','count','timestamp'));
+    $totals_cond = $totals->condition('inst', NULL)
     ->condition('timestamp', $timestamp->fetchField())
-    ->orderByHeader($total_headers)
     ->execute();
   foreach($totals_cond as $total){
     if($total->count != 0){
@@ -65,12 +65,18 @@ function islandora_content_stats_recent_form($form, &$form_state){
     '#type' => 'item',
     '#title' => t('Site-wide Counts of items by type, (islandora:root counts as a collection)'),
   );
-  $form['totals']['table'] = array(
-    '#theme' => 'table',
-    '#header' => $total_headers,
-    '#rows' => $total_counts,
-    '#empty' => t('table is empty'),
-  );
+  foreach($total_counts as $id => $count){
+    $form['totals'][$id] = array(
+      '#type' => 'item',
+      '#title' => t('Total '.$count['cmodel'].' : '.$count['count']),
+    );
+  }
+  // $form['totals']['table'] = array(
+  //   '#theme' => 'table',
+  //   '#header' => $total_headers,
+  //   '#rows' => $total_counts,
+  //   '#empty' => t('table is empty'),
+  // );
   $form['filter'] = array(
     '#type' => 'fieldset',
     '#title' => t('Filter query results'),
