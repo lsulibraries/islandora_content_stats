@@ -316,18 +316,21 @@ function islandora_content_stats_run_queries(){
    foreach($last_query_time_db as $return){
      $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
    }
-   $query ="select * from ldl.islandora_content_stats where inst like ";
+   $query ="select * from ldl.islandora_content_stats where coll = ";
    $query_suf = " and timestamp = ";
-   $result = db_query($query .  '\''. '%'. $path . '%'. '\'' . $query_suf . '\'' .$last_q_time . '\'');
+   $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$last_q_time . '\'');
    $results = $result->fetchAll();
    $display = [];
    foreach($results as $query_r){
-     $split_q = explode(' ', $query_r->query);
-     if($path == $split_q[0] || $split_q[1]){
-     if(!strpos($query_r->query,'fedora-system')){
-       $display[$query_r->query] = $query_r->count;
+     if(!strpos($query_r->cmodel, 'fedora-system')){
+       $display[$query_r->id] = array(
+         // 'id' => $query_r->id,
+         // 'inst' => $query_r->inst,
+         // 'coll' => $query_r->coll,
+         'cmodel' => $query_r->cmodel,
+         'count' => $query_r->count
+       );
      }
-   }
    }
    return $display;
  }
@@ -339,13 +342,18 @@ function islandora_root_stats_queries(){
   foreach($last_query_time_db as $return){
     $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
   }
-  $query ="select * from ldl.islandora_content_stats where inst not like '%-%' ";
-  $query_suf = " and timestamp = ";
-  $result = db_query($query. $query_suf . '\'' .$last_q_time . '\'');
+  $query ="select * from ldl.islandora_content_stats where inst is NULL and timestamp = ";
+  $result = db_query($query. '\'' .$last_q_time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\'');
   $results = $result->fetchAll();
   $display = [];
   foreach($results as $query_r){
-    $display[$query_r->query] = $query_r->count;
+       $display[$query_r->id] = array(
+         //'id' => $query_r->id,
+         //'inst' => $query_r->inst,
+         //'coll' => $query_r->coll,
+         'cmodel' => $query_r->cmodel,
+         'count' => $query_r->count,
+       );
   }
   return $display;
 }

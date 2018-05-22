@@ -49,9 +49,10 @@ function map_collection($pid, $context = FALSE){
 //Block Related functions
 function islandora_content_stats_post_collection_stats(){
   if(strpos(current_path(),'collection')){
-    $str =current_path();
+    $str = current_path();
     $coll = str_replace('islandora/object/','',$str);
     return islandora_content_stats_page_cmodels($coll);
+
   }
 }
 
@@ -61,14 +62,18 @@ function check_path(){
       if(preg_match('/'.$prefix.'/', str_replace('/','',request_uri()))){
         return true;
       }
+      else{
+        return false;
+      }
     }
 }
 
 function islandora_content_stats_post_institution_stats(){
-  if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri())){
-    if(check_path()){
-      return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
-    }
+  if(!preg_match("/([\/]\w+[\/]\w+)/", request_uri()) && check_path()){
+    return islandora_content_stats_page_cmodels(str_replace('/','',request_uri()));
+  }
+  else{
+    return;
   }
 }
 

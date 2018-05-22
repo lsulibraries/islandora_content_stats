@@ -36,13 +36,9 @@ function islandora_content_stats_recent_form($form, &$form_state){
       }
     }
   }
-  //I cannot explain why but I could not re-use $query or $max_timestamp after using them above. I cannot tell why...
+  //I cannot explain why but I could not re-use $query or $max_timestamp after using them above.
   //Multiple tables on the same page cannot be sorted independently, refer to: https://www.drupal.org/node/94058
   //Putting the results below into prose is better.
-  // $total_headers = array(
-  //   array('data' => t('Content Model'), 'field' =>'total.cmodel', 'sort' => 'desc'),
-  //   array('data'=> t('Count'),'field' =>'total.count',),
-  // );
   $total_counts = [];
   $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $total_query = db_select("islandora_content_stats","total");
@@ -71,12 +67,6 @@ function islandora_content_stats_recent_form($form, &$form_state){
       '#title' => t('Total '.$count['cmodel'].' : '.$count['count']),
     );
   }
-  // $form['totals']['table'] = array(
-  //   '#theme' => 'table',
-  //   '#header' => $total_headers,
-  //   '#rows' => $total_counts,
-  //   '#empty' => t('table is empty'),
-  // );
   $form['filter'] = array(
     '#type' => 'fieldset',
     '#title' => t('Filter query results'),

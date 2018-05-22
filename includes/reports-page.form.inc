@@ -4,15 +4,15 @@ require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
 
 //row building function
-function getRow($cmodel, $count, $context = 'default') {
-  if($context != 'default'){
+function getRow($cmodel, $count, $context = 'default', $coll = '') {
+  if($context == 'inst'){
     return array(
        'collection' => array(
-        'data' => $context,
+        'data' => map_collection($coll),
         'class' => array('content_stats_origin'),
        ),
        'model' => array(
-        'data' => $cmodel,
+        'data' => map_cmodels($cmodel),
         'class' => array('content_stats_model'),
        ),
        'count' => array(
@@ -24,7 +24,7 @@ function getRow($cmodel, $count, $context = 'default') {
   else{
     return array(
           'model' => array(
-           'data' => $cmodel,
+           'data' => map_cmodels($cmodel),
            'class' => array('content_stats_model'),
           ),
           'count' => array(
@@ -53,14 +53,13 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   }
   $all_inst = all_ns_prefix_incl_subs();
   $uri_split = explode('/', request_uri());
-  //find the context of the page, is it front, institution or collection
+  //find the context of the page: is it front, institution or collection?
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
     if(isset($counts)){
-      foreach($counts as $id => $count){
-        if($count != 0){
-          $id_part =explode(' ', $id);
-          $rows[$id] = getRow($cmodel_map[$id_part[2]]['label'], $count, $id_part[1]);
+      foreach($counts as $id => $cmcount){
+        if($cmcount['count'] != 0){
+          $rows[$id] = getRow($cmcount['cmodel'],$cmcount['count'],'coll');//getRow($cmodel_map[$id_part[2]]['label'], $count, $id_part[1]);
         }
       }
     }
@@ -68,12 +67,9 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   elseif( drupal_is_front_page() ){
     $counts = islandora_root_page_stats();
     if(isset($counts)){
-        foreach($counts as $id => $count){
-          if($count != 0){
-            $id_part =explode(' ', $id);
-            if(isset($cmodel_map[$id_part[1]])){
-              $rows[$id] =  getRow($cmodel_map[$id_part[1]]['label'], $count);
-            }
+        foreach($counts as $id => $cmcount){
+          if($cmcount['count'] != 0){
+              $rows[$id] =  getRow($cmcount['cmodel'], $cmcount['count']);
           }
         }
       }
@@ -102,7 +98,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   }
   //build up the form
   $form = [];
-  if(drupal_is_front_page()){
+  if(drupal_is_front_page() || strpos(request_uri(), 'collection')){
     $headers =  array(
       array('data'=> t('Cmodel'),'field' =>'stats.id','class' => array('islandora_content_stats_trow_model'),),
       array('data'=> t('Count'),'field' =>'stats.query','class' => array('islandora_content_stats_trow_count'),),
