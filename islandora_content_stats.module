@@ -81,9 +81,21 @@ function islandora_content_stats_csv_download(){
 }
 
 //path testing...
-// if(arg(0)== ''){
-//
-  // dpm(arg(0) == '');
+// foreach(arg() as $arg){
+//   if(count(arg()) == 1){
+//     if($arg == ''){
+//       dpm('arg is empty str');
+//     }
+//     elseif(strlen($arg) < 10 && strlen($arg) > 1 && $arg != 'issues'){
+//       dpm('could be institution');
+//     }
+//     else{
+//       dpm(arg());
+//     }
+//   }
+//   elseif($arg == 'islandora' || $arg == 'collection' || $arg =='object'){
+//     dpm('must be collection');
+//   }
 // }
 
 /**
@@ -101,7 +113,7 @@ function islandora_content_stats_block_info() {
     );
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Content Models'),
-      'status' => 1, //change to 1 to enable block.
+      'status' => 0, //change to 1 to enable block.
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_PHP,
       //this logic doesn't seem to work rn...

@@ -3,12 +3,6 @@
 // overview
 //https://www.drupal.org/docs/7/creating-custom-modules/writing-install-files-drupal-7x
 //SCHEMA: //https://www.drupal.org/node/146843
-//id: int, primary_key, auto_increment,
-//inst
-//collection
-//cmodel
-//count: int,
-//timestamp: timestamp (unixtime)
 
 /**
  * Implements hook_schema().
@@ -50,9 +44,3 @@ function islandora_content_stats_schema() {
     );
  return $schema;
 }
-
-//
-//function islandora_contents_stats_update_7001(){
-//    $schema = drupal_get_schema('islandora_content_stats');
-//    db_create_table('islandora_content_stats',$schema['islandora_content_stats']);
-//}
