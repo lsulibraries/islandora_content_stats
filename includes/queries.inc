@@ -28,9 +28,10 @@ function cmodel_types_for_form(){
   $model_counts = all_cmodels();
   $return = [];
   foreach($model_counts as $model){
-    if($model['cmodel']['value'] != 'fedora-system:FedoraObject-3.0' && $model['cmodel']['value'] != 'fedora-system:ContentModel-3.0'){
-      $string = map_cmodels($model['cmodel']['value']);
-      $return[$model['cmodel']['value']] = t($string);
+    $model = $model['cmodel']['value'];
+    if($model != 'fedora-system:FedoraObject-3.0' && $model != 'fedora-system:ContentModel-3.0'){
+      $string = map_cmodels($model);
+      $return[$model] = t($string);
   }
 }
   return $return;
@@ -86,9 +87,11 @@ EOL;
 
   $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
   $sanitized_array = [];
-  foreach($cmodel_counts as $cmodel_count){
-    if($cmodel_count['cmodel']['value'] != 'fedora-system:FedoraObject-3.0'){
-      $sanitized_array[$cmodel_count['cmodel']['value']] = $cmodel_count['k0']['value'];
+  foreach($cmodel_counts as $count){
+    $cmodel = $count['cmodel']['value'];
+    $count = $count['k0']['value'];
+    if($cmodel != 'fedora-system:FedoraObject-3.0'){
+      $sanitized_array[$cmodel] = $count;
     }
   }
   $result[$collection] = $sanitized_array;
@@ -106,7 +109,8 @@ EOL;
 
   $collections = $tuque->repository->ri->sparqlQuery($query,'unlimited');
   foreach($collections as $coll){
-    $return[$coll['pid']['value']] = map_collection($coll['pid']['value']);
+    $coll = $coll['pid']['value'];
+    $return[$coll] = map_collection($coll);
   }
   $return['All'] = 'All';
   return $return;
@@ -123,9 +127,7 @@ function all_institution_each_collection_query_count(){
   $fields = [];
   $institutions = all_ns_prefix_incl_subs();
   foreach($institutions as $lib){
-    if(strpos($lib,'-') === FALSE){
-      $lib = $lib.'-';
-    }
+    $lib = check_prefix($lib);
     $query = <<<EOQ
 SELECT ?pid
 FROM <#ri>
@@ -179,9 +181,7 @@ function institution_cmodel_totals($ns_prefix){
   }
   $tuque = islandora_get_tuque_connection();
   //first query gets all the collections that contain the ns_prefix string.
-  if(strpos($ns_prefix,'-') === FALSE){
-    $ns_prefix = $ns_prefix.'-';
-  }
+  $ns_prefix = check_prefix($ns_prefix);
   $ns_member_q = <<<EOQ
   SELECT ?pid
   FROM <#ri>
@@ -384,4 +384,11 @@ function islandora_root_stats_queries(){
        );
   }
   return $display;
+}
+
+function check_prefix($ns_prefix){
+  if(strpos($ns_prefix,'-') === FALSE){
+    $ns_prefix = $ns_prefix.'-';
+  }
+  return $ns_prefix;
 }

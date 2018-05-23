@@ -36,7 +36,7 @@ function map_collection($pid, $context = FALSE){
     if($context == 'csv'){
       $link = 'http://'.$_SERVER['SERVER_NAME'].':8000/islandora/object/'.$pid;
     }
-    elseif($context == 'table'){
+    elseif($context == 'form'){
       $link = '<a href = "../../islandora/object/'.$pid.'">'.$label.'</a>';
     }
     else{
@@ -74,8 +74,4 @@ function islandora_content_stats_post_institution_stats(){
   else{
     return;
   }
-}
-
-function islandora_root_page_stats(){
-  return islandora_root_stats_queries();
 }

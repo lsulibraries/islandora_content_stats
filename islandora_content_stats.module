@@ -48,7 +48,7 @@ function islandora_content_stats_csv_download(){
       if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
         if(strpos($query,'WHERE') === FALSE){
           if($filter !=''){
-              $query .= ' AND '.$key.' = \''.$filter.'\'';
+              $query .= ' WHERE '.$key.' = \''.$filter.'\'';
           }
         }
       }
@@ -90,6 +90,10 @@ function islandora_content_stats_csv_download(){
 * Implements hook_block_info().
 */
 function islandora_content_stats_block_info() {
+
+  $frontpage_str = "(arg(0) == '' || arg(0) == 'node' )";
+  $instpage_str = "strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues'";
+  $collpage_str = "arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4";
   $blocks = array();
     $blocks['content_stats'] = array(
       'info' => t('Content Stats'),
@@ -97,11 +101,11 @@ function islandora_content_stats_block_info() {
     );
     $blocks['content_stats_page'] = array(
       'info' => t('Content Stats Page Content Models'),
-      'status' => 0, //change to 1 to enable block.
+      'status' => 1, //change to 1 to enable block.
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_PHP,
       //this logic doesn't seem to work rn...
-      'pages' =>"<?php  if (  (arg(0) == '' ) || (strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues') || ( arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4  ) ){return true;} return false;?>",
+      'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
     );
   return $blocks;
 }
