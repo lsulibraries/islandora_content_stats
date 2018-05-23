@@ -47,10 +47,13 @@ WHERE
 EOL;
   $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
   foreach($result as $key => $val){
-    $plode = explode('-', $result[$key]['pid']['value']);
-    array_pop($plode);
+    $value = $val['pid']['value'];
+    if(isset($value) && strpos($value,'-')){
+      $plode = explode('-', $value);
+      array_pop($plode);
       $joined = implode('-',$plode);
-      $prefixes[$joined] =$joined;
+      $prefixes[] = $joined;
+    }
   }
   return array_unique($prefixes);
 }
@@ -120,7 +123,9 @@ function all_institution_each_collection_query_count(){
   $fields = [];
   $institutions = all_ns_prefix_incl_subs();
   foreach($institutions as $lib){
-    $lib = $lib.'-';
+    if(!strpos($lib,'-')){
+      $lib = $lib.'-';
+    }
     $query = <<<EOQ
 SELECT ?pid
 FROM <#ri>
@@ -131,8 +136,8 @@ FILTER regex(str(?pid), "$lib")
 ORDER BY ?pid
 EOQ;
     $coll_results =  $tuque->repository->ri->sparqlQuery($query, 'unlimited');
-    foreach($coll_results as $key => $coll){
-    $institution_colls[$lib.$key] = $coll['pid']['value'];
+    foreach($coll_results as $num => $coll){
+    $institution_colls[$lib.$num] = $coll['pid']['value'];
     }
   }
   foreach($institution_colls as $inst_num => $collection){
@@ -174,7 +179,9 @@ function institution_cmodel_totals($ns_prefix){
   }
   $tuque = islandora_get_tuque_connection();
   //first query gets all the collections that contain the ns_prefix string.
-  $ns_prefix = $ns_prefix.'-';
+  if(strpos($ns_prefix,'-') === FALSE){
+    $ns_prefix = $ns_prefix.'-';
+  }
   $ns_member_q = <<<EOQ
   SELECT ?pid
   FROM <#ri>
@@ -229,10 +236,9 @@ function islandora_content_stats_cron() {
   $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
   $last_q_run = '';
   $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
-  foreach($q_time as $return){
-    $last_q_run = (isset ($return) ? intval($return->{'max(timestamp)'}) : 0);
-  }
-  $last_q_plus_interval = $interval + $last_q_run;
+  $time = $q_time->fetchField();
+
+  $last_q_plus_interval = $interval + $time;
   if(time() >= $last_q_plus_interval){
     islandora_content_stats_run_queries();
   }
@@ -278,7 +284,7 @@ function islandora_content_stats_run_queries(){
             ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
             ->values(array(
               'id' => NULL,
-              'inst' => $ns.'- ',
+              'inst' => $ns.'-',
               'coll' => NULL,
               'cmodel' =>$model,
               'count' => $count,
@@ -306,44 +312,66 @@ function islandora_content_stats_run_queries(){
   }
 }
 
+//$query ="select * from ldl.islandora_content_stats where coll = ";
+function islandora_content_stats_page_cmodels_coll($path){
+  $query ="select * from ldl.islandora_content_stats where coll = ";
+  $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $time = $last_query_time_db->fetchField();
+  $query_suf = " and timestamp = ";
+  $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$time . '\'');
+  $results = $result->fetchAll();
+  $display = [];
+  foreach($results as $query_r){
+    $test = $query_r->cmodel;
+    if(strpos($test, 'fedora-system') === FALSE){
+      $display[$query_r->id] = array(
+        // 'id' => $query_r->id,
+        // 'inst' => $query_r->inst,
+        'coll' => $query_r->coll,
+        'cmodel' => $query_r->cmodel,
+        'count' => $query_r->count
+      );
+    }
+  }
+return $display;
+}
 
- function islandora_content_stats_page_cmodels($path){
-   if(!strpos($path,'collection')){
-     $path = $path.'-';
-   }
-   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
-   $last_q_time = '';
-   foreach($last_query_time_db as $return){
-     $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
-   }
-   $query ="select * from ldl.islandora_content_stats where coll = ";
-   $query_suf = " and timestamp = ";
-   $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$last_q_time . '\'');
-   $results = $result->fetchAll();
-   $display = [];
-   foreach($results as $query_r){
-     if(!strpos($query_r->cmodel, 'fedora-system')){
-       $display[$query_r->id] = array(
-         // 'id' => $query_r->id,
-         // 'inst' => $query_r->inst,
-         // 'coll' => $query_r->coll,
-         'cmodel' => $query_r->cmodel,
-         'count' => $query_r->count
-       );
-     }
-   }
-   return $display;
- }
+function islandora_content_stats_page_cmodels_inst($path){
+  $query ="select * from ldl.islandora_content_stats where inst = ";
+  $query_end = ' and coll is NULL';
+  $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $last_q_time = '';
+  $time = $last_query_time_db->fetchField();
+//  foreach($last_query_time_db as $return){
+//   $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
+// }
+  $query_suf = " and timestamp = ";
+  $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$time . '\''.$query_end );
+  $results = $result->fetchAll();
+  $display = [];
+  foreach($results as $query_r){
+    $test = $query_r->cmodel;
+    if(strpos($test, 'fedora-system') === FALSE){
+      $display[$query_r->id] = array(
+        // 'id' => $query_r->id,
+        // 'inst' => $query_r->inst,
+        'coll' => $query_r->coll,
+        'cmodel' => $query_r->cmodel,
+        'count' => $query_r->count
+      );
+    }
+  }
+return $display;
+}
 
 function islandora_root_stats_queries(){
   $ns_prefixes = all_ns_prefix_incl_subs();
   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
   $last_q_time = '';
-  foreach($last_query_time_db as $return){
-    $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
-  }
+  $time = $last_query_time_db->fetchField();
+
   $query ="select * from ldl.islandora_content_stats where inst is NULL and timestamp = ";
-  $result = db_query($query. '\'' .$last_q_time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\'');
+  $result = db_query($query. '\'' .$time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\'');
   $results = $result->fetchAll();
   $display = [];
   foreach($results as $query_r){

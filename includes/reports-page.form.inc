@@ -4,13 +4,8 @@ require_once dirname(__FILE__) . '/../islandora_content_stats.module';
 module_load_include('inc','islandora','/includes/utilities');
 
 //row building function
-function getRow($cmodel, $count, $context = 'default', $coll = '') {
-  if($context == 'inst'){
+function getRow($cmodel, $count) {
     return array(
-       'collection' => array(
-        'data' => map_collection($coll),
-        'class' => array('content_stats_origin'),
-       ),
        'model' => array(
         'data' => map_cmodels($cmodel),
         'class' => array('content_stats_model'),
@@ -20,19 +15,6 @@ function getRow($cmodel, $count, $context = 'default', $coll = '') {
         'class' => array('content_stats_count'),
        ),
       );
-  }
-  else{
-    return array(
-          'model' => array(
-           'data' => map_cmodels($cmodel),
-           'class' => array('content_stats_model'),
-          ),
-          'count' => array(
-           'data' => $count,
-           'class' => array('content_stats_count'),
-          ),
-         );
-  }
 }
 /**
  * Builds form out of query results from db with latest timestamp.
@@ -57,9 +39,9 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
     if(isset($counts)){
-      foreach($counts as $id => $cmcount){
-        if($cmcount['count'] != 0){
-          $rows[$id] = getRow($cmcount['cmodel'],$cmcount['count'],'coll');//getRow($cmodel_map[$id_part[2]]['label'], $count, $id_part[1]);
+      foreach($counts as $id => $fields){
+        if($fields['count'] != 0){
+          $rows[$id] = getRow($fields['cmodel'],$fields['count']);
         }
       }
     }
@@ -67,9 +49,9 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   elseif( drupal_is_front_page() ){
     $counts = islandora_root_page_stats();
     if(isset($counts)){
-        foreach($counts as $id => $cmcount){
-          if($cmcount['count'] != 0){
-              $rows[$id] =  getRow($cmcount['cmodel'], $cmcount['count']);
+        foreach($counts as $id => $fields){
+          if($fields['count'] != 0){
+              $rows[$id] =  getRow($fields['cmodel'], $fields['count']);
           }
         }
       }
@@ -77,28 +59,15 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   else{
     $counts = islandora_content_stats_post_institution_stats();
     if(isset($counts)){
-      foreach($counts as $id => $count){
-        if($count != 0){
-          $id_part =explode(' ', $id);
-          if(count($id_part) == 3){
-            if(isset($cmodel_map[$id_part[2]])){
-              $rows[$id] = getRow($cmodel_map[$id_part[2]]['label'], $count,  $id_part[0].' '.$id_part[1]);
-            }
-          }
-        }
-        else{
-          if($count != 0){
-            if(isset($cmodel_map[$id_part[1]])){
-              $rows[$id] = getRow( $cmodel_map[$id_part[1]]['label'], $count, $id_part[0]);
+      foreach($counts as $id => $fields){
+        if($fields['count'] != 0){
+              $rows[$id] = getRow($fields['cmodel'], $fields['count']);
             }
           }
         }
       }
-    }
-  }
   //build up the form
   $form = [];
-  if(drupal_is_front_page() || strpos(request_uri(), 'collection')){
     $headers =  array(
       array('data'=> t('Cmodel'),'field' =>'stats.id','class' => array('islandora_content_stats_trow_model'),),
       array('data'=> t('Count'),'field' =>'stats.query','class' => array('islandora_content_stats_trow_count'),),
@@ -111,21 +80,6 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       '#empty' => t('table is empty'),
       '#attributes' => array('class' => array('islandora_content_stats_page_table')),
       );
-  }
-  else{
-    $headers =  array(
-      array('data' =>t('Collection/Institution'),'field' => 'stats.coll','class' => array('islandora_content_stats_trow_coll'),),
-      array('data'=> t('Cmodel'),'field' =>'stats.id','class' => array('islandora_content_stats_trow_model'),),
-      array('data'=> t('Count'),'field' =>'stats.query','class' => array('islandora_content_stats_trow_count'),),
-    );
-    $form['table'] = array(
-      '#theme' => 'table',
-      '#header' => $headers,
-      '#rows' => $rows,
-      '#empty' => t('table is empty'),
-      '#attributes' => array('class' => array('islandora_content_stats_page_table')),
-    );
-  }
   return $form;
 }
 

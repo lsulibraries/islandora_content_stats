@@ -6,7 +6,7 @@ require_once dirname(__FILE__) . '/utilities.inc';
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
-function islandora_content_stats_recent_form($form, &$form_state){
+function islandora_content_stats_form($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
@@ -144,7 +144,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
       }
       else{
         //apply filter if not '' or 'All'
-        $mysqlpart = $mysqlpart->condition($key,'%'.db_like($val).'%','LIKE');
+        $mysqlpart = $mysqlpart->condition($key, db_like($val));
       }
     }
   }
@@ -158,6 +158,6 @@ function download_data(&$form,&$form_state){
   drupal_goto('admin/reports/content_stats/data', $options);
 }
 
-function islandora_content_stats_recent_form_submit($form, &$form_state){
+function islandora_content_stats_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
 }
