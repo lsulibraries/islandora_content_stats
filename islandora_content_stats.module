@@ -41,7 +41,7 @@ function islandora_content_stats_csv_download(){
       $filters[$key] = $filter;
     }
   }
-  //if requesting history
+  //if requesting historic data
   if($filters['all'] == 1){
     array_pop($filters);
     foreach($filters as $key => $filter){
@@ -49,12 +49,12 @@ function islandora_content_stats_csv_download(){
         if(strpos($query,'WHERE') === FALSE){
           if($filter !=''){
               $query .= ' AND '.$key.' = \''.$filter.'\'';
+          }
         }
-      }
       }
     }
   }
-  //when requesting latest
+  //when requesting latest data
   else{
     $max_time = '';
     $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
@@ -72,7 +72,7 @@ function islandora_content_stats_csv_download(){
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
   $fh = fopen('php://output','w');
   foreach($results as $result){
-    if(strpos($result->cmodel,'fedora-system:FedoraObject-3.0') || strpos($result->cmodel,'fedora-system:ContentModel-3.0')){}
+    if( $result->cmodel == 'fedora-system:FedoraObject-3.0' || $result->cmodel == 'fedora-system:ContentModel-3.0' || $result->coll == 'islandora:root'){}
     else{
       fputcsv($fh,array($result->id,map_institution($result->inst),map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
     }
