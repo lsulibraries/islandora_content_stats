@@ -123,7 +123,7 @@ function all_institution_each_collection_query_count(){
   $fields = [];
   $institutions = all_ns_prefix_incl_subs();
   foreach($institutions as $lib){
-    if(!strpos($lib,'-')){
+    if(strpos($lib,'-') === FALSE){
       $lib = $lib.'-';
     }
     $query = <<<EOQ
