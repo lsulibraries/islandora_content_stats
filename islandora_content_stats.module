@@ -1,6 +1,5 @@
 <?php
 require_once dirname(__FILE__) . '/includes/queries.inc';
-require_once dirname(__FILE__) . '/includes/reports.form.inc';
 require_once dirname(__FILE__) . '/includes/reports-page.form.inc';
 module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 
