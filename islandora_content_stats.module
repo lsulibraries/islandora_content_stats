@@ -51,6 +51,11 @@ function islandora_content_stats_csv_download(){
               $query .= ' WHERE '.$key.' = \''.$filter.'\'';
           }
         }
+        else{
+          if($filter !=''){
+              $query .= ' AND '.$key.' = \''.$filter.'\'';
+          }
+        }
       }
     }
   }
