@@ -5,7 +5,7 @@ function map_cmodels($model){
   if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
   else{
     $cmodel_map = islandora_get_content_models();
-    if($model != ''){
+    if($model != '' && array_key_exists($model, $cmodel_map)){
       $label = $cmodel_map[$model];
       $label_f = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','', $label['label'])));
     return $label_f.'s';
