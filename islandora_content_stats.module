@@ -43,6 +43,8 @@ function islandora_content_stats_csv_download(){
     }
   }
   //if requesting historic data
+  if(isset($filters['all'])){
+
   if($filters['all'] == 1){
     array_pop($filters);
     foreach($filters as $key => $filter){
@@ -60,6 +62,7 @@ function islandora_content_stats_csv_download(){
       }
     }
   }
+}
   //when requesting latest data
   else{
     $max_time = '';
