@@ -155,7 +155,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
 
 function download_data(&$form,&$form_state){
   $options = array('query' => array('inst' => $form_state['values']['institution'],'cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection'],'all' => $form_state['values']['all']));
-  drupal_goto('admin/reports/content_stats/data', $options);
+  drupal_goto('data/download', $options);
 }
 
 function islandora_content_stats_form_submit($form, &$form_state){

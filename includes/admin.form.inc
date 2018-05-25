@@ -31,7 +31,7 @@ function islandora_content_stats_admin_form($form, &$form_state) {
 }
 
 function direct_to_reports(){
-  drupal_goto('admin/reports/content_stats');
+  drupal_goto('data');
 }
 
 /**

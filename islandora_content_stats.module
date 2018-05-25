@@ -10,34 +10,35 @@ module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 function islandora_content_stats_menu() {
   $items = array();
   $items['admin/islandora/tools/content_stats'] = array(
-    'title' => 'Content Statistics Admin',
+    'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_admin_form',1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/reports/content_stats'] = array(
+  $items['data'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_content_stats_form', 1),
     'access arguments' => array('administer site configuration'),
-    'file' => 'includes/reports.form.inc',
+    'access callback' => TRUE,
+    'file' => 'includes/data.form.inc',
   );
-  $items['admin/reports/content_stats/data'] = array( //data
+  $items['data/download'] = array( //data
     'title' => t('Download Content Stats to CSV'),
-    'page callback' => 'islandora_content_stats_csv_download', //drupal_get_form?
-    'access arguments' =>  array('administer site configuration'), //needed?
-    //'type' => MENU_NORMAL_ITEM,
-    //'file' => 'includes/reports.form.inc'
+    'page callback' => 'islandora_content_stats_csv_download',
+    'access callback' => TRUE,
     );
   return $items;
 }
+
+
 
 function islandora_content_stats_csv_download(){
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
   foreach($_GET as $key => $filter){
-    if($filter != 'admin/reports/content_stats/data'){
+    if($filter != 'data/download'){
       $filters[$key] = $filter;
     }
   }
