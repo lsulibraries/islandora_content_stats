@@ -59,7 +59,8 @@ function islandora_content_stats_form($form, &$form_state){
   $form = [];
   $form['totals']['item'] = array(
     '#type' => 'item',
-    '#title' => t('Site-wide Counts of items by type, (islandora:root counts as a collection)'),
+    '#title' => t('Site-wide Counts of items by type (aka content model).
+<br>islandora:root aka(all collections) is included in the count of collections)'),
   );
   foreach($total_counts as $id => $count){
     $form['totals'][$id] = array(
@@ -69,7 +70,7 @@ function islandora_content_stats_form($form, &$form_state){
   }
   $form['filter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Filter query results'),
+    '#title' => t('<br>Filter results by type, ownership, or collection name'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
@@ -77,22 +78,22 @@ function islandora_content_stats_form($form, &$form_state){
     '#type' => 'select',
     '#title' => t('Filter by type of object'),
     '#options' => cmodel_types_for_form(),
-    '#description' => t('content model names'),
+    '#description' => t('Shows results to that match a single content model.'),
     '#required' => FALSE,
     '#empty_option' => '--none--',
-    //'#attributes' => array('onchange' => 'this.form.submit();'), //currently causes csv download...
   );
   $form['filter']['institution'] = array(
     '#type' => 'select',
-    '#title' => t('Filter by institution or sub-institution'),
+    '#title' => t('Filter according to ownership by institution or sub-institution'),
     '#options' => institutions_for_form(),
     '#required' => FALSE,
-    '#description' => t('institution or sub-institution prefix (.i.e. "lsu")'),
+    '#description' => t('Shows results for any items owned by chosen institution or sub-institution.'),
     '#empty_option' => '--none--',
   );
   $form['filter']['collection'] = array(
     '#type' => 'select',
     '#title' => t('Filter by specific Collection'),
+    '#description' => t('Shows counts of object types for an individual collection.'),
     '#options' => collection_pid_labels_for_form(),
     '#required' => FALSE,
     '#empty_option' => '--none--',
@@ -101,18 +102,28 @@ function islandora_content_stats_form($form, &$form_state){
     '#type' => 'checkbox',
     '#title' => t('Show all results (history)')
   );
-  $form['filter']['download'] = array(
-    '#type' => 'submit',
-    '#value' => t('Download as CSV'),
-    '#submit' => array('download_data'),
+  $form['filter']['filtertitle'] = array(
+    '#type' => 'item',
+    '#title' => t('Press to apply filters to page results.'),
   );
   $form['filter']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Filter'),
   );
+  $form['download']['dltitle'] = array(
+    '#type' => 'item',
+    '#title' => t('<br>Downloads results for use in a spreadsheet. (always applies current filters)'),
+  );
+  $form['download']['button'] = array(
+    '#type' => 'submit',
+    '#value' => t('Download as CSV'),
+    '#submit' => array('download_data'),
+  );
   $form['tabletitle'] = array(
     '#type' => 'item',
-    '#title' => t('Content from institutions and collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button. (not every choice combination will return results)'),
+    '#title' => t('<br>Content from institutions and collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
+(not every choice combination will return results)<br>
+Sort by ID, Institution/Context, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
   );
   $form['table'] = array(
     '#theme' => 'table',
