@@ -10,8 +10,7 @@ function islandora_content_stats_form($form, &$form_state){
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
-    //array('data'=> t('Instituton/Context'), 'field' =>'stats.inst',),
-    array('data' => t('Collection (optional)'), 'field' =>'stats.coll',),
+    array('data' => t('Collection'), 'field' =>'stats.coll',),
     array('data' => t('Content Model'), 'field' =>'stats.cmodel',),
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
@@ -20,16 +19,13 @@ function islandora_content_stats_form($form, &$form_state){
   //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
-  //$query = $query->fields('stats', array('id','inst','coll','cmodel','count','timestamp'));
   $query = $query->fields('stats', array('id','coll','cmodel','count','timestamp'));
   $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
   foreach($results as $record){
     if($record->count != 0){
-      //if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0') && ($record->inst != NULL) ){
-      if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0') ){
+      if( ($record->cmodel != 'fedora-system:FedoraObject-3.0') && ($record->cmodel !='fedora-system:ContentModel-3.0') && $record->coll != 'islandora:root' ){
         $rows[$record->id] = array(
           'id' => $record->id,
-          //'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
           'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll,'form')),
           'cmodel' =>  map_cmodels($record->cmodel),
           'count' => $record->count,
@@ -38,13 +34,10 @@ function islandora_content_stats_form($form, &$form_state){
       }
     }
   }
-  //I cannot explain why but I could not re-use $query or $max_timestamp after using them above.
-  //Multiple tables on the same page cannot be sorted independently, refer to: https://www.drupal.org/node/94058
-  //Putting the results below into prose is better.
+  //Total Counts go into prose not into form
   $total_counts = [];
   $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $total_query = db_select("islandora_content_stats","total");
-  //$totals = $total_query->fields('total', array('id','inst','cmodel','count','timestamp'));
   $totals = $total_query->fields('total', array('id','cmodel','count','timestamp'))
     ->condition('coll', 'islandora:root')
     ->condition('timestamp', $timestamp->fetchField())
@@ -131,6 +124,14 @@ Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers b
   return $form;
 }
 
+/**
+ * takes filters from the form and applies them to database conditions
+ * inputs $form_state has filter values
+ * $mysqlpart is passed to either do nothing or add conditions to the $query
+ * $timestamp is applied only if recent queries are requested,
+ * $headers are required for ordering of the form
+ * returns an executed mysql query
+ */
 function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
   if(!isset($form_state['input']['all'])){
     $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
@@ -158,6 +159,10 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers){
     ->execute();
 }
 
+/**
+ * sends the filter options to the islandora_content_stats_csv_download function
+ * sent as url parameters to page data/download
+ */
 function download_data(&$form,&$form_state){
   $options = array('query' => array('cmodel' => $form_state['values']['cmodel'], 'coll' => $form_state['values']['collection'],'all' => $form_state['values']['all']));
   drupal_goto('data/download', $options);

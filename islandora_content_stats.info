@@ -1,6 +1,4 @@
 name = islandora content stats
 description = module to run Resource Index queries periodically and display the results on-demand.
 core = 7.x
-files[] = includes/queries.inc
-files[] = includes/admin.form.inc
 dependencies[] = islandora

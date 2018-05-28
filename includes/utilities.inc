@@ -1,7 +1,7 @@
 <?php
-module_load_include('inc','islandora','/includes/utilities');
-
+//creates a mapping betwenn content model machine names, and human readable labels
 function map_cmodels($model){
+  module_load_include('inc','islandora','/includes/utilities');
   if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
   else{
     $cmodel_map = islandora_get_content_models();
@@ -13,6 +13,7 @@ function map_cmodels($model){
   }
 }
 
+//creates a mapping between collection pids and their human readable labels
 function map_collection($pid, $context = FALSE){
   if($pid != '' ){
     $obj = islandora_object_load($pid);
@@ -30,7 +31,10 @@ function map_collection($pid, $context = FALSE){
   }
 }
 
-//Block Related functions
+
+//Block Related function tied to report-page.form.inc
+//applies a path check to determin if on a 'collection page'
+//unused by default
 function islandora_content_stats_post_collection_stats(){
   if(strpos(request_uri(),'collection')){
     $str = request_uri();
@@ -38,15 +42,4 @@ function islandora_content_stats_post_collection_stats(){
     return islandora_content_stats_page_cmodels_coll($coll);
 
   }
-}
-
-function check_path(){
-  $ns_prefixes = update_namespace_prefixes_cache();
-  $page = str_replace('/','',request_uri());
-      foreach($ns_prefixes as $prefix){
-        if($prefix == $page){
-        return true;
-      }
-
-    }
 }

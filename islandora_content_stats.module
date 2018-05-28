@@ -1,8 +1,4 @@
 <?php
-require_once dirname(__FILE__) . '/includes/queries.inc';
-require_once dirname(__FILE__) . '/includes/utilities.inc';
-require_once dirname(__FILE__) . '/includes/reports-page.form.inc';
-module_load_include('php','islandora_namespace_homepage','includes/utilities;');
 
 /**
  * Implements hook_menu().
@@ -33,6 +29,7 @@ function islandora_content_stats_menu() {
 }
 
 function islandora_content_stats_csv_download(){
+  module_load_include('inc','islandora_content_stats','includes/utilities;');
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
   foreach($_GET as $key => $filter){
@@ -104,6 +101,7 @@ function islandora_content_stats_csv_download(){
 // }
 
 /**
+* was started to show the stats of site and collections as a block within the context of a given page.
 * Implements hook_block_info().
 * Consider as WIP not reccomended, or required
 */
@@ -130,6 +128,7 @@ function islandora_content_stats_block_info() {
 }
 
 function islandora_content_stats_block_view($delta = ''){
+  module_load_include('inc', 'islandora_content_stats','/includes/reports-page.form');
 $blocks = array();
   switch ($delta) {
     case 'content_stats':
