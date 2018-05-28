@@ -39,7 +39,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
   //get latest timestamp from run queries
   $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $max_time = $q_time->fetchField();
-  $all_inst = all_ns_prefix_incl_subs();
+  //$all_inst = all_ns_prefix_incl_subs();
   $uri_split = explode('/', request_uri());
   //find the context of the page: is it front, institution or collection?
   if(strpos(request_uri(), 'collection')){
@@ -50,10 +50,7 @@ function islandora_content_stats_table_page_form($form, &$form_state){
     $counts = islandora_root_stats_queries();
     $rows = getRow_helper($counts);
   }
-  else{
-    $counts = islandora_content_stats_post_institution_stats();
-    $rows = getRow_helper($counts);
-  }
+
   //build up the form
   $form = [];
     $headers =  array(

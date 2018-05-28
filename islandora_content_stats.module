@@ -32,8 +32,6 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
-
-
 function islandora_content_stats_csv_download(){
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
@@ -44,25 +42,24 @@ function islandora_content_stats_csv_download(){
   }
   //if requesting historic data
   if(isset($filters['all'])){
-
-  if($filters['all'] == 1){
-    array_pop($filters);
-    foreach($filters as $key => $filter){
-      if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
-        if(strpos($query,'WHERE') === FALSE){
-          if($filter !=''){
+    if($filters['all'] == 1){
+      array_pop($filters);
+      foreach($filters as $key => $filter){
+        if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
+          if(strpos($query,'WHERE') === FALSE){
+            if($filter !=''){
               $query .= ' WHERE '.$key.' = \''.$filter.'\'';
+            }
           }
-        }
-        else{
-          if($filter !=''){
+          else{
+            if($filter !=''){
               $query .= ' AND '.$key.' = \''.$filter.'\'';
+            }
           }
         }
       }
     }
   }
-}
   //when requesting latest data
   else{
     $max_time = '';
@@ -73,8 +70,8 @@ function islandora_content_stats_csv_download(){
     foreach($filters as $key => $filter){
       if($filter != ''){
         $query .= ' AND '.$key.' = \''.$filter.'\'';
+      }
     }
-  }
   }
   $results = db_query($query) or die ("Sql error : ".mysql_error());
   drupal_add_http_header("Content-type", "text/csv; utf-8");
@@ -83,13 +80,12 @@ function islandora_content_stats_csv_download(){
   foreach($results as $result){
     if( $result->cmodel == 'fedora-system:FedoraObject-3.0' || $result->cmodel == 'fedora-system:ContentModel-3.0' || $result->coll == 'islandora:root'){}
     else{
-      fputcsv($fh,array($result->id,map_institution($result->inst),map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
+      fputcsv($fh,array($result->id,map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
     }
   }
-  //drupal_goto('data/',$filters);
 }
 
-//path testing...
+//path testing... WIP
 // foreach(arg() as $arg){
 //   if(count(arg()) == 1){
 //     if($arg == ''){
@@ -109,11 +105,12 @@ function islandora_content_stats_csv_download(){
 
 /**
 * Implements hook_block_info().
+* Consider as WIP not reccomended, or required
 */
 function islandora_content_stats_block_info() {
 
   $frontpage_str = "(arg(0) == '' || arg(0) == 'node' )";
-  $instpage_str = "strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues'";
+//  $instpage_str = "strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues'";
   $collpage_str = "arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4";
   $blocks = array();
     $blocks['content_stats'] = array(
@@ -126,7 +123,8 @@ function islandora_content_stats_block_info() {
       'region' => 'content',
       'visibility' => BLOCK_VISIBILITY_PHP,
       //this logic doesn't seem to work rn...
-      'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
+      //'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}"QUESTIONMARK">",
+      'pages' =>"<?php  if (".$frontpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
     );
   return $blocks;
 }

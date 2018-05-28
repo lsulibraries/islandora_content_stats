@@ -13,22 +13,6 @@ function map_cmodels($model){
   }
 }
 
-function map_institution($inst,$form = ''){
-  if($form != ''){}
-  if($inst == 'islandora:root'){return $inst;}
-  else{
-    $inst = rtrim($inst,'-');
-    $query = "select * from islandora_namespace_homepage where prefix = '".$inst."'";
-    $ns_homepage_table = db_query($query);
-    if($ns_homepage_table->rowCount()==0){return $inst;}
-    else{
-      foreach($ns_homepage_table as $row){
-        return $row->title;
-      }
-    }
-  }
-}
-
 function map_collection($pid, $context = FALSE){
   if($pid != '' ){
     $obj = islandora_object_load($pid);
@@ -65,13 +49,4 @@ function check_path(){
       }
 
     }
-}
-
-function islandora_content_stats_post_institution_stats(){
-  if(check_path()){
-    return islandora_content_stats_page_cmodels_inst(str_replace('/','',request_uri()));
-  }
-  else{
-    return;
-  }
 }
