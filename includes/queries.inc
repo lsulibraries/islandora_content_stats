@@ -25,6 +25,7 @@ EOL;
 }
 
 function cmodel_types_for_form(){
+  module_load_include('inc','islandora_content_stats','includes/utilities');
   $model_counts = all_cmodels();
   $return = [];
   foreach($model_counts as $model){
@@ -60,6 +61,7 @@ EOL;
 }
 
 function institutions_for_form(){
+  module_load_include('inc','islandora_content_stats','includes/utilities');
   $prefixes = all_ns_prefix_incl_subs();
   $return = [];
   foreach($prefixes as $inst){
@@ -99,6 +101,7 @@ EOL;
 }
 
 function collection_pid_labels_for_form(){
+  module_load_include('inc','islandora_content_stats','includes/utilities');
   $return = [];
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOL
@@ -223,10 +226,6 @@ EOL;
      return $inst_cmodel_counts;
 }
 
- //if an empty texfield is submitted it defaults to a resonable interval.
- if(!variable_get('islandora_content_stats_interval')){
-     variable_set('islandora_content_stats_interval', '3 days');
- }
 /**
  * Implements hook_cron().
  * Runs our queries
@@ -312,7 +311,15 @@ function islandora_content_stats_run_queries(){
   }
 }
 
-//$query ="select * from ldl.islandora_content_stats where coll = ";
+//confirms that the prefix has a '-' needed to make sure we don't return results from lsu-hsc when asking for lsu-
+function check_prefix($ns_prefix){
+  if(strpos($ns_prefix,'-') === FALSE){
+    $ns_prefix = $ns_prefix.'-';
+  }
+  return $ns_prefix;
+}
+
+//functions for page blocks, not in use
 function islandora_content_stats_page_cmodels_coll($path){
   $query ="select * from ldl.islandora_content_stats where coll = ";
   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
@@ -333,7 +340,7 @@ function islandora_content_stats_page_cmodels_coll($path){
       );
     }
   }
-return $display;
+  return $display;
 }
 
 function islandora_content_stats_page_cmodels_inst($path){
@@ -342,9 +349,6 @@ function islandora_content_stats_page_cmodels_inst($path){
   $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
   $last_q_time = '';
   $time = $last_query_time_db->fetchField();
-//  foreach($last_query_time_db as $return){
-//   $last_q_time = (isset ($return) ? $return->{'max(timestamp)'} : 0);
-// }
   $query_suf = " and timestamp = ";
   $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$time . '\''.$query_end );
   $results = $result->fetchAll();
@@ -361,7 +365,7 @@ function islandora_content_stats_page_cmodels_inst($path){
       );
     }
   }
-return $display;
+  return $display;
 }
 
 function islandora_root_stats_queries(){
@@ -384,11 +388,4 @@ function islandora_root_stats_queries(){
        );
   }
   return $display;
-}
-
-function check_prefix($ns_prefix){
-  if(strpos($ns_prefix,'-') === FALSE){
-    $ns_prefix = $ns_prefix.'-';
-  }
-  return $ns_prefix;
 }

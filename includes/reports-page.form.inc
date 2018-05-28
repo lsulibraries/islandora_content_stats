@@ -1,8 +1,4 @@
 <?php
-require_once dirname(__FILE__) . '/queries.inc';
-require_once dirname(__FILE__) . '/../islandora_content_stats.module';
-module_load_include('inc','islandora','/includes/utilities');
-
 //row building function
 function getRow($cmodel, $count) {
   if($count != 0){
@@ -32,8 +28,11 @@ function getRow_helper($counts){
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  * to be displayed as a block on homepage, institution page, and collection page
+ * not currently implemented
  */
 function islandora_content_stats_table_page_form($form, &$form_state){
+  module_load_include('inc','islandora','/includes/utilities');
+  module_load_include('inc', 'islandora_content_stats', '/includes/queries');
   $cmodel_map = islandora_get_content_models();
   $variables = [];
   //get latest timestamp from run queries

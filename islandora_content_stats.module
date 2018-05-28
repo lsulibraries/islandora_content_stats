@@ -1,9 +1,4 @@
 <?php
-require_once dirname(__FILE__) . '/includes/queries.inc';
-require_once dirname(__FILE__) . '/includes/utilities.inc';
-require_once dirname(__FILE__) . '/includes/reports-page.form.inc';
-module_load_include('php','islandora_namespace_homepage','includes/utilities;');
-
 /**
  * Implements hook_menu().
  */
@@ -32,9 +27,8 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
-
-
 function islandora_content_stats_csv_download(){
+  module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
   foreach($_GET as $key => $filter){
@@ -44,7 +38,6 @@ function islandora_content_stats_csv_download(){
   }
   //if requesting historic data
   if(isset($filters['all'])){
-
   if($filters['all'] == 1){
     array_pop($filters);
     foreach($filters as $key => $filter){
@@ -86,10 +79,9 @@ function islandora_content_stats_csv_download(){
       fputcsv($fh,array($result->id,map_institution($result->inst),map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
     }
   }
-  //drupal_goto('data/',$filters);
 }
 
-//path testing...
+//path testing...WIP
 // foreach(arg() as $arg){
 //   if(count(arg()) == 1){
 //     if($arg == ''){

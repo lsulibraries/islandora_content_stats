@@ -30,6 +30,11 @@ function islandora_content_stats_admin_form($form, &$form_state) {
   return $form;
 }
 
+ //if an empty texfield is submitted it defaults to a resonable interval.
+ if(!variable_get('islandora_content_stats_interval')){
+     variable_set('islandora_content_stats_interval', '3 days');
+ }
+
 function direct_to_reports(){
   drupal_goto('data');
 }

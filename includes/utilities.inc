@@ -34,7 +34,7 @@ function map_collection($pid, $context = FALSE){
     $obj = islandora_object_load($pid);
     $label = $obj->label;
     if($context == 'csv'){
-      $link = 'http://'.$_SERVER['SERVER_NAME'].':8000/islandora/object/'.$pid;
+      $link = 'http://'.$_SERVER['SERVER_NAME'].'/islandora/object/'.$pid;
     }
     elseif($context == 'form'){
       $link = '<a href = "../../islandora/object/'.$pid.'">'.$label.'</a>';

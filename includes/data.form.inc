@@ -1,12 +1,11 @@
 <?php
-require_once dirname(__FILE__) . '/queries.inc';
-require_once dirname(__FILE__) . '/utilities.inc';
-
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
 function islandora_content_stats_form($form, &$form_state){
+  module_load_include('inc', 'islandora_content_stats','/includes/queries');
+  module_load_include('inc', 'islandora_content_stats','/includes/utilities');
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
@@ -38,7 +37,7 @@ function islandora_content_stats_form($form, &$form_state){
   }
   //I cannot explain why but I could not re-use $query or $max_timestamp after using them above.
   //Multiple tables on the same page cannot be sorted independently, refer to: https://www.drupal.org/node/94058
-  //Putting the results below into prose is better.
+  //Putting the totals into prose is better 
   $total_counts = [];
   $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $total_query = db_select("islandora_content_stats","total");
