@@ -8,7 +8,7 @@ function map_cmodels($model){
     if($model != '' && array_key_exists($model, $cmodel_map)){
       $label = $cmodel_map[$model];
       $label_f = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','', $label['label'])));
-    return $label_f.'s';
+    return $label_f;
     }
   }
 }
