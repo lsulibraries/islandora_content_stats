@@ -55,7 +55,6 @@ function islandora_content_stats_csv_download(){
       }
     }
   }
-}
   //when requesting latest data
   else{
     $max_time = '';
@@ -66,9 +65,10 @@ function islandora_content_stats_csv_download(){
     foreach($filters as $key => $filter){
       if($filter != ''){
         $query .= ' AND '.$key.' = \''.$filter.'\'';
+      }
     }
   }
-  }
+}
   $results = db_query($query) or die ("Sql error : ".mysql_error());
   drupal_add_http_header("Content-type", "text/csv; utf-8");
   drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
