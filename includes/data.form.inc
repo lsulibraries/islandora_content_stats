@@ -92,7 +92,7 @@ function islandora_content_stats_form($form, &$form_state){
   );
   $form['filter']['collection'] = array(
     '#type' => 'select',
-    '#title' => t('Filter by specific Collection'),
+    '#title' => t('Filter by specific collection'),
     '#description' => t('Shows counts of object types for an individual collection.'),
     '#options' => collection_pid_labels_for_form(),
     '#required' => FALSE,
@@ -120,7 +120,7 @@ function islandora_content_stats_form($form, &$form_state){
     '#type' => 'item',
     '#title' => t('<br>Content from institutions and collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
 (not every choice combination will return results)<br>
-Sort by ID, Institution/Context, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
+Sort by id, institution/owner, collection, content Model, count, or timestamp by clicking headers below.'),
   );
   $form['table-collapse']['table'] = array(
     '#theme' => 'table',
@@ -138,8 +138,6 @@ Sort by ID, Institution/Context, Collection, Content Model, Count, or Timestamp 
     '#value' => t('Download as CSV'),
     '#submit' => array('download_data'),
   );
-
-
   return $form;
 }
 

@@ -99,6 +99,15 @@ function islandora_content_stats_csv_download(){
 //   }
 // }
 
+function islandora_content_stats_cron() {
+  module_load_include('inc','islandora_content_stats','includes/queries');
+  $date = variable_get('islandora_content_stats_query_run_date');
+  //$day  = variable_get('islandora_content_stats_query_run_day');
+  $hour = variable_get('islandora_content_stats_query_run_hour');
+  if(date('G')==intval($hour) && date('d')==$date){ //&& date('l')==$day
+    islandora_content_stats_run_queries();
+  }
+}
 /**
 * Implements hook_block_info().
 */

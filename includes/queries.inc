@@ -226,25 +226,47 @@ EOL;
      return $inst_cmodel_counts;
 }
 
+
+
 /**
  * Implements hook_cron().
  * Runs our queries
  * IF the current cron time is greater than the interval of time plus the last query runtime
  */
-function islandora_content_stats_cron() {
-  $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
-  $last_q_run = '';
-  $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
-  $time = $q_time->fetchField();
+// function islandora_content_stats_cron() {
+//   // has interval elapsed since last query run?
+//   $last_run = db_query('select max(timestamp) from ldl.islandora_content_stats')->fetchField();
+//   //strtotime always adds the current time to whatever you've input
+//   $interval = strtotime(variable_get('islandora_content_stats_interval')) - variable_get('islandora_content_stats_set_time');
+//   //time at setting of interval is 'set_time' subtract set time from interval
+//
+//   //have to subtract current time now to get remaining time on interval
+//   $remainder = strtotime(variable_get('islandora_content_stats_interval')) - variable_get('islandora_content_stats_set_time');
+//
+//   $last_run_plus_remaining = $remainder + $last_run;
+//   dpm(time());
+//   dpm($last_run_plus_remaining);
+//   if(time() >= $last_run_plus_remaining){
+//     islandora_content_stats_run_queries();
+//   }
+// }
 
-  $last_q_plus_interval = $interval + $time;
-  if(time() >= $last_q_plus_interval){
-    islandora_content_stats_run_queries();
-  }
-}
+// function islandora_content_stats_cron() {
+//   if(date('G')==0 && date('i')==00 && date('l')=="Monday"){
+//     islandora_content_stats_run_queries();
+//   }
+// }
+//
+// $cron_last = variable_get('cron_last', time());
+// dpm(date("Y-m-d\TH:i:s\Z", $cron_last));
+// dpm(date('G i l'));
+
+
 
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_run_queries(){
+  variable_set('islandora_content_stats_button','cron');
+    // watchdog('file system', 'goodbye', "" , WATCHDOG_INFO);
     //echo('populating db w/ queries');
     $time = time();
     $all_models = all_cmodels();
