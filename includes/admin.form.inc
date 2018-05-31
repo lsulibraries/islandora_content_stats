@@ -26,9 +26,9 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     '#options' => array_combine(range(0,23), range(0,23)),
    );
    $date = variable_get('islandora_content_stats_query_run_date');
-   $date = (isset($date) ? $date : 'any' );
+   $date = (isset($date) ? $date : 'not set' );
    $hour =variable_get('islandora_content_stats_query_run_hour');
-   $hour = (isset($hour) ? $hour : 'any' );
+   $hour = (isset($hour) ? $hour : 'not set' );
     $form['current_setting'] = array(
     '#title' => t('Currently set to run'),
     '#type' => 'fieldset',

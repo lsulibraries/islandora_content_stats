@@ -1,5 +1,11 @@
 <?php
-//row building function
+/**
+ * create row for table displayed
+ * @param string $cmodel
+ * content model machine name
+ * @param string $count
+ * count of items with cmodel
+ */
 function getRow($cmodel, $count) {
   if($count != 0){
     return array(
@@ -14,6 +20,12 @@ function getRow($cmodel, $count) {
     );
   }
 }
+
+/**
+ * builds rows for display in a table 
+ * @param array $counts
+ * return from a query, array of content model counts
+ */
 function getRow_helper($counts){
   $rows = [];
   if(isset($counts)){

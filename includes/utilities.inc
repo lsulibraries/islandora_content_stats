@@ -1,6 +1,14 @@
 <?php
 module_load_include('inc','islandora','/includes/utilities');
 
+
+/**
+ * Maps a machine name to a human readable $label
+ * @param string $model
+ *  String of model's machine name
+ * @return string
+ *  String of model's label stripped of repetitous words
+ */
 function map_cmodels($model){
   if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
   else{
@@ -13,6 +21,15 @@ function map_cmodels($model){
   }
 }
 
+/**
+ * Maps an institution prefix to an intitution's title
+ * @param string $inst
+ * String of institutional prefix
+ * @param string $form
+ *  string indicates function is used for form dropdown
+ * @return string
+ * String of institution's title
+ */
 function map_institution($inst,$form = ''){
   if($form != ''){}
   if($inst == 'islandora:root'){return $inst;}
@@ -29,6 +46,15 @@ function map_institution($inst,$form = ''){
   }
 }
 
+/**
+ * Maps a collection pid to a collection label
+ * @param string $pid
+ * String of collection pid
+ * @param string $context
+ *  string indicates function is used for display in a form, or csv download.
+ * @return string
+ * String of institution's title with link to item
+ */
 function map_collection($pid, $context = FALSE){
   if($pid != '' ){
     $obj = islandora_object_load($pid);

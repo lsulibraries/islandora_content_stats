@@ -4,6 +4,7 @@ module_load_include('php','islandora_namespace_homepage','includes/db');
 module_load_include('php','islandora_namespace_homepage','includes/utilities');
 // the RI (ITQL & SPARQL) queries
 //for aggregated SPARQL queries always use ->countQuery() from the tuque connection
+
 /**
  * Query repository index for all cmodels and a count for each.
  * Special thanks to rebecca.s.koeser@princeton.edu for this query
@@ -24,6 +25,10 @@ EOL;
   return $result;
 }
 
+/**
+ * marks up the content models available
+ * puts into dropdown for filter on data.form.inc
+ */
 function cmodel_types_for_form(){
   module_load_include('inc','islandora_content_stats','includes/utilities');
   $model_counts = all_cmodels();
@@ -38,6 +43,9 @@ function cmodel_types_for_form(){
   return $return;
 }
 
+/**
+ * query for all institutional an sub-institutional prefixes
+ */
 function all_ns_prefix_incl_subs(){
   $tuque = islandora_get_tuque_connection();
   $prefixes = array();
@@ -60,6 +68,10 @@ EOL;
   return array_unique($prefixes);
 }
 
+/**
+ * marks up the institutions and subs for display
+ * puts into dropdown for filter on data.form.inc
+ */
 function institutions_for_form(){
   module_load_include('inc','islandora_content_stats','includes/utilities');
   $prefixes = all_ns_prefix_incl_subs();
@@ -69,9 +81,9 @@ function institutions_for_form(){
   }
   return $return;
 }
+
 /**
  * Query the ri for a count of a collection's content models
- * use with institutions somehow
  */
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
@@ -158,7 +170,7 @@ EOQ;
   return $fields;
 }
 
-//return only cmodels no counts. wish I could figure it in sparql
+//return only cmodels no counts.
 function cmodel_types(){
   $tuque = islandora_get_tuque_connection();
   $members = array();
@@ -171,6 +183,13 @@ EOL;
   return $result;
 }
 
+/**
+ * marks up the content models available
+ * @param string $ns_prefix
+ *  prefix of institution or sub-institution
+ * @return array
+ *  array of an institution's total of items with a particular content model.
+ */
 function institution_cmodel_totals($ns_prefix){
   $inst_cmodel_counts = [];
   $cmodels = cmodel_types();
@@ -225,43 +244,6 @@ EOL;
   }
      return $inst_cmodel_counts;
 }
-
-
-
-/**
- * Implements hook_cron().
- * Runs our queries
- * IF the current cron time is greater than the interval of time plus the last query runtime
- */
-// function islandora_content_stats_cron() {
-//   // has interval elapsed since last query run?
-//   $last_run = db_query('select max(timestamp) from ldl.islandora_content_stats')->fetchField();
-//   //strtotime always adds the current time to whatever you've input
-//   $interval = strtotime(variable_get('islandora_content_stats_interval')) - variable_get('islandora_content_stats_set_time');
-//   //time at setting of interval is 'set_time' subtract set time from interval
-//
-//   //have to subtract current time now to get remaining time on interval
-//   $remainder = strtotime(variable_get('islandora_content_stats_interval')) - variable_get('islandora_content_stats_set_time');
-//
-//   $last_run_plus_remaining = $remainder + $last_run;
-//   dpm(time());
-//   dpm($last_run_plus_remaining);
-//   if(time() >= $last_run_plus_remaining){
-//     islandora_content_stats_run_queries();
-//   }
-// }
-
-// function islandora_content_stats_cron() {
-//   if(date('G')==0 && date('i')==00 && date('l')=="Monday"){
-//     islandora_content_stats_run_queries();
-//   }
-// }
-//
-// $cron_last = variable_get('cron_last', time());
-// dpm(date("Y-m-d\TH:i:s\Z", $cron_last));
-// dpm(date('G i l'));
-
-
 
 // save the results to a database table (with a timestamp)
 function islandora_content_stats_run_queries(){
@@ -401,13 +383,13 @@ function islandora_root_stats_queries(){
   $results = $result->fetchAll();
   $display = [];
   foreach($results as $query_r){
-       $display[$query_r->id] = array(
-         //'id' => $query_r->id,
-         //'inst' => $query_r->inst,
-         //'coll' => $query_r->coll,
-         'cmodel' => $query_r->cmodel,
-         'count' => $query_r->count,
-       );
+    $display[$query_r->id] = array(
+      //'id' => $query_r->id,
+      //'inst' => $query_r->inst,
+      //'coll' => $query_r->coll,
+      'cmodel' => $query_r->cmodel,
+      'count' => $query_r->count,
+    );
   }
   return $display;
 }

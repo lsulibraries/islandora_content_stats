@@ -98,7 +98,11 @@ function islandora_content_stats_csv_download(){
 //     dpm('must be collection');
 //   }
 // }
-
+/**
+ * Implements hook_cron().
+ * must stay in .module file
+ * If cron is running and the date, and hour match, execute queries
+ */
 function islandora_content_stats_cron() {
   module_load_include('inc','islandora_content_stats','includes/queries');
   $date = variable_get('islandora_content_stats_query_run_date');
@@ -117,32 +121,32 @@ function islandora_content_stats_block_info() {
   $instpage_str = "strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues'";
   $collpage_str = "arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4";
   $blocks = array();
-    $blocks['content_stats'] = array(
-      'info' => t('Content Stats'),
-      'cache' => DRUPAL_NO_CACHE,
-    );
-    $blocks['content_stats_page'] = array(
-      'info' => t('Content Stats Page Content Models'),
-      'status' => 0, //change to 1 to enable block.
-      'region' => 'content',
-      'visibility' => BLOCK_VISIBILITY_PHP,
-      //this logic doesn't seem to work rn...
-      'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
-    );
+  $blocks['content_stats'] = array(
+    'info' => t('Content Stats'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['content_stats_page'] = array(
+    'info' => t('Content Stats Page Content Models'),
+    'status' => 0, //change to 1 to enable block.
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_PHP,
+    //this logic doesn't seem to work rn...
+    'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
+  );
   return $blocks;
 }
 
-function islandora_content_stats_block_view($delta = ''){
-$blocks = array();
-  switch ($delta) {
-    case 'content_stats':
-      $blocks['subject'] = t('Content Stats Block');
-      $blocks['content'] = drupal_get_form('islandora_content_stats_form');
-      break;
-    case 'content_stats_page':
-        $blocks['subject'] = t('Content Stats Page Content Models');
-        $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
-        break;
-  }
-  return $blocks;
-}
+// function islandora_content_stats_block_view($delta = ''){
+// $blocks = array();
+//   switch ($delta) {
+//     case 'content_stats':
+//       $blocks['subject'] = t('Content Stats Block');
+//       $blocks['content'] = drupal_get_form('islandora_content_stats_form');
+//       break;
+//     case 'content_stats_page':
+//         $blocks['subject'] = t('Content Stats Page Content Models');
+//         $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
+//         break;
+//   }
+//   return $blocks;
+// }
