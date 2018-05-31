@@ -1,6 +1,4 @@
 <?php
-module_load_include('inc','islandora','/includes/utilities');
-
 
 /**
  * Maps a machine name to a human readable $label
@@ -10,6 +8,7 @@ module_load_include('inc','islandora','/includes/utilities');
  *  String of model's label stripped of repetitous words
  */
 function map_cmodels($model){
+  module_load_include('inc','islandora','includes/utilities');
   if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
   else{
     $cmodel_map = islandora_get_content_models();
@@ -80,7 +79,6 @@ function islandora_content_stats_post_collection_stats(){
     $str = request_uri();
     $coll = str_replace('/islandora/object/','',$str);
     return islandora_content_stats_page_cmodels_coll($coll);
-
   }
 }
 
@@ -96,8 +94,10 @@ function check_path(){
 }
 
 function islandora_content_stats_post_institution_stats(){
+  module_load_include('inc','islandora_content_stats','includes/queries');
   if(check_path()){
-    return islandora_content_stats_page_cmodels_inst(str_replace('/','',request_uri()));
+    $inst_prefix =str_replace('/','',request_uri());
+    return islandora_content_stats_page_cmodels_inst($inst_prefix.'-');
   }
   else{
     return;

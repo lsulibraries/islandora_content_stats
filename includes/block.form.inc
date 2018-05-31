@@ -22,7 +22,7 @@ function getRow($cmodel, $count) {
 }
 
 /**
- * builds rows for display in a table 
+ * builds rows for display in a table
  * @param array $counts
  * return from a query, array of content model counts
  */
@@ -36,15 +36,17 @@ function getRow_helper($counts){
   return $rows;
 }
 
+
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  * to be displayed as a block on homepage, institution page, and collection page
  * not currently implemented
  */
-function islandora_content_stats_table_page_form($form, &$form_state){
-  module_load_include('inc','islandora','/includes/utilities');
-  module_load_include('inc', 'islandora_content_stats', '/includes/queries');
+function islandora_content_stats_mini_form($form, &$form_state){
+  module_load_include('inc','islandora','includes/utilities');
+  module_load_include('inc','islandora_content_stats','includes/utilities');
+  module_load_include('inc', 'islandora_content_stats', 'includes/queries');
   $cmodel_map = islandora_get_content_models();
   $variables = [];
   //get latest timestamp from run queries
@@ -77,11 +79,11 @@ function islandora_content_stats_table_page_form($form, &$form_state){
       '#header' => $headers,
       '#rows' => $rows,
       '#empty' => t('table is empty'),
-      '#attributes' => array('class' => array('islandora_content_stats_page_table')),
+      '#attributes' => array('class' => array('islandora_content_stats_block_table')),
       );
   return $form;
 }
 
-function islandora_content_stats_table_page_form_submit($form, &$form_state){
+function islandora_content_stats_mini_form_submit($form, &$form_state){
   $form_state['rebuild'] = TRUE;
 }
