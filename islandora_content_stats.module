@@ -104,7 +104,7 @@ function islandora_content_stats_block_info() {
   $blocks = array();
   $blocks['mini'] = array(
     'info' => t('Content Stats Mini'),
-    'status' => 1, //change to 1 to enable block.
+    'status' => 0, //change to 1 to enable block.
     'region' => 'content',
     'visibility' => BLOCK_VISIBILITY_NOTLISTED,
     'pages' => '',
