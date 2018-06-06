@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Implements hook_menu().
  */
@@ -29,7 +28,7 @@ function islandora_content_stats_menu() {
 }
 
 function islandora_content_stats_csv_download(){
-  module_load_include('inc','islandora_content_stats','includes/utilities;');
+  module_load_include('inc','islandora_content_stats', 'includes/utilities;');
   $query = "SELECT * FROM ldl.islandora_content_stats";
   $filters = [];
   foreach($_GET as $key => $filter){
@@ -42,7 +41,7 @@ function islandora_content_stats_csv_download(){
     if($filters['all'] == 1){
       array_pop($filters);
       foreach($filters as $key => $filter){
-        if($key == 'inst' || $key == 'cmodel' || $key == 'coll'){
+        if($key == 'cmodel' || $key == 'coll'){
           if(strpos($query,'WHERE') === FALSE){
             if($filter !=''){
               $query .= ' WHERE '.$key.' = \''.$filter.'\'';
@@ -82,63 +81,53 @@ function islandora_content_stats_csv_download(){
   }
 }
 
-//path testing... WIP
-// foreach(arg() as $arg){
-//   if(count(arg()) == 1){
-//     if($arg == ''){
-//       dpm('arg is empty str');
-//     }
-//     elseif(strlen($arg) < 10 && strlen($arg) > 1 && $arg != 'issues'){
-//       dpm('could be institution');
-//     }
-//     else{
-//       dpm(arg());
-//     }
-//   }
-//   elseif($arg == 'islandora' || $arg == 'collection' || $arg =='object'){
-//     dpm('must be collection');
-//   }
-// }
+/**
+ * Implements hook_cron().
+ * must stay in .module file
+ * If cron is running and the date, and hour match, execute queries
+ */
+function islandora_content_stats_cron() {
+  module_load_include('inc','islandora_content_stats','includes/queries');
+  $date = variable_get('islandora_content_stats_query_run_date');
+  //$day  = variable_get('islandora_content_stats_query_run_day');
+  $hour = variable_get('islandora_content_stats_query_run_hour');
+  if(date('G')==intval($hour) && date('d')==$date){ //&& date('l')==$day
+    islandora_content_stats_run_queries();
+  }
+}
 
 /**
-* was started to show the stats of site and collections as a block within the context of a given page.
-* Implements hook_block_info().
-* Consider as WIP not reccomended, or required
-*/
+ * Implements hook_block_info().
+ * Consider as WIP not reccomended, or required
+ */
 function islandora_content_stats_block_info() {
-
-  $frontpage_str = "(arg(0) == '' || arg(0) == 'node' )";
-//  $instpage_str = "strlen(arg(0)) < 10 && strlen(arg(0)) > 1 && count(arg()) == 1 && arg(0) != 'issues'";
-  $collpage_str = "arg(0) == 'islandora' && strpos(arg(2),'collection') && count(arg()) < 4";
   $blocks = array();
-    $blocks['content_stats'] = array(
-      'info' => t('Content Stats'),
-      'cache' => DRUPAL_NO_CACHE,
-    );
-    $blocks['content_stats_page'] = array(
-      'info' => t('Content Stats Page Content Models'),
-      'status' => 0, //change to 1 to enable block.
-      'region' => 'content',
-      'visibility' => BLOCK_VISIBILITY_PHP,
-      //this logic doesn't seem to work rn...
-      //'pages' =>"<?php  if (".$frontpage_str.")  || (".$instpage_str.") || (".$collpage_str.") ){return true;} else{return false;}"QUESTIONMARK">",
-      'pages' =>"<?php  if (".$frontpage_str.") || (".$collpage_str.") ){return true;} else{return false;}?>",
-    );
+  $blocks['mini'] = array(
+    'info' => t('Content Stats Mini'),
+    'status' => 0, //change to 1 to enable block.
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+    'pages' => '',
+  );
   return $blocks;
 }
 
 function islandora_content_stats_block_view($delta = ''){
-  module_load_include('inc', 'islandora_content_stats','/includes/reports-page.form');
-$blocks = array();
-  switch ($delta) {
-    case 'content_stats':
-      $blocks['subject'] = t('Content Stats Block');
-      $blocks['content'] = drupal_get_form('islandora_content_stats_form');
-      break;
-    case 'content_stats_page':
-        $blocks['subject'] = t('Content Stats Page Content Models');
-        $blocks['content'] = drupal_get_form('islandora_content_stats_table_page_form');
-        break;
+  module_load_include('inc','islandora_content_stats','includes/block.form');
+  $blocks = array();
+  module_load_include('php','islandora_namespace_homepage','includes/namespaces');
+  $frontpage = drupal_is_front_page();
+  $instpage = '';
+  $ns_prefix = update_namespace_prefixes_cache();
+  foreach($ns_prefix as $prefix){
+    if(request_uri() == '/'.$prefix){
+      $instpage = TRUE;
+    }
   }
+  $collpage = strpos(request_uri(), 'collection');
+  if($frontpage || $instpage || $collpage){
+        $blocks['subject'] = t('Content Models');
+        $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
+      }
   return $blocks;
 }

@@ -23,9 +23,12 @@ EOL;
 }
 
 /**
-* returns an array of options to be used in the data.form.inc dropdown
-*/
+ * returns an array of options to be used in the data.form.inc dropdown
+ * marks up the content models available
+ */
+
 function cmodel_types_for_form(){
+  module_load_include('inc','islandora_content_stats','includes/utilities');
   $model_counts = all_cmodels();
   $return = [];
   foreach($model_counts as $model){
@@ -37,20 +40,6 @@ function cmodel_types_for_form(){
   }
   return $return;
 }
-
-//return only cmodels no counts. wish I could figure it in sparql
-// function cmodel_types(){
-//   $tuque = islandora_get_tuque_connection();
-//   $members = array();
-//   $cmodel_types = <<<EOL
-// select \$cmodel from <#ri>
-// where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
-// EOL;
-//
-//   $result = $tuque->repository->ri->itqlQuery($cmodel_types, 'unlimited');
-//   return $result;
-// }
-
 
 function all_collections(){
   $tuque = islandora_get_tuque_connection();
@@ -71,7 +60,6 @@ EOL;
 
 /**
  * Query the ri for a count of a collection's content models
- * use with institutions somehow
  */
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
@@ -104,8 +92,17 @@ EOL;
 * returns array of options for data.form.inc dropdown of colleciton names
 */
 function collection_pid_labels_for_form(){
-  module_load_include('inc', 'islandora_content_stats','/includes/utilities');
+  module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
   $collections = all_collections();
+  $return = [];
+  $tuque = islandora_get_tuque_connection();
+  $query = <<<EOL
+SELECT ?pid
+FROM <#RI>
+{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+EOL;
+
+  $collections = $tuque->repository->ri->sparqlQuery($query,'unlimited');
   foreach($collections as $coll){
     $coll = $coll;
     $return[$coll] = map_collection($coll);
@@ -129,35 +126,27 @@ function islandora_content_stats_cron() {
   if(time() >= $last_q_plus_interval){
     islandora_content_stats_run_queries();
   }
+
+//return only cmodels no counts.
+function cmodel_types(){
+  $tuque = islandora_get_tuque_connection();
+  $members = array();
+  $cmodel_types = <<<EOL
+select \$cmodel from <#ri>
+where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
+EOL;
+
+  $result = $tuque->repository->ri->itqlQuery($cmodel_types, 'unlimited');
+  return $result;
 }
 
 // save the results to a database table (with a timestamp)
 // manually run the queries now.
 function islandora_content_stats_run_queries(){
-  $time = time();
-  $all_models = all_cmodels();
-  foreach($all_models as $model){
-    db_insert('islandora_content_stats')
-      ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
-      ->values(array(
-        'id' => NULL,
-        'coll' =>  'islandora:root',
-        'cmodel' => $model['cmodel']['value'],
-        'count' => intval($model['k0']['value']),
-        'timestamp' => $time,
-      ))
-      ->execute();
-  }
-  $all_colls = all_collections();
-  $each_coll_cmodel= array();
-  foreach($all_colls as $coll){
-    $each_coll_cmodel[$coll] = collection_cmodel_query($coll);
-  }
-  foreach($each_coll_cmodel as $coll){
-    //coll is key value paired with pid -> array()
-    foreach($coll as $pid => $modelcount){
-      //modelcount is associative array
-      foreach($modelcount as $model => $count){
+  variable_set('islandora_content_stats_button','cron');
+    $time = time();
+    $all_models = all_cmodels();
+    foreach($all_models as $model){
         db_insert('islandora_content_stats')
         ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
         ->values(array(
@@ -172,11 +161,6 @@ function islandora_content_stats_run_queries(){
     }
   }
 }
-
-/**
-* returns contextual queries for a given collection
-* used by the reports-page.form.inc not used by default
-*/
 
 function islandora_content_stats_page_cmodels_coll($path){
   $query ="select * from ldl.islandora_content_stats where coll = ";
@@ -213,8 +197,8 @@ function islandora_root_stats_queries(){
   $display = [];
   foreach($results as $query_r){
     $display[$query_r->id] = array(
-     'cmodel' => $query_r->cmodel,
-     'count' => $query_r->count,
+      'cmodel' => $query_r->cmodel,
+      'count' => $query_r->count,
     );
   }
   return $display;

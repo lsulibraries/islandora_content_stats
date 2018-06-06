@@ -1,12 +1,11 @@
 <?php
-require_once dirname(__FILE__) . '/queries.inc';
-require_once dirname(__FILE__) . '/utilities.inc';
-
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
 function islandora_content_stats_form($form, &$form_state){
+  module_load_include('inc', 'islandora_content_stats','/includes/queries');
+  module_load_include('inc', 'islandora_content_stats','/includes/utilities');
   $rows = [];
   $headers = array(
     array('data'=> t('ID'),'field' =>'stats.id','sort' => 'desc'),
@@ -27,14 +26,13 @@ function islandora_content_stats_form($form, &$form_state){
         $rows[$record->id] = array(
           'id' => $record->id,
           'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll,'form')),
-          'cmodel' =>  map_cmodels($record->cmodel),
+          'cmodel' => map_cmodels($record->cmodel),
           'count' => $record->count,
           'timestamp' => gmdate("Y-m-d\TH:i:s\Z",$record->timestamp),
         );
       }
     }
   }
-  //Total Counts go into prose not into form
   $total_counts = [];
   $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $total_query = db_select("islandora_content_stats","total");
@@ -54,21 +52,22 @@ function islandora_content_stats_form($form, &$form_state){
   }
   $form = [];
   $form['totals']['item'] = array(
-    '#type' => 'item',
-    '#title' => t('Site-wide Counts of items by type (aka content model).
-<br>islandora:root aka(all collections) is included in the count of collections)'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Totals for each content model'),
   );
   foreach($total_counts as $id => $count){
-    $form['totals'][$id] = array(
+    $form['totals']['item'][$id] = array(
       '#type' => 'item',
-      '#title' => t('Total '.$count['cmodel'].' : '.$count['count']),
+      '#title' => t($count['cmodel'].' Total: '.$count['count']),
     );
   }
   $form['filter'] = array(
     '#type' => 'fieldset',
     '#title' => t('<br>Filter results by type or collection membership'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
   );
   $form['filter']['cmodel'] = array(
     '#type' => 'select',
@@ -80,7 +79,7 @@ function islandora_content_stats_form($form, &$form_state){
   );
   $form['filter']['collection'] = array(
     '#type' => 'select',
-    '#title' => t('Filter by specific Collection'),
+    '#title' => t('Filter by specific collection'),
     '#description' => t('Shows counts of object types for an individual collection.'),
     '#options' => collection_pid_labels_for_form(),
     '#required' => FALSE,
@@ -98,6 +97,25 @@ function islandora_content_stats_form($form, &$form_state){
     '#type' => 'submit',
     '#value' => t('Filter'),
   );
+
+  $form['table-collapse'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#title' => t('<br>Table of results'),
+  );
+  $form['table-collapse']['explain'] = array(
+    '#type' => 'item',
+    '#title' => t('<br>Content from collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
+(not every choice combination will return results)<br>
+Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
+  );
+  $form['table-collapse']['table'] = array(
+    '#theme' => 'table',
+    '#header' => $headers,
+    '#rows' => $rows,
+    '#empty' => t('table is empty')
+  );
+  $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
   $form['download']['dltitle'] = array(
     '#type' => 'item',
     '#title' => t('<br>Downloads results for use in a spreadsheet. (always applies current filters)'),
@@ -107,20 +125,6 @@ function islandora_content_stats_form($form, &$form_state){
     '#value' => t('Download as CSV'),
     '#submit' => array('download_data'),
   );
-  $form['tabletitle'] = array(
-    '#type' => 'item',
-    '#title' => t('<br>Content from institutions and collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
-(not every choice combination will return results)<br>
-Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
-  );
-  $form['table'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    '#empty' => t('table is empty')
-  );
-  $form['pager'] = array('#markup' => theme('pager'));
-
   return $form;
 }
 

@@ -2,21 +2,21 @@
 
 Requirements: islandora, php\_lib, php\_filter
 
+
 Queries are stored in the mysql database as 'id', 'coll','cmodel', 'count', and 'timestamp'
+Admin -> Islandora -> Islandora Utility Modules -> Content Statistics
+Press "Run Queries Now" to update database. (must be done after installing)
 
-admin -> islandora -> islandora utility modules -> content stats admin
-Press "Run Queries Now"to update database. (must do this after installing to see anything at /data
-
-Queries are updated when a designated amount of time has elapsed after the latest cron run, via hook_cron().
-The time interval defaults 3 days.
+Queries are updated on a given month and hour when cron is also running.
 
 The last run queries can be found at yoursite.org/data
 
-Results can be filtered with dropdowns and the "Filter" button, by content model or collection.
-
-You can check the "Show all results" box and press "Filter" to see all queries in the history of the repository (since you installed it.) 
-
 Data can be downloaded as a csv, with any filters applied to the gui applied to the download.
+
+The last run queries can be found at yousite.com/data or localhost:8000/data (depending on your setup)
+The queries can be filtered with the drop-downs found here, by collection, and content model. (Must press "Filter" button to apply)
+
+You can check the "Show all results" box followed by the "Filter" button to see all queries in the history of the repository. (since installing the module)
 
 Special thanks go to
 [Rebecca Sutton Koeser](https://github.com/rlskoeser) for an itql query that got me started.
