@@ -2,6 +2,9 @@
 
 Requirements: islandora, php\_lib, php\_filter
 
+this module provides automatically run queries that are returned as a form at /data, 
+queries count the number of items with a given content model, and keep count of each collection's content model totals, as well as site wide totals for each content model.
+
 
 Queries are stored in the mysql database as 'id', 'coll','cmodel', 'count', and 'timestamp'
 Admin -> Islandora -> Islandora Utility Modules -> Content Statistics
