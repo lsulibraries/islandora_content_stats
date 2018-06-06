@@ -64,6 +64,9 @@ function islandora_content_stats_mini_form($form, &$form_state){
     $counts = islandora_root_stats_queries();
     $rows = getRow_helper($counts);
   }
+  else{
+    return;
+  }
 
   //build up the form
   $form = [];

@@ -179,7 +179,7 @@ function islandora_root_stats_queries(){
   $last_q_time = '';
   $time = $last_query_time_db->fetchField();
   $query ="select * from ldl.islandora_content_stats where timestamp = ";
-  $result = db_query($query. '\'' .$time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\'');
+  $result = db_query($query. '\'' .$time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\''.'and coll = '.'\''.'islandora:root'.'\'');
   $results = $result->fetchAll();
   $display = [];
   foreach($results as $query_r){
