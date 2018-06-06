@@ -107,7 +107,6 @@ EOL;
     $coll = $coll['pid']['value'];
     $return[$coll] = map_collection($coll);
   }
-  $return['All'] = 'All';
   return $return;
 }
 
