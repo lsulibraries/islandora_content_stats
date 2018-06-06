@@ -104,62 +104,50 @@ EOL;
 
   $collections = $tuque->repository->ri->sparqlQuery($query,'unlimited');
   foreach($collections as $coll){
-    $coll = $coll;
+    $coll = $coll['pid']['value'];
     $return[$coll] = map_collection($coll);
   }
   $return['All'] = 'All';
   return $return;
 }
 
-/**
- * Implements hook_cron().
- * Runs queries at regular intervals
- * IF the current cron time is greater than the interval of time plus the last query runtime
- */
-function islandora_content_stats_cron() {
-  $interval = strtotime(variable_get('islandora_content_stats_interval')) -time();
-  $last_q_run = '';
-  $q_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
-  $time = $q_time->fetchField();
-
-  $last_q_plus_interval = $interval + $time;
-  if(time() >= $last_q_plus_interval){
-    islandora_content_stats_run_queries();
-  }
-
-//return only cmodels no counts.
-function cmodel_types(){
-  $tuque = islandora_get_tuque_connection();
-  $members = array();
-  $cmodel_types = <<<EOL
-select \$cmodel from <#ri>
-where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
-EOL;
-
-  $result = $tuque->repository->ri->itqlQuery($cmodel_types, 'unlimited');
-  return $result;
-}
-
 // save the results to a database table (with a timestamp)
 // manually run the queries now.
 function islandora_content_stats_run_queries(){
   variable_set('islandora_content_stats_button','cron');
-    $time = time();
-    $all_models = all_cmodels();
-    foreach($all_models as $model){
+  $time = time();
+  $all_models = all_cmodels();
+  foreach($all_models as $model){
+    db_insert('islandora_content_stats')
+      ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
+      ->values(array(
+        'id' => NULL,
+        'coll' => 'islandora:root',
+        'cmodel' => $model['cmodel']['value'],
+        'count' => $model['k0']['value'],
+        'timestamp' => $time,
+      ))
+      ->execute();
+  }
+  $all_coll = all_collections();
+  foreach($all_coll as $coll){
+    $coll_models = collection_cmodel_query($coll);
+    foreach($coll_models as $coll => $model){
+      foreach($model as $type => $count){
         db_insert('islandora_content_stats')
         ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
         ->values(array(
           'id' => NULL,
-          'coll' => $pid,
-          'cmodel' => $model,
+          'coll' => $coll,
+          'cmodel' => $type,
           'count' => $count,
           'timestamp' => $time,
         ))
         ->execute();
-      }
     }
   }
+}
+
 }
 
 function islandora_content_stats_page_cmodels_coll($path){
