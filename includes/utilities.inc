@@ -6,14 +6,14 @@
  * @return string
  *  String of model's label stripped of repetitous words
  */
-function map_cmodels($model){
-  module_load_include('inc','islandora','includes/utilities');
-  if($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0'){}
+function map_cmodels($model) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  if ($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0') {}
   else{
     $cmodel_map = islandora_get_content_models();
-    if($model != '' && array_key_exists($model, $cmodel_map)){
+    if ($model != '' && array_key_exists($model, $cmodel_map)) {
       $label = $cmodel_map[$model];
-      $label_f = str_replace(' Content Model','',str_replace('Islandora ','',str_replace('Large ','', $label['label'])));
+      $label_f = str_replace(' Content Model', '', str_replace('Islandora ', '', str_replace('Large ', '', $label['label'])));
     return $label_f;
     }
   }
@@ -28,16 +28,16 @@ function map_cmodels($model){
  * @return string
  * String of collection title with link to item
  */
-function map_collection($pid, $context = FALSE){
-  if($pid != '' ){
+function map_collection($pid, $context = FALSE) {
+  if ($pid != '' ) {
     $obj = islandora_object_load($pid);
-    if(isset($obj)){
+    if (isset($obj)) {
       $label = $obj->label;
-      if($context == 'csv'){
-        $link = 'http://'.$_SERVER['SERVER_NAME'].'/islandora/object/'.$pid;
+      if ($context == 'csv') {
+        $link = 'http://' . $_SERVER['SERVER_NAME'] . '/islandora/object/' . $pid;
       }
-      elseif($context == 'form'){
-        $link = '<a href = "../../islandora/object/'.$pid.'">'.$label.'</a>';
+      elseif ($context == 'form') {
+        $link = '<a href = "../../islandora/object/' . $pid . '">' . $label . '</a>';
       }
       else{
         $link = $label;
@@ -48,13 +48,13 @@ function map_collection($pid, $context = FALSE){
 }
 
 
-//Block Related function tied to report-page.form.inc
+//Block Related function tied to block.form.inc
 //applies a path check to determin if on a 'collection page'
 //unused by default
-function islandora_content_stats_post_collection_stats(){
-  if(strpos(request_uri(),'collection')){
+function islandora_content_stats_post_collection_stats() {
+  if (strpos(request_uri(), 'collection')) {
     $str = request_uri();
-    $coll = str_replace('/islandora/object/','',$str);
+    $coll = str_replace('/islandora/object/', '', $str);
     return islandora_content_stats_page_cmodels_coll($coll);
   }
 }

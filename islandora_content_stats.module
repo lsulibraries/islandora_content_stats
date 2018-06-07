@@ -7,7 +7,7 @@ function islandora_content_stats_menu() {
   $items['admin/islandora/tools/content_stats'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_content_stats_admin_form',1),
+    'page arguments' => array('islandora_content_stats_admin_form', 1),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
   );
@@ -27,29 +27,29 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
-function islandora_content_stats_csv_download(){
-  module_load_include('inc','islandora_content_stats', 'includes/utilities;');
-  $query = "SELECT * FROM islandora_content_stats";
+function islandora_content_stats_csv_download() {
+  module_load_include('inc', 'islandora_content_stats', 'includes/utilities;');
+  $query = 'SELECT * FROM islandora_content_stats';
   $filters = [];
-  foreach($_GET as $key => $filter){
-    if($filter != 'data/download'){
+  foreach($_GET as $key => $filter) {
+    if ($filter != 'data/download') {
       $filters[$key] = $filter;
     }
   }
   //if requesting historic data
-  if(isset($filters['all'])){
-    if($filters['all'] == 1){
+  if (isset($filters['all'])) {
+    if ($filters['all'] == 1) {
       array_pop($filters);
-      foreach($filters as $key => $filter){
-        if($key == 'cmodel' || $key == 'coll'){
-          if(strpos($query,'WHERE') === FALSE){
-            if($filter !=''){
-              $query .= ' WHERE '.$key.' = \''.$filter.'\'';
+      foreach($filters as $key => $filter) {
+        if ($key == 'cmodel' || $key == 'coll') {
+          if (strpos($query, 'WHERE') === FALSE) {
+            if ($filter !='') {
+              $query .= ' WHERE ' . $key . ' = \'' . $filter . '\'';
             }
           }
           else{
-            if($filter !=''){
-              $query .= ' AND '.$key.' = \''.$filter.'\'';
+            if ($filter !='') {
+              $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
             }
           }
         }
@@ -61,22 +61,23 @@ function islandora_content_stats_csv_download(){
     $max_time = '';
     $q_time = db_query('select MAX(timestamp) from islandora_content_stats');
     $max_time = $q_time->fetchField();
-    $query .= " WHERE timestamp = ".'\''.$max_time.'\'';
+    $query .= ' WHERE timestamp = ' . '\'' . $max_time . '\'';
     array_pop($filters);
-    foreach($filters as $key => $filter){
-      if($filter != ''){
-        $query .= ' AND '.$key.' = \''.$filter.'\'';
+    foreach($filters as $key => $filter) {
+      if ($filter != '') {
+        $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
       }
     }
   }
-  $results = db_query($query) or die ("Sql error : ".mysql_error());
-  drupal_add_http_header("Content-type", "text/csv; utf-8");
-  drupal_add_http_header("Content-Disposition", "attachment; filename=islandora_content_stats.csv");
-  $fh = fopen('php://output','w');
-  foreach($results as $result){
-    if( $result->cmodel == 'fedora-system:FedoraObject-3.0' || $result->cmodel == 'fedora-system:ContentModel-3.0' || $result->coll == 'islandora:root'){}
+  $results = db_query($query) or die ('Sql error : ' . mysql_error());
+  drupal_add_http_header('Content-type', 'text/csv; utf-8');
+  drupal_add_http_header('Content-Disposition', 'attachment; filename=islandora_content_stats.csv');
+  $fh = fopen('php://output', 'w');
+  foreach($results as $result) {
+    if ( $result->cmodel == 'fedora-system:FedoraObject-3.0' || $result->cmodel == 'fedora-system:ContentModel-3.0' || $result->coll == 'islandora:root') {}
     else{
-      fputcsv($fh,array($result->id,map_collection($result->coll),map_cmodels($result->cmodel),$result->count,strftime('%d:%m:%Y:%r' , $result->timestamp ),map_collection($result->coll,'csv')));
+      $mapped_results = array($result->id, map_collection($result->coll), map_cmodels($result->cmodel), $result->count, strftime('%d:%m:%Y:%r', $result->timestamp), map_collection($result->coll, 'csv'));
+      fputcsv($fh, $mapped_results);
     }
   }
 }
@@ -87,11 +88,11 @@ function islandora_content_stats_csv_download(){
  * If cron is running and the date, and hour match, execute queries
  */
 function islandora_content_stats_cron() {
-  module_load_include('inc','islandora_content_stats','includes/queries');
+  module_load_include('inc', 'islandora_content_stats', 'includes/queries');
   $date = variable_get('islandora_content_stats_query_run_date');
   //$day  = variable_get('islandora_content_stats_query_run_day');
   $hour = variable_get('islandora_content_stats_query_run_hour');
-  if(date('G')==intval($hour) && date('d')==$date){ //&& date('l')==$day
+  if (date('G') == intval($hour) && date('d') == $date) { // && date('l') == $day
     islandora_content_stats_run_queries();
   }
 }
@@ -112,13 +113,13 @@ function islandora_content_stats_block_info() {
   return $blocks;
 }
 
-function islandora_content_stats_block_view($delta = ''){
-  module_load_include('inc','islandora_content_stats','includes/block.form');
+function islandora_content_stats_block_view($delta = '') {
+  module_load_include('inc', 'islandora_content_stats', 'includes/block.form');
   $blocks = array();
   $frontpage = drupal_is_front_page();
   $instpage = '';
   $collpage = strpos(request_uri(), 'collection');
-  if($frontpage || $collpage){
+  if ($frontpage || $collpage) {
         $blocks['subject'] = t('Content Models');
         $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
       }

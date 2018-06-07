@@ -7,7 +7,7 @@
  * Special thanks to rebecca.s.koeser@princeton.edu for this query
  * https://rlskoeser.github.io/2010/04/06/fedora-risearch-query-get-object-totals-cmodel
  */
-function all_cmodels(){
+function all_cmodels() {
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOL
 select \$cmodel
@@ -27,13 +27,13 @@ EOL;
  * marks up the content models available
  */
 
-function cmodel_types_for_form(){
-  module_load_include('inc','islandora_content_stats','includes/utilities');
+function cmodel_types_for_form() {
+  module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
   $model_counts = all_cmodels();
   $return = [];
-  foreach($model_counts as $model){
+  foreach($model_counts as $model) {
     $model = $model['cmodel']['value'];
-    if($model != 'fedora-system:FedoraObject-3.0' && $model != 'fedora-system:ContentModel-3.0'){
+    if ($model != 'fedora-system:FedoraObject-3.0' && $model != 'fedora-system:ContentModel-3.0') {
       $string = map_cmodels($model);
       $return[$model] = t($string);
     }
@@ -41,7 +41,7 @@ function cmodel_types_for_form(){
   return $return;
 }
 
-function all_collections(){
+function all_collections() {
   $tuque = islandora_get_tuque_connection();
   $collections = array();
   $all_root_members = <<<EOL
@@ -51,7 +51,7 @@ WHERE
 {?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
 EOL;
   $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
-  foreach($result as $key => $val){
+  foreach($result as $key => $val) {
     $value = $val['pid']['value'];
     $collections[] = $value;
   }
@@ -77,10 +77,10 @@ EOL;
 
   $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
   $sanitized_array = [];
-  foreach($cmodel_counts as $count){
+  foreach($cmodel_counts as $count) {
     $cmodel = $count['cmodel']['value'];
     $count = $count['k0']['value'];
-    if($cmodel != 'fedora-system:FedoraObject-3.0'){
+    if ($cmodel != 'fedora-system:FedoraObject-3.0') {
       $sanitized_array[$cmodel] = $count;
     }
   }
@@ -91,7 +91,7 @@ EOL;
 /**
 * returns array of options for data.form.inc dropdown of colleciton names
 */
-function collection_pid_labels_for_form(){
+function collection_pid_labels_for_form() {
   module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
   $collections = all_collections();
   $return = [];
@@ -102,8 +102,8 @@ FROM <#RI>
 {?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
 EOL;
 
-  $collections = $tuque->repository->ri->sparqlQuery($query,'unlimited');
-  foreach($collections as $coll){
+  $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
+  foreach($collections as $coll) {
     $coll = $coll['pid']['value'];
     $return[$coll] = map_collection($coll);
   }
@@ -112,11 +112,11 @@ EOL;
 
 // save the results to a database table (with a timestamp)
 // manually run the queries now.
-function islandora_content_stats_run_queries(){
-  variable_set('islandora_content_stats_button','cron');
+function islandora_content_stats_run_queries() {
+  variable_set('islandora_content_stats_button', 'cron');
   $time = time();
   $all_models = all_cmodels();
-  foreach($all_models as $model){
+  foreach($all_models as $model) {
     db_insert('islandora_content_stats')
       ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
       ->values(array(
@@ -129,10 +129,10 @@ function islandora_content_stats_run_queries(){
       ->execute();
   }
   $all_coll = all_collections();
-  foreach($all_coll as $coll){
+  foreach($all_coll as $coll) {
     $coll_models = collection_cmodel_query($coll);
-    foreach($coll_models as $coll => $model){
-      foreach($model as $type => $count){
+    foreach($coll_models as $coll => $model) {
+      foreach($model as $type => $count) {
         db_insert('islandora_content_stats')
         ->fields(array('id', 'coll', 'cmodel', 'count', 'timestamp'))
         ->values(array(
@@ -149,17 +149,17 @@ function islandora_content_stats_run_queries(){
 
 }
 
-function islandora_content_stats_page_cmodels_coll($path){
-  $query ="select * from islandora_content_stats where coll = ";
+function islandora_content_stats_page_cmodels_coll($path) {
+  $query = 'select * from islandora_content_stats where coll = ';
   $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
   $time = $last_query_time_db->fetchField();
-  $query_suf = " and timestamp = ";
-  $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$time . '\'');
+  $query_suf = ' and timestamp = ';
+  $result = db_query($query .  '\'' . $path . '\'' . $query_suf . '\'' . $time . '\'');
   $results = $result->fetchAll();
   $display = [];
-  foreach($results as $query_r){
+  foreach($results as $query_r) {
     $test = $query_r->cmodel;
-    if(strpos($test, 'fedora-system') === FALSE){
+    if (strpos($test, 'fedora-system') === FALSE) {
       $display[$query_r->id] = array(
         'coll' => $query_r->coll,
         'cmodel' => $query_r->cmodel,
@@ -172,17 +172,17 @@ function islandora_content_stats_page_cmodels_coll($path){
 
 /**
 * returns contextual queries for the front page/ all collections page
-* used by the reports-page.form.inc not used by default
+* used by the block.form.inc not used by default
 */
-function islandora_root_stats_queries(){
+function islandora_root_stats_queries() {
   $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
   $last_q_time = '';
   $time = $last_query_time_db->fetchField();
-  $query ="select * from islandora_content_stats where timestamp = ";
-  $result = db_query($query. '\'' .$time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\''.'and coll = '.'\''.'islandora:root'.'\'');
+  $query ='select * from islandora_content_stats where timestamp = ';
+  $result = db_query($query  . '\'' . $time . '\' and cmodel not like \'fedora-system%\' and coll = \'islandora:root\'');
   $results = $result->fetchAll();
   $display = [];
-  foreach($results as $query_r){
+  foreach($results as $query_r) {
     $display[$query_r->id] = array(
       'cmodel' => $query_r->cmodel,
       'count' => $query_r->count,
