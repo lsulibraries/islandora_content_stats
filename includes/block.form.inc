@@ -41,7 +41,7 @@ function getRow_helper($counts){
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
- * to be displayed as a block on homepage, institution page, and collection page
+ * to be displayed as a block on homepage, and collection page
  * not currently implemented
  */
 function islandora_content_stats_mini_form($form, &$form_state){
@@ -53,9 +53,9 @@ function islandora_content_stats_mini_form($form, &$form_state){
   //get latest timestamp from run queries
   $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
   $max_time = $q_time->fetchField();
-  //$all_inst = all_ns_prefix_incl_subs();
+
   $uri_split = explode('/', request_uri());
-  //find the context of the page: is it front, institution or collection?
+
   if(strpos(request_uri(), 'collection')){
     $counts = islandora_content_stats_post_collection_stats();
     $rows = getRow_helper($counts);

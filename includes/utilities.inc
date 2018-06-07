@@ -20,38 +20,13 @@ function map_cmodels($model){
 }
 
 /**
- * Maps an institution prefix to an intitution's title
- * @param string $inst
- * String of institutional prefix
- * @param string $form
- *  string indicates function is used for form dropdown
- * @return string
- * String of institution's title
- */
-function map_institution($inst,$form = ''){
-  if($form != ''){}
-  if($inst == 'islandora:root'){return $inst;}
-  else{
-    $inst = rtrim($inst,'-');
-    $query = "select * from islandora_namespace_homepage where prefix = '".$inst."'";
-    $ns_homepage_table = db_query($query);
-    if($ns_homepage_table->rowCount()==0){return $inst;}
-    else{
-      foreach($ns_homepage_table as $row){
-        return $row->title;
-      }
-    }
-  }
-}
-
-/**
  * Maps a collection pid to a collection label
  * @param string $pid
  * String of collection pid
  * @param string $context
  *  string indicates function is used for display in a form, or csv download.
  * @return string
- * String of institution's title with link to item
+ * String of collection title with link to item
  */
 function map_collection($pid, $context = FALSE){
   if($pid != '' ){
@@ -81,27 +56,5 @@ function islandora_content_stats_post_collection_stats(){
     $str = request_uri();
     $coll = str_replace('/islandora/object/','',$str);
     return islandora_content_stats_page_cmodels_coll($coll);
-  }
-}
-
-function check_path(){
-  $ns_prefixes = update_namespace_prefixes_cache();
-  $page = str_replace('/','',request_uri());
-      foreach($ns_prefixes as $prefix){
-        if($prefix == $page){
-        return true;
-      }
-
-    }
-}
-
-function islandora_content_stats_post_institution_stats(){
-  module_load_include('inc','islandora_content_stats','includes/queries');
-  if(check_path()){
-    $inst_prefix =str_replace('/','',request_uri());
-    return islandora_content_stats_page_cmodels_inst($inst_prefix.'-');
-  }
-  else{
-    return;
   }
 }

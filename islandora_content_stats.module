@@ -115,17 +115,10 @@ function islandora_content_stats_block_info() {
 function islandora_content_stats_block_view($delta = ''){
   module_load_include('inc','islandora_content_stats','includes/block.form');
   $blocks = array();
-  module_load_include('php','islandora_namespace_homepage','includes/namespaces');
   $frontpage = drupal_is_front_page();
   $instpage = '';
-  $ns_prefix = update_namespace_prefixes_cache();
-  foreach($ns_prefix as $prefix){
-    if(request_uri() == '/'.$prefix){
-      $instpage = TRUE;
-    }
-  }
   $collpage = strpos(request_uri(), 'collection');
-  if($frontpage || $instpage || $collpage){
+  if($frontpage || $collpage){
         $blocks['subject'] = t('Content Models');
         $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
       }
