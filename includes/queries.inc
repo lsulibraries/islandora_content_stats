@@ -150,8 +150,8 @@ function islandora_content_stats_run_queries(){
 }
 
 function islandora_content_stats_page_cmodels_coll($path){
-  $query ="select * from ldl.islandora_content_stats where coll = ";
-  $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $query ="select * from islandora_content_stats where coll = ";
+  $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
   $time = $last_query_time_db->fetchField();
   $query_suf = " and timestamp = ";
   $result = db_query($query .  '\''. $path . '\'' . $query_suf . '\'' .$time . '\'');
@@ -175,10 +175,10 @@ function islandora_content_stats_page_cmodels_coll($path){
 * used by the reports-page.form.inc not used by default
 */
 function islandora_root_stats_queries(){
-  $last_query_time_db = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
   $last_q_time = '';
   $time = $last_query_time_db->fetchField();
-  $query ="select * from ldl.islandora_content_stats where timestamp = ";
+  $query ="select * from islandora_content_stats where timestamp = ";
   $result = db_query($query. '\'' .$time . '\''.' and cmodel not like '.'\''.'fedora-system%'.'\''.'and coll = '.'\''.'islandora:root'.'\'');
   $results = $result->fetchAll();
   $display = [];

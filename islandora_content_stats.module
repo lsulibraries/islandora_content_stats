@@ -29,7 +29,7 @@ function islandora_content_stats_menu() {
 
 function islandora_content_stats_csv_download(){
   module_load_include('inc','islandora_content_stats', 'includes/utilities;');
-  $query = "SELECT * FROM ldl.islandora_content_stats";
+  $query = "SELECT * FROM islandora_content_stats";
   $filters = [];
   foreach($_GET as $key => $filter){
     if($filter != 'data/download'){
@@ -59,7 +59,7 @@ function islandora_content_stats_csv_download(){
   //when requesting latest data
   else{
     $max_time = '';
-    $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    $q_time = db_query('select MAX(timestamp) from islandora_content_stats');
     $max_time = $q_time->fetchField();
     $query .= " WHERE timestamp = ".'\''.$max_time.'\'';
     array_pop($filters);

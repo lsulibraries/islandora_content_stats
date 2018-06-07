@@ -14,7 +14,7 @@ function islandora_content_stats_form($form, &$form_state){
     array('data'=> t('Count'),'field' =>'stats.count',),
     array('data'=> t('Timestamp'),'field' =>'stats.timestamp',),
   );
-  $max_timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  $max_timestamp = db_query('select MAX(timestamp) from islandora_content_stats');
   //second argument in db select is an alias for the table (which is the first argument.)
   $query = db_select("islandora_content_stats","stats")
     ->extend('TableSort');
@@ -34,7 +34,7 @@ function islandora_content_stats_form($form, &$form_state){
     }
   }
   $total_counts = [];
-  $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+  $timestamp = db_query('select MAX(timestamp) from islandora_content_stats');
   $total_query = db_select("islandora_content_stats","total");
   $totals = $total_query->fields('total', array('id','cmodel','count','timestamp'))
     ->condition('coll', 'islandora:root')
