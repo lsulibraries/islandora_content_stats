@@ -65,7 +65,7 @@ function islandora_content_stats_form($form, &$form_state){
   }
   $form['filter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('<br>Filter results by type or collection membership'),
+    '#title' => t('Filter results by type or collection membership'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -101,12 +101,12 @@ function islandora_content_stats_form($form, &$form_state){
   $form['table-collapse'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#title' => t('<br>Table of results'),
+    '#title' => t('Table of results'),
   );
   $form['table-collapse']['explain'] = array(
     '#type' => 'item',
-    '#title' => t('<br>Content from collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
-(not every choice combination will return results)<br>
+    '#title' => t('Content from collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.
+(not every choice combination will return results)
 Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
   );
   $form['table-collapse']['table'] = array(
@@ -118,7 +118,7 @@ Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers b
   $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
   $form['download']['dltitle'] = array(
     '#type' => 'item',
-    '#title' => t('<br>Downloads results for use in a spreadsheet. (always applies current filters)'),
+    '#title' => t('Downloads results for use in a spreadsheet. (always applies current filters)'),
   );
   $form['download']['button'] = array(
     '#type' => 'submit',
