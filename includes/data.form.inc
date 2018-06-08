@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * @file
+ * when queries are run manually, return to this page
+ * this page serves as a place to filter and export queries stored in the mysql
+ * with a more humant readable format, and links to collection items.
+ */
+
+/**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
@@ -8,7 +15,7 @@
 function islandora_content_stats_form($form, &$form_state) {
   module_load_include('inc', 'islandora_content_stats', '/includes/queries');
   module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
-  $rows = [];
+  $rows = array();
   $headers = array(
     array('data'=> t('ID'), 'field' =>'stats.id', 'sort' => 'desc'),
     array('data' => t('Collection'), 'field' =>'stats.coll',),
@@ -17,17 +24,20 @@ function islandora_content_stats_form($form, &$form_state) {
     array('data' => t('Timestamp'), 'field' =>'stats.timestamp',),
   );
   $max_timestamp = db_query('select MAX(timestamp) from islandora_content_stats');
-  //second argument in db select is an alias for the table (which is the first argument.)
+  //2nd argument in db_select is alias for the table.
   $query = db_select('islandora_content_stats', 'stats')
     ->extend('TableSort');
-  $query = $query->fields('stats', array('id', 'coll', 'cmodel', 'count', 'timestamp'));
+  $fields = array('id', 'coll', 'cmodel', 'count', 'timestamp');
+  $query = $query->fields('stats', $fields);
   $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
-  $rf_obj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
-  $rcm_obj = $record->cmodel != 'fedora-system:ContentModel-3.0';
-  $rroot_coll = $record->coll != 'islandora:root';
   foreach($results as $record) {
+    //does not build row when query's cmodel is fedora-Object or ContentModel
+    $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+    $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+    //does not build row when query's collection is islandora:root
+    $not_rootcoll = $record->coll != 'islandora:root';
     if ($record->count != 0) {
-      if ( ($rf_obj) && ($rcm_obj) && ($rroot_coll) ) {
+      if ( ($not_fobj) && ($not_cmobj) && ($not_rootcoll) ) {
         $rows[$record->id] = array(
           'id' => $record->id,
           'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
@@ -38,18 +48,20 @@ function islandora_content_stats_form($form, &$form_state) {
       }
     }
   }
-  $total_counts = [];
+  $total_counts = array();
   $timestamp = db_query('select MAX(timestamp) from islandora_content_stats');
-  $total_query = db_select('islandora_content_stats', 'total');
-  $totals = $total_query->fields('total', array('id', 'cmodel', 'count', 'timestamp'))
+  $total_q = db_select('islandora_content_stats', 'total');
+  $t_fields = array('id', 'cmodel', 'count', 'timestamp');
+  $totals = $total_q->fields('total', $t_fields)
     ->condition('coll', 'islandora:root')
     ->condition('timestamp', $timestamp->fetchField())
     ->execute();
-    $tf_obj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
-    $tcm_obj = $total->cmodel !='fedora-system:ContentModel-3.0';
   foreach($totals as $total) {
+    //when query's cmodel is fedora-Object or ContentModel don't build total
+    $not_t_fobj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
+    $not_t_cmobj = $total->cmodel !='fedora-system:ContentModel-3.0';
     if ($total->count != 0) {
-      if ( ($tf_obj) && ($tcm_obj)) {
+      if ( ($not_t_fobj) && ($not_t_cmobj) ) {
         $total_counts[$total->id] = array(
           'cmodel' =>  map_cmodels($total->cmodel),
           'count' => $total->count,
@@ -57,7 +69,7 @@ function islandora_content_stats_form($form, &$form_state) {
       }
     }
   }
-  $form = [];
+  $form = array();
   $form['totals']['item'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
@@ -87,7 +99,8 @@ function islandora_content_stats_form($form, &$form_state) {
   $form['filter']['collection'] = array(
     '#type' => 'select',
     '#title' => t('Filter by specific collection'),
-    '#description' => t('Shows counts of object types for an individual collection.'),
+    '#description' => t('Shows counts of object types
+for an individual collection.'),
     '#options' => collection_pid_labels_for_form(),
     '#required' => FALSE,
     '#empty_option' => '--none--',
@@ -111,9 +124,11 @@ function islandora_content_stats_form($form, &$form_state) {
   );
   $form['table-collapse']['explain'] = array(
     '#type' => 'item',
-    '#title' => t('Content from collections, can be filtered by choosing from drop downs above, and pressing the "Filter" button.
+    '#title' => t('Content from collections, can be
+filtered by choosing from drop downs above, and pressing the "Filter" button.
 (not every choice combination will return results)
-Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers below.'),
+Sort by ID, Collection, Content Model, Count, or Timestamp
+by clicking headers below.'),
   );
   $form['table-collapse']['table'] = array(
     '#theme' => 'table',
@@ -135,16 +150,15 @@ Sort by ID, Collection, Content Model, Count, or Timestamp by clicking headers b
 }
 
 /**
- * @param array
- * $form_state containing filters.
- * @param object
- * $mysqlpart query to apply filters on.
- * @param string
- * $timestamp last time queries were run, or empty when history is requested
- * @param array
- * $headers for the orderby rows
- * $timestamp is applied only if recent queries are requested,
- * $headers are required for ordering of the form
+ * @param array $form_state
+ * containing filter strings.
+ * @param object $mysqlpart
+ * query to apply filters on.
+ * @param string $timestamp
+ * last time queries were run, or empty when history is requested
+ * is applied only if recent queries are requested,
+ * @param array $headers
+ * for the orderby rows
  * @return object
  * $mysqlpart-executed() with applied headers
  */
@@ -153,8 +167,8 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
   if (!isset($form_state['input']['all'])) {
     $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
   }
-  if (isset($form_state['input']['collection'])) {
-    $filters = [];
+  if ( (isset($form_state['input']['collection'])) || (isset($form_state['input']['cmodel'])) ) {
+    $filters = array();
     $filters['coll'] = $form_state['input']['collection'];
     $filters['cmodel'] = $form_state['input']['cmodel'];
     foreach($filters as $key => $val) {
@@ -182,12 +196,13 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
  */
 
 function download_data(&$form, &$form_state) {
-  $query_options = array(
-    'cmodel' => $form_state['values']['cmodel'],
-    'coll' => $form_state['values']['collection'],
-    'all' => $form_state['values']['all'],
+  //what was $form_state['input'] is now found at $form_state['values']
+  $options = array('query' => array(
+      'cmodel' => $form_state['values']['cmodel'],
+      'coll' => $form_state['values']['collection'],
+      'all' => $form_state['values']['all'],
+    ),
   );
-  $options = array('query' => $query_options);
   drupal_goto('data/download', $options);
 }
 

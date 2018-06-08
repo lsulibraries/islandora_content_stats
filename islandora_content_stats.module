@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Implements hook_menu().
  */
+
 function islandora_content_stats_menu() {
   $items = array();
   $items['admin/islandora/tools/content_stats'] = array(
@@ -27,10 +29,15 @@ function islandora_content_stats_menu() {
   return $items;
 }
 
+/**
+ * Download function
+ * applies filters to queries and returns as csv file
+ */
+
 function islandora_content_stats_csv_download() {
-  module_load_include('inc', 'islandora_content_stats', 'includes/utilities;');
+  module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
   $query = 'SELECT * FROM islandora_content_stats';
-  $filters = [];
+  $filters = array();
   foreach($_GET as $key => $filter) {
     if ($filter != 'data/download') {
       $filters[$key] = $filter;
@@ -48,35 +55,45 @@ function islandora_content_stats_csv_download() {
             }
           }
           else{
-            if ($filter !='') {
+            if ($filter != '') {
               $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
             }
           }
         }
       }
     }
-  }
   //when requesting latest data
-  else{
-    $max_time = '';
-    $q_time = db_query('select MAX(timestamp) from islandora_content_stats');
-    $max_time = $q_time->fetchField();
-    $query .= ' WHERE timestamp = ' . '\'' . $max_time . '\'';
-    array_pop($filters);
-    foreach($filters as $key => $filter) {
-      if ($filter != '') {
-        $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
+    else{
+      $max_time = '';
+      $q_time = db_query('select MAX(timestamp) from islandora_content_stats');
+      $max_time = $q_time->fetchField();
+      $query .= ' WHERE timestamp = \'' . $max_time . '\'';
+      array_pop($filters);
+      foreach($filters as $key => $filter) {
+        if ($filter != '') {
+          $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
+        }
       }
     }
   }
   $results = db_query($query) or die ('Sql error : ' . mysql_error());
   drupal_add_http_header('Content-type', 'text/csv; utf-8');
-  drupal_add_http_header('Content-Disposition', 'attachment; filename=islandora_content_stats.csv');
+  $attach_str = 'attachment; filename=islandora_content_stats.csv';
+  drupal_add_http_header('Content-Disposition', $attach_str);
   $fh = fopen('php://output', 'w');
   foreach($results as $result) {
-    if ( $result->cmodel == 'fedora-system:FedoraObject-3.0' || $result->cmodel == 'fedora-system:ContentModel-3.0' || $result->coll == 'islandora:root') {}
-    else{
-      $mapped_results = array($result->id, map_collection($result->coll), map_cmodels($result->cmodel), $result->count, strftime('%d:%m:%Y:%r', $result->timestamp), map_collection($result->coll, 'csv'));
+    $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
+    $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
+    $not_rootcoll = $result->coll != 'islandora:root';
+    if ( ($not_fobj) && ($not_cmobj) && ($not_rootcoll) ) {
+      $mapped_results = array(
+        $result->id,
+        map_collection($result->coll),
+        map_cmodels($result->cmodel),
+        $result->count,
+        strftime('%d:%m:%Y:%r', $result->timestamp),
+        map_collection($result->coll, 'csv')
+      );
       fputcsv($fh, $mapped_results);
     }
   }
@@ -87,20 +104,25 @@ function islandora_content_stats_csv_download() {
  * must stay in .module file
  * If cron is running and the date, and hour match, execute queries
  */
+
 function islandora_content_stats_cron() {
   module_load_include('inc', 'islandora_content_stats', 'includes/queries');
   $date = variable_get('islandora_content_stats_query_run_date');
   //$day  = variable_get('islandora_content_stats_query_run_day');
   $hour = variable_get('islandora_content_stats_query_run_hour');
-  if (date('G') == intval($hour) && date('d') == $date) { // && date('l') == $day
+  // && date('l') == $day // add back below if day is specified
+  if (date('G') == intval($hour) && date('d') == $date) {
     islandora_content_stats_run_queries();
   }
 }
 
 /**
  * Implements hook_block_info().
- * Consider as WIP not reccomended, or required
+ * Displays cmodel count on content region
+ * at islandora:root it shows totals sitewide
+ * at a given collection it shows totals for that collection
  */
+
 function islandora_content_stats_block_info() {
   $blocks = array();
   $blocks['mini'] = array(
@@ -113,15 +135,18 @@ function islandora_content_stats_block_info() {
   return $blocks;
 }
 
-function islandora_content_stats_block_view($delta = '') {
+/**
+ * Implements hook_block_view().
+ * Logic for which totals to display in block.
+ */
+function islandora_content_stats_block_view() {
   module_load_include('inc', 'islandora_content_stats', 'includes/block.form');
   $blocks = array();
   $frontpage = drupal_is_front_page();
-  $instpage = '';
   $collpage = strpos(request_uri(), 'collection');
   if ($frontpage || $collpage) {
-        $blocks['subject'] = t('Content Models');
-        $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
-      }
+    $blocks['subject'] = t('Content Models');
+    $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
+  }
   return $blocks;
 }

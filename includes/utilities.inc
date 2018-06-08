@@ -1,4 +1,10 @@
 <?php
+
+/**
+ * @file
+ * place to store utility functions for mapping readable lables
+ */
+
 /**
  * Maps a machine name to a human readable $label
  * @param string $model
@@ -6,15 +12,20 @@
  * @return string
  *  String of model's label stripped of repetitous words
  */
+
 function map_cmodels($model) {
   module_load_include('inc', 'islandora', 'includes/utilities');
-  if ($model == 'fedora-system:ContentModel-3.0' || $model == 'fedora-system:FedoraObject-3.0') {}
-  else{
+  $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
+  $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
+  if ( ($not_fobj) && ($not_cmobj) ) {
     $cmodel_map = islandora_get_content_models();
     if ($model != '' && array_key_exists($model, $cmodel_map)) {
       $label = $cmodel_map[$model];
-      $label_f = str_replace(' Content Model', '', str_replace('Islandora ', '', str_replace('Large ', '', $label['label'])));
-    return $label_f;
+      $replace = $label['label'];
+      $l_replace =  str_replace('Large ', '', $replace);
+      $i_replace = str_replace('Islandora ', '', $l_replace);
+      $short_label = str_replace(' Content Model', '', $i_replace);
+    return $short_label;
     }
   }
 }
@@ -27,34 +38,28 @@ function map_cmodels($model) {
  *  string indicates function is used for display in a form, or csv download.
  * @return string
  * String of collection title with link to item
+ * If you plan to run this module form a local server:
+ * add your port number after $_SERVER['SERVER_NAME']
+ * IE: $_SERVER['SERVER_NAME'] . '8000' . $iobj_str
  */
+
 function map_collection($pid, $context = FALSE) {
+  $iobj_str = '/islandora/object/';
   if ($pid != '' ) {
     $obj = islandora_object_load($pid);
     if (isset($obj)) {
       $label = $obj->label;
       if ($context == 'csv') {
-        $link = 'http://' . $_SERVER['SERVER_NAME'] . '/islandora/object/' . $pid;
+        //add port number after $_SERVER['SERVER_NAME'] if running locally
+        $link = 'http://' . $_SERVER['SERVER_NAME'] . $iobj_str . $pid;
       }
       elseif ($context == 'form') {
-        $link = '<a href = "../../islandora/object/' . $pid . '">' . $label . '</a>';
+        $link = '<a href = "../..' . $iobj_str . $pid . '">' . $label . '</a>';
       }
       else{
         $link = $label;
       }
       return $link;
     }
-  }
-}
-
-
-//Block Related function tied to block.form.inc
-//applies a path check to determin if on a 'collection page'
-//unused by default
-function islandora_content_stats_post_collection_stats() {
-  if (strpos(request_uri(), 'collection')) {
-    $str = request_uri();
-    $coll = str_replace('/islandora/object/', '', $str);
-    return islandora_content_stats_page_cmodels_coll($coll);
   }
 }

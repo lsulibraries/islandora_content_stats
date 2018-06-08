@@ -1,4 +1,4 @@
 name = islandora content stats
-description = module to run Resource Index queries periodically and display the results on-demand.
+description = Provides info about number of items of particular content models
 core = 7.x
 dependencies[] = islandora

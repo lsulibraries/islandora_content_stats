@@ -15,6 +15,7 @@ Queries are updated on a given month and hour when cron is also running.
 The last run queries can be found at example.com/data
 
 Data can be downloaded as a csv, with any filters applied to the gui applied to the download.
+If running from a local server you must add your port name in /includes/utilities.inc in the map_collection() function
 
 The last run queries can be found at example.com/data or localhost:8000/data (depending on your setup)
 The queries can be filtered with the drop-downs found here, by collection, and content model. (Must press "Filter" button to apply)

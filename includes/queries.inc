@@ -1,12 +1,17 @@
 <?php
-// the RI (ITQL & SPARQL) queries
-//for aggregated SPARQL queries always use ->countQuery() from the tuque connection
+
+/**
+ * @file
+ * the RI (ITQL & SPARQL) queries
+ * for aggregated SPARQL queries use ->countQuery() on the tuque connection
+ */
 
 /**
  * Query repository index for all cmodels that exist, are active and
  * Special thanks to rebecca.s.koeser@princeton.edu for this query
- * https://rlskoeser.github.io/2010/04/06/fedora-risearch-query-get-object-totals-cmodel
+ * @link https://rlskoeser.github.io/2010/04/06/fedora-risearch-query-get-object-totals-cmodel query. @endlink
  */
+
 function all_cmodels() {
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOL
@@ -30,16 +35,25 @@ EOL;
 function cmodel_types_for_form() {
   module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
   $model_counts = all_cmodels();
-  $return = [];
+  $return = array();
   foreach($model_counts as $model) {
     $model = $model['cmodel']['value'];
-    if ($model != 'fedora-system:FedoraObject-3.0' && $model != 'fedora-system:ContentModel-3.0') {
+    //when cmodel is FedoraObject or ContentModel, or collectionCModel don't map
+    $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
+    $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
+    $not_coll = $model != 'islandora:collectionCModel';
+    if ( ($not_fobj) && ($not_cmobj) && ($not_coll) ) {
       $string = map_cmodels($model);
       $return[$model] = t($string);
     }
   }
   return $return;
 }
+
+/**
+ * Returns all members of islandora:root
+ * Makes the assumption that root only contains collections.
+ */
 
 function all_collections() {
   $tuque = islandora_get_tuque_connection();
@@ -61,6 +75,7 @@ EOL;
 /**
  * Query the ri for a count of a collection's content models
  */
+
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOL
@@ -76,7 +91,7 @@ having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.or
 EOL;
 
   $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
-  $sanitized_array = [];
+  $sanitized_array = array();
   foreach($cmodel_counts as $count) {
     $cmodel = $count['cmodel']['value'];
     $count = $count['k0']['value'];
@@ -91,10 +106,11 @@ EOL;
 /**
 * returns array of options for data.form.inc dropdown of colleciton names
 */
+
 function collection_pid_labels_for_form() {
   module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
   $collections = all_collections();
-  $return = [];
+  $return = array();
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOL
 SELECT ?pid
@@ -110,8 +126,11 @@ EOL;
   return $return;
 }
 
-// save the results to a database table (with a timestamp)
-// manually run the queries now.
+/**
+ * saves the results to a database table (with a timestamp)
+ * manually runs the queries now.
+*/
+
 function islandora_content_stats_run_queries() {
   variable_set('islandora_content_stats_button', 'cron');
   $time = time();
@@ -143,27 +162,32 @@ function islandora_content_stats_run_queries() {
           'timestamp' => $time,
         ))
         ->execute();
+      }
     }
   }
 }
 
-}
+/**
+ * @param string $pid
+ * pid of collection is parsed from path of browser
+ * @return array
+ * each query field which coll matches current pid
+ */
 
-function islandora_content_stats_page_cmodels_coll($path) {
-  $query = 'select * from islandora_content_stats where coll = ';
-  $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
-  $time = $last_query_time_db->fetchField();
-  $query_suf = ' and timestamp = ';
-  $result = db_query($query .  '\'' . $path . '\'' . $query_suf . '\'' . $time . '\'');
-  $results = $result->fetchAll();
-  $display = [];
-  foreach($results as $query_r) {
-    $test = $query_r->cmodel;
-    if (strpos($test, 'fedora-system') === FALSE) {
-      $display[$query_r->id] = array(
-        'coll' => $query_r->coll,
-        'cmodel' => $query_r->cmodel,
-        'count' => $query_r->count
+function islandora_content_stats_block_coll($pid) {
+  $pref = 'select * from islandora_content_stats where coll = ';
+  $last_time = db_query('select max(timestamp) from islandora_content_stats');
+  $time = $last_time->fetchField();
+  $suff = ' and timestamp = ';
+  $query = db_query($pref .  '\'' . $pid . '\'' . $suff . '\'' . $time . '\'');
+  $results = $query->fetchAll();
+  $display = array();
+  foreach($results as $result) {
+    if (strpos($result->cmodel, 'fedora-system') === FALSE) {
+      $display[$result->id] = array(
+        'coll' => $result->coll,
+        'cmodel' => $result->cmodel,
+        'count' => $result->count
       );
     }
   }
@@ -174,6 +198,7 @@ function islandora_content_stats_page_cmodels_coll($path) {
 * returns contextual queries for the front page/ all collections page
 * used by the block.form.inc not used by default
 */
+
 function islandora_root_stats_queries() {
   $last_query_time_db = db_query('select max(timestamp) from islandora_content_stats');
   $last_q_time = '';
@@ -181,7 +206,7 @@ function islandora_root_stats_queries() {
   $query ='select * from islandora_content_stats where timestamp = ';
   $result = db_query($query  . '\'' . $time . '\' and cmodel not like \'fedora-system%\' and coll = \'islandora:root\'');
   $results = $result->fetchAll();
-  $display = [];
+  $display = array();
   foreach($results as $query_r) {
     $display[$query_r->id] = array(
       'cmodel' => $query_r->cmodel,

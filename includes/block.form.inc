@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * @file
+ * This block displays contextual content model totals for either
+ * islandora:root, or an individual collection.
+ * Block can be enabled on islandora_content_stats.module
+ * Change 'status' => 0, to 'status' => 1,
+ */
+
+
+/**
  * create row for table displayed
  * @param string $cmodel
  * content model machine name
@@ -31,7 +40,7 @@ function getRow($cmodel, $count) {
  */
 
 function getRow_helper($counts) {
-  $rows = [];
+  $rows = array();
   if (isset($counts)) {
     foreach($counts as $id => $fields) {
       $rows[$id] = getRow($fields['cmodel'], $fields['count']);
@@ -52,7 +61,7 @@ function islandora_content_stats_mini_form($form, &$form_state) {
   module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
   module_load_include('inc', 'islandora_content_stats', 'includes/queries');
   $cmodel_map = islandora_get_content_models();
-  $variables = [];
+  $variables = array();
   //get latest timestamp from run queries
   $q_time = db_query('select MAX(timestamp) from islandora_content_stats');
   $max_time = $q_time->fetchField();
@@ -69,7 +78,7 @@ function islandora_content_stats_mini_form($form, &$form_state) {
     return;
   }
   //build up the form
-  $form = [];
+  $form = array();
     $headers =  array(
       array('data'=> t('Cmodel'), 'field' =>'stats.id', 'class' => array('islandora_content_stats_trow_model'),),
       array('data'=> t('Count'), 'field' =>'stats.query', 'class' => array('islandora_content_stats_trow_count'),),
@@ -90,4 +99,18 @@ function islandora_content_stats_mini_form($form, &$form_state) {
 
 function islandora_content_stats_mini_form_submit($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * if uri has 'collection'
+ * @return array
+ * of latest content model total for the collection
+ */
+
+function islandora_content_stats_post_collection_stats() {
+  if (strpos(request_uri(), 'collection')) {
+    $str = request_uri();
+    $coll = str_replace('/islandora/object/', '', $str);
+    return islandora_content_stats_block_coll($coll);
+  }
 }
