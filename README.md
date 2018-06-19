@@ -1,6 +1,6 @@
 # islandora\_content\_stats
 
-Requirements: islandora, php\_lib, php\_filter
+Requirements: islandora, php\_lib, php\_filter, lsulibraries/islandora_namespace_homepage, lsulibraries/islandora_utils
 
 Queries are stored in the mysql database as 'id', 'inst','coll','cmodel', 'count' and 'timestamp'
 
