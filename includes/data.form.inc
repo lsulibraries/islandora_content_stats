@@ -79,13 +79,13 @@ function islandora_content_stats_form($form, &$form_state) {
   );
   foreach($total_counts as $id => $count) {
     $form['totals']['item'][$id] = array(
-      '#type' => 'item',
-      '#title' => t($count['cmodel'].' Total: '.$count['count']),
+      //'#type' => 'item',
+      '#markup' => "<p>" . t($count['cmodel'].' Total: '.$count['count']) . "</p>",
     );
   }
   $form['filter'] = array(
     '#type' => 'fieldset',
-    '#title' => t('<br>Filter results by type, ownership, or collection name'),
+    '#title' => t('Filter results by type, ownership, or collection name'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -132,15 +132,15 @@ function islandora_content_stats_form($form, &$form_state) {
   $form['table-collapse'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#title' => t('<br>Table of results'),
+    '#title' => t('Table of results'),
   );
   $form['table-collapse']['explain'] = array(
-    '#type' => 'item',
-    '#title' => t('<br>Content from institutions and collections, can be
- filtered by choosing from drop downs above, and pressing the "Filter" button.<br>
-(not every choice combination will return results)<br>
+    //'#type' => 'item',
+    '#markup' =>"<p>" . t('Content from institutions and collections, can be
+ filtered by choosing from drop downs above, and pressing the "Filter" button.
+(not every choice combination will return results)
 Sort by id, institution/owner, collection, content Model, count, or
- timestamp by clicking headers below.'),
+ timestamp by clicking headers below.') . "</p>",
   );
   $form['table-collapse']['table'] = array(
     '#theme' => 'table',
@@ -150,9 +150,9 @@ Sort by id, institution/owner, collection, content Model, count, or
   );
   $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
   $form['download']['dltitle'] = array(
-    '#type' => 'item',
-    '#title' => t('<br>Downloads results for use in a spreadsheet.
- (always applies current filters)'),
+    //'#type' => 'item',
+    '#markup' => "<p>" . t('Downloads results for use in a spreadsheet.
+ (always applies current filters)') . "</p>" ,
   );
   $form['download']['button'] = array(
     '#type' => 'submit',
