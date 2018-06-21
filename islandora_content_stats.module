@@ -99,22 +99,60 @@ function islandora_content_stats_csv_download() {
   }
 }
 
+
+/**
+ * Implements hook_cron().
+ * must stay in .module file
+ */
+
+function islandora_content_stats_cron() {
+  module_load_include('inc','islandora_content_stats','includes/queries');
+  $time = time();
+  $is_off_hours = is_off_hours($time);
+  $days = 86400 * variable_get('islandora_content_stats_interval');
+  $last_run = db_query('select max(timestamp) from ldl.islandora_content_stats');
+  $last_run_time = $last_run->fetchField();
+  $elapsed = $time - $last_run_time;
+   if ($elapsed > $days && $is_off_hours ) {
+     islandora_content_stats_run_queries();
+   }
+}
+
+
+
+function is_off_hours($time) {
+  $check = strftime('%H', $time);
+  $start = variable_get('islandora_content_stats_off_start',20);
+  $end = variable_get('islandora_content_stats_off_end',23);
+  if($start > $end) {
+    $range1 = range($start, 23);
+    $range2 = range(0, $end);
+    $range = array_merge($range1, $range2);
+  }
+  else{
+    $range = range($start, $end);
+  }
+  if (in_array($check, $range)) {
+    return TRUE;
+  }
+}
+
 /**
  * Implements hook_cron().
  * must stay in .module file
  * If cron is running and the date and hour match, execute queries
  */
 
-function islandora_content_stats_cron() {
-  module_load_include('inc','islandora_content_stats','includes/queries');
-  $date = variable_get('islandora_content_stats_query_run_date');
-  //$day  = variable_get('islandora_content_stats_query_run_day');
-  $hour = variable_get('islandora_content_stats_query_run_hour');
-  //&& date('l')==$day //add below if specifying day
-  if (date('G')==intval($hour) && date('d')==$date) {
-    islandora_content_stats_run_queries();
-  }
-}
+// function islandora_content_stats_cron() {
+//   module_load_include('inc','islandora_content_stats','includes/queries');
+//   $date = variable_get('islandora_content_stats_query_run_date');
+//   //$day  = variable_get('islandora_content_stats_query_run_day');
+//   $hour = variable_get('islandora_content_stats_query_run_hour');
+//   //&& date('l')==$day //add below if specifying day
+//   if (date('G')==intval($hour) && date('d')==$date) {
+//     islandora_content_stats_run_queries();
+//   }
+// }
 
 /**
  * Implements hook_block_info().

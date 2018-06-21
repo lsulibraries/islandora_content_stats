@@ -263,6 +263,7 @@ EOL;
   return $inst_cmodel_counts;
 }
 
+
 /**
  * saves the results to a database table (with a timestamp)
  * manually runs the queries now.
