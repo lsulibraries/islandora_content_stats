@@ -81,6 +81,7 @@ function islandora_content_stats_csv_download() {
   $attach_str = 'attachment; filename=islandora_content_stats.csv';
   drupal_add_http_header('Content-Disposition', $attach_str);
   $fh = fopen('php://output', 'w');
+  fputcsv($fh, array('ID','Institution','Collection','Cmodel','Count','Timestamp','URL'));
   foreach($results as $result) {
     $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
     $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
@@ -88,6 +89,7 @@ function islandora_content_stats_csv_download() {
     if ( ($not_fobj) && ($not_cmobj) && ($not_rootcoll) ) {
       $mapped_results = array(
         $result->id,
+        map_institution($result->inst),
         map_collection($result->coll),
         map_cmodels($result->cmodel),
         $result->count,
@@ -98,7 +100,6 @@ function islandora_content_stats_csv_download() {
     }
   }
 }
-
 
 /**
  * Implements hook_cron().
@@ -113,12 +114,10 @@ function islandora_content_stats_cron() {
   $last_run = db_query('select max(timestamp) from ldl.islandora_content_stats');
   $last_run_time = $last_run->fetchField();
   $elapsed = $time - $last_run_time;
-   if ($elapsed > $days && $is_off_hours ) {
-     islandora_content_stats_run_queries();
-   }
+  if ($elapsed > $days && $is_off_hours ) {
+    islandora_content_stats_run_queries();
+  }
 }
-
-
 
 function is_off_hours($time) {
   $check = strftime('%H', $time);
@@ -137,22 +136,6 @@ function is_off_hours($time) {
   }
 }
 
-/**
- * Implements hook_cron().
- * must stay in .module file
- * If cron is running and the date and hour match, execute queries
- */
-
-// function islandora_content_stats_cron() {
-//   module_load_include('inc','islandora_content_stats','includes/queries');
-//   $date = variable_get('islandora_content_stats_query_run_date');
-//   //$day  = variable_get('islandora_content_stats_query_run_day');
-//   $hour = variable_get('islandora_content_stats_query_run_hour');
-//   //&& date('l')==$day //add below if specifying day
-//   if (date('G')==intval($hour) && date('d')==$date) {
-//     islandora_content_stats_run_queries();
-//   }
-// }
 
 /**
  * Implements hook_block_info().
