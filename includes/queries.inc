@@ -270,70 +270,50 @@ EOL;
 */
 
 function islandora_content_stats_run_queries() {
-  variable_set('islandora_content_stats_button', 'cron');
-    $time = time();
-    $all_cmodels = all_cmodels();
-    foreach($all_cmodels as $model) {
-        db_insert('islandora_content_stats')
-        ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
-        ->values(array(
-          'id' => NULL,
-          'inst' => NULL,
-          'coll' =>  'islandora:root',
-          'cmodel' => $model['cmodel']['value'],
-          'count' => $model['k0']['value'],
-          'timestamp' => $time,
-        ))
-        ->execute();
-    }
-    $ns_prefixes = all_ns_prefix_incl_subs();
-    foreach($ns_prefixes as $ns) {
+  $time = time();
+  $all_cmodels = all_cmodels();
+  foreach($all_cmodels as $model) {
+    $coll = 'islandora:root';
+    $cmodel = $model['cmodel']['value'];
+    $count = $model['k0']['value'];
+    queries_db_insert(NULL, $coll, $cmodel, $count, $time);
+  }
+  $ns_prefixes = all_ns_prefix_incl_subs();
+  foreach($ns_prefixes as $ns) {
     $inst_model_counts = institution_cmodel_totals($ns);
-      foreach($inst_model_counts as $model => $count) {
-        if (strpos($model, 'islandora:collectionCModel')) {
-          db_insert('islandora_content_stats')
-            ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
-            ->values(array(
-              'id' => NULL,
-              'inst' => $ns.'-',
-              'coll' => NULL,
-              'model' => $model,
-              'count' => $count,
-              'timestamp' => $time,
-            ))
-            ->execute();
-        }
-        else {
-          db_insert('islandora_content_stats')
-            ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
-            ->values(array(
-              'id' => NULL,
-              'inst' => $ns.'-',
-              'coll' => NULL,
-              'cmodel' =>$model,
-              'count' => $count,
-              'timestamp' => $time,
-            ))
-            ->execute();
-        }
+    foreach($inst_model_counts as $model => $count) {
+      if (strpos($model, 'islandora:collectionCModel')) {
+        queries_db_insert($ns.'-', NULL, $model, $count, $time);
+      }
+      else {
+        queries_db_insert($ns.'-', NULL, $cmodel, $count, $time);
+      }
     }
   }
-    $inst_coll_counts = all_institution_each_collection_query_count();
-    foreach($inst_coll_counts as $inst) {
-      foreach($inst['models'] as $model => $count) {
-            db_insert('islandora_content_stats')
-              ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
-              ->values(array(
-                'id'=> NULL,
-                'inst'=> $inst['inst'],
-                'coll' => $inst['coll'],
-                'cmodel' => $model,
-                'count'=> $count,
-                'timestamp'=> $time,
-              ))
-            ->execute();
+  $inst_coll_counts = all_institution_each_collection_query_count();
+  foreach($inst_coll_counts as $inst) {
+    foreach($inst['models'] as $model => $count) {
+      queries_db_insert($inst['inst'], $inst['coll'], $model, $count, $time);
     }
   }
+}
+
+/**
+ *  execute query returns to mysql.
+ */
+
+function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
+  db_insert('islandora_content_stats')
+    ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
+    ->values(array(
+      'id'=> NULL,
+      'inst'=> $inst,
+      'coll' => $coll,
+      'cmodel' => $cmodel,
+      'count'=> $count,
+      'timestamp'=> $time,
+    ))
+  ->execute();
 }
 
 /**

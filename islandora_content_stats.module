@@ -16,7 +16,7 @@ function islandora_content_stats_menu() {
   $items['data'] = array(
     'title' => 'Content Statistics',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_content_stats_form', 1),
+    'page arguments' => array('islandora_content_stats_form'),
     'access arguments' => array('administer site configuration'),
     'access callback' => TRUE,
     'file' => 'includes/data.form.inc',
