@@ -123,29 +123,33 @@ function institutions_for_form() {
 
 function collection_cmodel_query($collection) {
   $tuque = islandora_get_tuque_connection();
-  $query = <<<EOL
-select \$cmodel
-count(select \$item from <#ri>
-where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
-and \$item <info:fedora/fedora-system:def/model#state> <fedora-model:Active>
-and \$item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection>
-)
+  $coll_items_models = <<<EOL
+select ?cmodel ?item 
 from <#ri>
-where \$item <info:fedora/fedora-system:def/model#hasModel> \$cmodel
-having \$k0 <http://mulgara.org/mulgara#occursMoreThan> '0.0'^^<http://www.w3.org/2001/XMLSchema#double> ;
+where { ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> . 
+?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel }
 EOL;
 
-  $cmodel_counts = $tuque->repository->ri->itqlQuery($query, 'unlimited');
-  $sanitized_array = array();
-  foreach($cmodel_counts as $count) {
-    $cmodel = $count['cmodel']['value'];
-    $count = $count['k0']['value'];
-    if ($cmodel != 'fedora-system:FedoraObject-3.0') {
-      $sanitized_array[$cmodel] = $count;
+  $cmodel_counts = $tuque->repository->ri->sparqlQuery($coll_items_models, 'unlimited');
+  $modelCount = array();
+  foreach ($cmodel_counts as $model) {
+    if($model != 'fedora-system:FedoraObject-3.0') {
+  $model = $model['cmodel']['value'];
+  $countq = <<<EOL
+select ?item
+from <#ri>
+where { ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> . 
+?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection>
+   }
+EOL;
+        $result = $tuque->repository->ri->countQuery($countq, 'sparql');
+        if($result > 0) {
+          $modelCount[$model] = $result;
+        }
     }
   }
-  $result[$collection] = $sanitized_array;
-  return $result;
+  $return[$collection] = $modelCount;
+  return $return;
 }
 
 /**
