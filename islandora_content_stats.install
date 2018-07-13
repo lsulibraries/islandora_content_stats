@@ -9,39 +9,39 @@
  * Implements hook_schema().
  */
 function islandora_content_stats_schema() {
-  $schema['islandora_content_stats'] = array(
-    'description' => 'Table that stores Islandora Content.',
-      'fields' => array(
-        'id'  => array(
-          'type' => 'serial',
-          'unsigned' => true,
-          'not_null' => true,
+    $schema['islandora_content_stats'] = array(
+        'description' => 'Table that stores Islandora Content.',
+        'fields' => array(
+            'id' => array(
+                'type' => 'serial',
+                'unsigned' => true,
+                'not_null' => true,
+            ),
+            'inst' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'description' => 'ownership/branding',
+            ),
+            'coll' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'description' => 'collection pid',
+            ),
+            'cmodel' => array(
+                'type' => 'varchar',
+                'length' => 255,
+                'description' => 'content model',
+            ),
+            'count' => array(
+                'type' => 'int',
+                'description' => 'count of items for query',
+            ),
+            'timestamp' => array(
+                'type' => 'int',
+                'description' => 'timestamp on latest run of queries',
+            ),
         ),
-        'inst' => array(
-          'type' => 'varchar',
-          'length' => 255,
-          'description' => 'ownership/branding',
-        ),
-        'coll' => array(
-          'type' => 'varchar',
-          'length' => 255,
-          'description' => 'collection pid',
-        ),
-        'cmodel' => array(
-          'type' => 'varchar',
-          'length' => 255,
-          'description' => 'content model',
-        ),
-        'count' => array(
-          'type' => 'int',
-          'description' => 'count of items for query',
-        ),
-        'timestamp' => array(
-          'type' => 'int',
-          'description' => 'timestamp on latest run of queries',
-        ),
-      ),
-      'primary key' => array('id'),
+        'primary key' => array('id'),
     );
- return $schema;
+    return $schema;
 }

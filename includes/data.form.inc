@@ -11,155 +11,154 @@
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
-
 function islandora_content_stats_form($form, &$form_state) {
-  module_load_include('inc', 'islandora_content_stats', '/includes/queries');
-  module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
-  $rows = array();
-  $headers = array(
-    array('data' => t('ID'), 'field' => 'stats.id', 'sort' => 'desc'),
-    array('data' => t('Instituton/Context'), 'field' => 'stats.inst',),
-    array('data' => t('Collection (optional)'), 'field' => 'stats.coll',),
-    array('data' => t('Content Model'), 'field' => 'stats.cmodel',),
-    array('data' => t('Count'), 'field' => 'stats.count',),
-    array('data' => t('Timestamp'), 'field' => 'stats.timestamp',),
-  );
-  $max_timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-  //second argument in db select is an alias for the table (which is the first argument.)
-  $query = db_select('islandora_content_stats', 'stats')
-    ->extend('TableSort');
-  $query = $query->fields('stats', array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'));
-  $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
-  foreach($results as $record) {
-    //does not build row when query's cmodel is fedora-Object or ContentModel
-    $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
-    $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
-    //does not build row when query's inst is is_null
-    $not_nullinst = $record->inst != NULL;
-    if ($record->count != 0) {
-      if ( ($not_fobj) && ($not_cmobj) && ($not_nullinst) ) {
-        $rows[$record->id] = array(
-          'id' => $record->id,
-          'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-          'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
-          'cmodel' => map_cmodels($record->cmodel),
-          'count' => $record->count,
-          'timestamp' => gmdate('Y-m-d\TH:i:s\Z', $record->timestamp),
-        );
-      }
-    }
-  }
-  $total_counts = array();
-  $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
-  $total_query = db_select('islandora_content_stats', 'total');
-  $t_fields = array('id', 'inst', 'cmodel', 'count', 'timestamp');
-  $totals = $total_query->fields('total', $t_fields);
-  $totals_cond = $totals->condition('inst', NULL)
-    ->condition('timestamp', $timestamp->fetchField())
-    ->execute();
-  foreach($totals_cond as $total) {
-    //when query's cmodel is fedora-Object or ContentModel don't build total
-    $not_t_fobj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
-    $not_t_cmobj = $total->cmodel != 'fedora-system:ContentModel-3.0';
-    if ($total->count != 0) {
-      if ( ($not_t_fobj) && ($not_t_cmobj)) {
-        $total_counts[$total->id] = array(
-          'cmodel' =>  map_cmodels($total->cmodel),
-          'count' => $total->count,
-        );
-      }
-    }
-  }
-  $form = array();
-  $form['totals']['item'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#title' => t('Totals for each content model'),
-  );
-  foreach($total_counts as $id => $count) {
-    $form['totals']['item'][$id] = array(
-      //'#type' => 'item',
-      '#markup' => "<p>" . t($count['cmodel'].' Total: '.$count['count']) . "</p>",
+    module_load_include('inc', 'islandora_content_stats', '/includes/queries');
+    module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
+    $rows = array();
+    $headers = array(
+        array('data' => t('ID'), 'field' => 'stats.id', 'sort' => 'desc'),
+        array('data' => t('Instituton/Context'), 'field' => 'stats.inst',),
+        array('data' => t('Collection (optional)'), 'field' => 'stats.coll',),
+        array('data' => t('Content Model'), 'field' => 'stats.cmodel',),
+        array('data' => t('Count'), 'field' => 'stats.count',),
+        array('data' => t('Timestamp'), 'field' => 'stats.timestamp',),
     );
-  }
-  $form['filter'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Filter results by type, ownership, or collection name'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['filter']['cmodel'] = array(
-    '#type' => 'select',
-    '#title' => t('Filter by type of object'),
-    '#options' => cmodel_types_for_form(),
-    '#description' => t('Shows results to that match a single content model.'),
-    '#required' => FALSE,
-    '#empty_option' => '--none--',
-  );
-  $form['filter']['institution'] = array(
-    '#type' => 'select',
-    '#title' => t('Filter according to ownership by
+    $max_timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    //second argument in db select is an alias for the table (which is the first argument.)
+    $query = db_select('islandora_content_stats', 'stats')
+            ->extend('TableSort');
+    $query = $query->fields('stats', array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'));
+    $results = apply_query_filters($form_state, $query, $max_timestamp, $headers);
+    foreach ($results as $record) {
+        //does not build row when query's cmodel is fedora-Object or ContentModel
+        $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+        $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+        //does not build row when query's inst is is_null
+        $not_nullinst = $record->inst != NULL;
+        if ($record->count != 0) {
+            if (($not_fobj) && ($not_cmobj) && ($not_nullinst)) {
+                $rows[$record->id] = array(
+                    'id' => $record->id,
+                    'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                    'cmodel' => map_cmodels($record->cmodel),
+                    'count' => $record->count,
+                    'timestamp' => gmdate('Y-m-d\TH:i:s\Z', $record->timestamp),
+                );
+            }
+        }
+    }
+    $total_counts = array();
+    $timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    $total_query = db_select('islandora_content_stats', 'total');
+    $t_fields = array('id', 'inst', 'cmodel', 'count', 'timestamp');
+    $totals = $total_query->fields('total', $t_fields);
+    $totals_cond = $totals->condition('inst', NULL)
+            ->condition('timestamp', $timestamp->fetchField())
+            ->execute();
+    foreach ($totals_cond as $total) {
+        //when query's cmodel is fedora-Object or ContentModel don't build total
+        $not_t_fobj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
+        $not_t_cmobj = $total->cmodel != 'fedora-system:ContentModel-3.0';
+        if ($total->count != 0) {
+            if (($not_t_fobj) && ($not_t_cmobj)) {
+                $total_counts[$total->id] = array(
+                    'cmodel' => map_cmodels($total->cmodel),
+                    'count' => $total->count,
+                );
+            }
+        }
+    }
+    $form = array();
+    $form['totals']['item'] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#title' => t('Totals for each content model'),
+    );
+    foreach ($total_counts as $id => $count) {
+        $form['totals']['item'][$id] = array(
+            //'#type' => 'item',
+            '#markup' => "<p>" . t($count['cmodel'] . ' Total: ' . $count['count']) . "</p>",
+        );
+    }
+    $form['filter'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Filter results by type, ownership, or collection name'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+    );
+    $form['filter']['cmodel'] = array(
+        '#type' => 'select',
+        '#title' => t('Filter by type of object'),
+        '#options' => cmodel_types_for_form(),
+        '#description' => t('Shows results to that match a single content model.'),
+        '#required' => FALSE,
+        '#empty_option' => '--none--',
+    );
+    $form['filter']['institution'] = array(
+        '#type' => 'select',
+        '#title' => t('Filter according to ownership by
  institution or sub-institution'),
-    '#options' => institutions_for_form(),
-    '#required' => FALSE,
-    '#description' => t('Shows results for any items owned
+        '#options' => institutions_for_form(),
+        '#required' => FALSE,
+        '#description' => t('Shows results for any items owned
  by chosen institution or sub-institution.'),
-    '#empty_option' => '--none--',
-  );
-  $form['filter']['collection'] = array(
-    '#type' => 'select',
-    '#title' => t('Filter by specific collection'),
-    '#description' => t('Shows counts of object types
+        '#empty_option' => '--none--',
+    );
+    $form['filter']['collection'] = array(
+        '#type' => 'select',
+        '#title' => t('Filter by specific collection'),
+        '#description' => t('Shows counts of object types
  for an individual collection.'),
-    '#options' => collection_pid_labels_for_form(),
-    '#required' => FALSE,
-    '#empty_option' => '--none--',
-  );
-  $form['filter']['all'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Show all results (history)')
-  );
-  $form['filter']['filtertitle'] = array(
-    '#type' => 'item',
-    '#title' => t('Press to apply filters to page results.'),
-  );
-  $form['filter']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Filter'),
-  );
+        '#options' => collection_pid_labels_for_form(),
+        '#required' => FALSE,
+        '#empty_option' => '--none--',
+    );
+    $form['filter']['all'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Show all results (history)')
+    );
+    $form['filter']['filtertitle'] = array(
+        '#type' => 'item',
+        '#title' => t('Press to apply filters to page results.'),
+    );
+    $form['filter']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Filter'),
+    );
 
-  $form['table-collapse'] = array(
-    '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#title' => t('Table of results'),
-  );
-  $form['table-collapse']['explain'] = array(
-    //'#type' => 'item',
-    '#markup' =>"<p>" . t('Content from institutions and collections, can be
+    $form['table-collapse'] = array(
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#title' => t('Table of results'),
+    );
+    $form['table-collapse']['explain'] = array(
+        //'#type' => 'item',
+        '#markup' => "<p>" . t('Content from institutions and collections, can be
  filtered by choosing from drop downs above, and pressing the "Filter" button.
 (not every choice combination will return results)
 Sort by id, institution/owner, collection, content Model, count, or
  timestamp by clicking headers below.') . "</p>",
-  );
-  $form['table-collapse']['table'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    '#empty' => t('table is empty')
-  );
-  $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
-  $form['download']['dltitle'] = array(
-    //'#type' => 'item',
-    '#markup' => "<p>" . t('Downloads results for use in a spreadsheet.
- (always applies current filters)') . "</p>" ,
-  );
-  $form['download']['button'] = array(
-    '#type' => 'submit',
-    '#value' => t('Download as CSV'),
-    '#submit' => array('download_data'),
-  );
-  return $form;
+    );
+    $form['table-collapse']['table'] = array(
+        '#theme' => 'table',
+        '#header' => $headers,
+        '#rows' => $rows,
+        '#empty' => t('table is empty')
+    );
+    $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
+    $form['download']['dltitle'] = array(
+        //'#type' => 'item',
+        '#markup' => "<p>" . t('Downloads results for use in a spreadsheet.
+ (always applies current filters)') . "</p>",
+    );
+    $form['download']['button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Download as CSV'),
+        '#submit' => array('download_data'),
+    );
+    return $form;
 }
 
 /**
@@ -175,55 +174,50 @@ Sort by id, institution/owner, collection, content Model, count, or
  * @return object
  * $mysqlpart-executed() with applied headers
  */
-
 function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
-  if (!isset($form_state['input']['all'])) {
-    $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
-  }
-  if (isset($form_state['input']['institution'])) {
-    $filters = array();
-    $filters['inst'] = $form_state['input']['institution'];
-    $filters['coll'] = $form_state['input']['collection'];
-    $filters['cmodel'] = $form_state['input']['cmodel'];
-    foreach($filters as $key => $val) {
-      if ($val == '') {
-        //do nothing to the sqlpart
-      }
-      elseif ($val == 'All') {
-        //'All' is same as NULL in mysql field
-        $mysqlpart = $mysqlpart->isNull($key);
-      }
-      else {
-        //apply filter if not '' or 'All'
-        $mysqlpart = $mysqlpart->condition($key, $val);
-      }
+    if (!isset($form_state['input']['all'])) {
+        $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
     }
-  }
-  return $mysqlpart->orderByHeader($headers)
-    ->extend('TableSort')->extend('PagerDefault')->limit(144)
-    ->execute();
+    if (isset($form_state['input']['institution'])) {
+        $filters = array();
+        $filters['inst'] = $form_state['input']['institution'];
+        $filters['coll'] = $form_state['input']['collection'];
+        $filters['cmodel'] = $form_state['input']['cmodel'];
+        foreach ($filters as $key => $val) {
+            if ($val == '') {
+                //do nothing to the sqlpart
+            } elseif ($val == 'All') {
+                //'All' is same as NULL in mysql field
+                $mysqlpart = $mysqlpart->isNull($key);
+            } else {
+                //apply filter if not '' or 'All'
+                $mysqlpart = $mysqlpart->condition($key, $val);
+            }
+        }
+    }
+    return $mysqlpart->orderByHeader($headers)
+                    ->extend('TableSort')->extend('PagerDefault')->limit(144)
+                    ->execute();
 }
 
 /**
  * sends the filter options to the islandora_content_stats_csv_download function
  * sent as url parameters to page data/download
  */
-
-function download_data(&$form,&$form_state) {
-  $options = array('query' => array(
-      'inst' => $form_state['values']['institution'],
-      'cmodel' => $form_state['values']['cmodel'],
-      'coll' => $form_state['values']['collection'],
-      'all' => $form_state['values']['all'],
-    ),
-  );
-  drupal_goto('data/download', $options);
+function download_data(&$form, &$form_state) {
+    $options = array('query' => array(
+            'inst' => $form_state['values']['institution'],
+            'cmodel' => $form_state['values']['cmodel'],
+            'coll' => $form_state['values']['collection'],
+            'all' => $form_state['values']['all'],
+        ),
+    );
+    drupal_goto('data/download', $options);
 }
 
 /**
  * implements hook_form_submit().
  */
-
 function islandora_content_stats_form_submit($form, &$form_state) {
-  $form_state['rebuild'] = TRUE;
+    $form_state['rebuild'] = TRUE;
 }
