@@ -2,7 +2,7 @@
 
 /**
  * @file
- * the RI (ITQL & SPARQL) queries
+ * the RI SPARQL queries
  * for aggregated SPARQL queries use ->countQuery() on the tuque connection
  */
 
@@ -12,9 +12,11 @@ module_load_include('php', 'islandora_namespace_homepage', 'includes/utilities')
 
 
 /**
- * Query repository index for all cmodels that exist, are active and
- * Special thanks to rebecca.s.koeser@princeton.edu for this query
+ * Query repository index for all cmodels that exist, owned by 'fedoraAdmin'
+ * Special thanks to rebecca.s.koeser@princeton.edu for inspiring
  * @link https://rlskoeser.github.io/2010/04/06/fedora-risearch-query-get-object-totals-cmodel query. @endlink
+ * @return array $modelCount
+ * keyed valued with 'cmodel' (string) => count (int)
  */
 
 function all_cmodels() {
@@ -27,20 +29,20 @@ EOL;
   $modelCount = array();
   $models = $tuque->repository->ri->sparqlQuery($modelquery, 'unlimited');
   foreach ($models as $model) {
-      $model = $model['cmodel']['value'];
-      if ($model != 'islandora:root') {
-        $cmodelq = '<info:fedora/'. $model . '>';
+    $model = $model['cmodel']['value'];
+    if ($model != 'islandora:root') {
+      $cmodelq = '<info:fedora/'. $model . '>';
         
-        $oneModelq = <<<EOL
+      $oneModelq = <<<EOL
 select ?item
 from <#ri>
 where { ?item <info:fedora/fedora-system:def/model#hasModel> $cmodelq }
 EOL;
-        $result = $tuque->repository->ri->countQuery($oneModelq, 'sparql');
-        if($result > 0) {
-          $modelCount[$model] = $result;
-        }
+      $result = $tuque->repository->ri->countQuery($oneModelq, 'sparql');
+      if($result > 0) {
+        $modelCount[$model] = $result;
       }
+    }
   }
   return $modelCount;
 }
@@ -63,8 +65,8 @@ function cmodel_types_for_form() {
     if ( ($not_fobj) && ($not_cmobj) ) {
       $string = map_cmodels($model);
       $return[$model] = t($string);
+    }
   }
-}
   return $return;
 }
 
@@ -129,23 +131,21 @@ from <#ri>
 where { ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> . 
 ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel }
 EOL;
-
   $cmodel_counts = $tuque->repository->ri->sparqlQuery($coll_items_models, 'unlimited');
   $modelCount = array();
   foreach ($cmodel_counts as $model) {
-    if($model != 'fedora-system:FedoraObject-3.0') {
-  $model = $model['cmodel']['value'];
-  $countq = <<<EOL
+    $model = $model['cmodel']['value'];
+    if ($model != 'fedora-system:FedoraObject-3.0') {
+      $countq = <<<EOL
 select ?item
 from <#ri>
 where { ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> . 
-?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection>
-   }
+?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> }
 EOL;
-        $result = $tuque->repository->ri->countQuery($countq, 'sparql');
-        if($result > 0) {
-          $modelCount[$model] = $result;
-        }
+      $result = $tuque->repository->ri->countQuery($countq, 'sparql');
+      if($result > 0) {
+        $modelCount[$model] = $result;
+      }
     }
   }
   $return[$collection] = $modelCount;
@@ -166,7 +166,6 @@ SELECT ?pid
 FROM <#RI>
 {?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
 EOL;
-
   $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
   foreach($collections as $coll) {
     $coll = $coll['pid']['value'];
@@ -193,14 +192,13 @@ function all_institution_each_collection_query_count() {
 SELECT ?pid
 FROM <#ri>
 WHERE {
-{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
-FILTER regex(str(?pid), '$lib')
-}
+{ ?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
+FILTER regex(str(?pid), '$lib') }
 ORDER BY ?pid
 EOQ;
     $coll_results =  $tuque->repository->ri->sparqlQuery($query, 'unlimited');
     foreach($coll_results as $num => $coll) {
-    $institution_colls[$lib.$num] = $coll['pid']['value'];
+      $institution_colls[$lib.$num] = $coll['pid']['value'];
     }
   }
   foreach($institution_colls as $inst_num => $collection) {
@@ -239,15 +237,13 @@ function institution_cmodel_totals($ns_prefix) {
   //first query gets all the collections that contain the ns_prefix string.
   $ns_prefix = check_prefix($ns_prefix);
   $ns_member_q = <<<EOQ
-  SELECT ?pid
-  FROM <#ri>
-  WHERE {
-  {?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
-  FILTER regex(str(?pid), '$ns_prefix')
-  }
-  ORDER BY ?pid
+SELECT ?pid
+FROM <#ri>
+WHERE {
+{ ?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
+FILTER regex(str(?pid), '$ns_prefix') }
+ORDER BY ?pid
 EOQ;
-
   $member_colls= $tuque->repository->ri->sparqlQuery($ns_member_q, 'unlimited');
   //count of number of collections with given namespace
   $inst_cmodel_counts['islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
@@ -259,12 +255,12 @@ EOQ;
       $not_fo = $model != 'fedora-system:FedoraObject-3.0';
       if ($not_coll && $not_fo) {
         $query_cm = <<<EOL
-      SELECT ?cmodel ?item
-      FROM <#ri>
-      WHERE {{ ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
-      ?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
-      ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> .}
-      FILTER (!sameterm(str(?cmodel), '<info:fedora/$model>'))}
+SELECT ?cmodel ?item
+FROM <#ri>
+WHERE { { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
+?item <info:fedora/fedora-system:def/model#state> <fedora-model:Active> .
+?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> . }
+FILTER (!sameterm(str(?cmodel), '<info:fedora/$model>')) }
 EOL;
         $coll_cmodel_items =  $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
         foreach ($coll_cmodel_items as $item_model) {
