@@ -16,12 +16,31 @@ function islandora_content_stats_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
     $rows = array();
     $headers = array(
-        array('data' => t('ID'), 'field' => 'stats.id', 'sort' => 'desc'),
-        array('data' => t('Instituton/Context'), 'field' => 'stats.inst',),
-        array('data' => t('Collection (optional)'), 'field' => 'stats.coll',),
-        array('data' => t('Content Model'), 'field' => 'stats.cmodel',),
-        array('data' => t('Count'), 'field' => 'stats.count',),
-        array('data' => t('Timestamp'), 'field' => 'stats.timestamp',),
+        array('data' => t('ID'),
+              'field' => 'stats.id',
+              'sort' => 'desc',
+              'class' => array('id_header'),
+            ),
+        array('data' => t('Instituton/Context'),
+              'field' => 'stats.inst',
+              'class' => array('inst_header'),
+            ),
+        array('data' => t('Collection (optional)'),
+              'field' => 'stats.coll',
+              'class' => array('coll_header'),
+            ),
+        array('data' => t('Content Model'),
+              'field' => 'stats.cmodel',
+              'class' => array('cmodel_header'),
+            ),
+        array('data' => t('Count'),
+              'field' => 'stats.count',
+              'class' => array('count_header'),
+            ),
+        array('data' => t('Timestamp'),
+              'field' => 'stats.timestamp',
+              'class' => array('stamp_header'),
+            ),
     );
     $max_timestamp = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
     //second argument in db select is an alias for the table (which is the first argument.)
@@ -75,11 +94,12 @@ function islandora_content_stats_form($form, &$form_state) {
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#title' => t('Totals for each content model'),
+        '#attributes' => array('class' => array('ics_totals')),
     );
     foreach ($total_counts as $id => $count) {
         $form['totals']['item'][$id] = array(
             //'#type' => 'item',
-            '#markup' => "<p>" . t($count['cmodel'] . ' Total: ' . $count['count']) . "</p>",
+            '#markup' => "<p>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</p>",
         );
     }
     $form['filter'] = array(
@@ -87,6 +107,7 @@ function islandora_content_stats_form($form, &$form_state) {
         '#title' => t('Filter results by type, ownership, or collection name'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
+        '#attributes' => array('class' => array('ics_filters')),
     );
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
@@ -95,6 +116,8 @@ function islandora_content_stats_form($form, &$form_state) {
         '#description' => t('Shows results to that match a single content model.'),
         '#required' => FALSE,
         '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_cmodel')),
+
     );
     $form['filter']['institution'] = array(
         '#type' => 'select',
@@ -105,6 +128,8 @@ function islandora_content_stats_form($form, &$form_state) {
         '#description' => t('Shows results for any items owned
  by chosen institution or sub-institution.'),
         '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_inst')),
+
     );
     $form['filter']['collection'] = array(
         '#type' => 'select',
@@ -114,28 +139,33 @@ function islandora_content_stats_form($form, &$form_state) {
         '#options' => collection_pid_labels_for_form(),
         '#required' => FALSE,
         '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_coll')),
+
     );
     $form['filter']['all'] = array(
         '#type' => 'checkbox',
-        '#title' => t('Show all results (history)')
+        '#title' => t('Show all results (history)'),
+        '#attributes' => array('class' => array('ics_filter_all')),
+
     );
     $form['filter']['filtertitle'] = array(
         '#type' => 'item',
         '#title' => t('Press to apply filters to page results.'),
+        '#attributes' => array('class' => array('ics_filter_submit_description')),
     );
     $form['filter']['submit'] = array(
         '#type' => 'submit',
         '#value' => t('Filter'),
+        '#attributes' => array('class' => array('ics_filter_submit')),
     );
-
     $form['table-collapse'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
         '#title' => t('Table of results'),
+        '#attributes' => array('class' => array('ics_table_collapse')),
     );
     $form['table-collapse']['explain'] = array(
-        //'#type' => 'item',
-        '#markup' => "<p>" . t('Content from institutions and collections, can be
+        '#markup' => '<p class="ics_table_explain">' . t('Content from institutions and collections, can be
  filtered by choosing from drop downs above, and pressing the "Filter" button.
 (not every choice combination will return results)
 Sort by id, institution/owner, collection, content Model, count, or
@@ -145,18 +175,25 @@ Sort by id, institution/owner, collection, content Model, count, or
         '#theme' => 'table',
         '#header' => $headers,
         '#rows' => $rows,
-        '#empty' => t('table is empty')
+        '#empty' => t('table is empty'),
+        '#attributes' => array('class' => array('ics_table')),
+
     );
-    $form['table-collapse']['pager'] = array('#markup' => theme('pager'));
+    $form['table-collapse']['pager'] = array(
+        '#markup' => theme('pager'),
+        '#attributes' => array('class' => array('ics_table_pager')),
+        );
     $form['download']['dltitle'] = array(
         //'#type' => 'item',
         '#markup' => "<p>" . t('Downloads results for use in a spreadsheet.
  (always applies current filters)') . "</p>",
+        '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['button'] = array(
         '#type' => 'submit',
         '#value' => t('Download as CSV'),
         '#submit' => array('download_data'),
+        '#attributes' => array('class' => array('ics_download_button')),
     );
     return $form;
 }
