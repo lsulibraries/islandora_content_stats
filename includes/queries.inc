@@ -213,11 +213,11 @@ EOQ;
  */
 function institution_cmodel_totals($ns_prefix) {
     module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
-    $inst_cmodel_counts = array();
+    $valid_cmodels = array();
     $cmodels = all_cmodels();
     foreach ($cmodels as $model => $count) {
         if (cmodel_check($model)) {
-            $inst_cmodel_counts[$model] = 0;
+            $valid_cmodels[] = $model; 
         }
     }
     $tuque = islandora_get_tuque_connection();
@@ -231,14 +231,16 @@ WHERE {
 FILTER regex(str(?pid), '$ns_prefix') }
 ORDER BY ?pid
 EOQ;
+    //total collections in an institution
     $member_colls = $tuque->repository->ri->sparqlQuery($ns_member_q, 'unlimited');
-    //count of number of collections with given namespace
-    $inst_cmodel_counts['islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
+    $coll_cmodel_items = array();
     foreach ($member_colls as $coll) {
         $coll = $coll['pid']['value'];
+        //counts array
+        $count_array = array();
+        //count of number of collections with given namespace
         //for each cmodel, count members of each collection
-        foreach ($inst_cmodel_counts as $model => $count) {
-            if (cmodel_check($model)) {
+        foreach ($valid_cmodels as $model => $count) {
                 //query asks for items and models, which are active, and belong
                 //to a collection, Filter by current model only. 
                 $query_cm = <<<EOL
@@ -249,17 +251,17 @@ WHERE { { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> . }
 FILTER (!sameterm(str(?cmodel), '<info:fedora/$model>')) }
 EOL;
-                $coll_cmodel_items = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
-                foreach ($coll_cmodel_items as $item_model) {
-                    $item_model = $item_model['cmodel']['value'];
-                    if (cmodel_check($item_model)) {
-                        $inst_cmodel_counts[$item_model] = $inst_cmodel_counts[$item_model] + 1;
+                $coll_cmodel_items = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');        
+                foreach ($coll_cmodel_items as $item) {
+                    $itemModel = $item['cmodel']['value'];                  
+                    if (cmodel_check($itemModel) && $itemModel == $model) {
+                        $count_array[$itemModel] += 1;
                     }
                 }
             }
         }
-    }
-    return $inst_cmodel_counts;
+        $count_array['islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
+    return $count_array;
 }
 
 /**
