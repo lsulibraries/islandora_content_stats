@@ -118,9 +118,9 @@ function institutions_for_form() {
 function collection_cmodel_query($collection) {
     $tuque = islandora_get_tuque_connection();
     $coll_items_models = <<<EOL
-select ?cmodel ?item 
+select ?cmodel ?item
 from <#ri>
-where { ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> . 
+where { ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> .
 ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel }
 EOL;
     $cmodel_counts = $tuque->repository->ri->sparqlQuery($coll_items_models, 'unlimited');
@@ -131,7 +131,7 @@ EOL;
             $countq = <<<EOL
 select ?item
 from <#ri>
-where { ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> . 
+where { ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$collection> }
 EOL;
             $result = $tuque->repository->ri->countQuery($countq, 'sparql');
@@ -214,10 +214,12 @@ EOQ;
 function institution_cmodel_totals($ns_prefix) {
     module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
     $valid_cmodels = array();
+    //total count of each cmodel
     $cmodels = all_cmodels();
+    //we only use the model
     foreach ($cmodels as $model => $count) {
         if (cmodel_check($model)) {
-            $valid_cmodels[] = $model; 
+            $valid_cmodels[] = $model;
         }
     }
     $tuque = islandora_get_tuque_connection();
@@ -243,7 +245,7 @@ EOQ;
         foreach ($valid_cmodels as $model) {
           $count_array[$model] = 0;
                 //query asks for items and models, which are active, and belong
-                //to a collection, Filter by current model only. 
+                //to a collection, Filter by current model only.
                 $query_cm = <<<EOL
 SELECT ?cmodel ?item
 FROM <#ri>
@@ -252,9 +254,9 @@ WHERE { { ?item <info:fedora/fedora-system:def/model#hasModel> ?cmodel .
 ?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> . }
 FILTER (!sameterm(str(?cmodel), '<info:fedora/$model>')) }
 EOL;
-                $coll_cmodel_items = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');        
+                $coll_cmodel_items = $tuque->repository->ri->sparqlQuery($query_cm, 'unlimited');
                 foreach ($coll_cmodel_items as $item) {
-                    $itemModel = $item['cmodel']['value'];                  
+                    $itemModel = $item['cmodel']['value'];
                     if (cmodel_check($itemModel) && $itemModel == $model) {
                         $count_array[$itemModel] += 1;
                     }
@@ -262,6 +264,7 @@ EOL;
             }
         }
         $count_array['islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
+        dpm($count_array);
     return $count_array;
 }
 
@@ -271,20 +274,18 @@ EOL;
  */
 function islandora_content_stats_run_queries() {
     $time = time();
+    //site wide totals per cmodel
     $all_cmodels = all_cmodels();
     foreach ($all_cmodels as $model => $count) {
         $coll = 'islandora:root';
         queries_db_insert(NULL, $coll, $model, $count, $time);
     }
+    //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
     $ns_prefixes = all_ns_prefix_incl_subs();
     foreach ($ns_prefixes as $ns) {
         $inst_model_counts = institution_cmodel_totals($ns);
         foreach ($inst_model_counts as $model => $count) {
-            if (strpos($model, 'islandora:collectionCModel')) {
                 queries_db_insert($ns . '-', NULL, $model, $count, $time);
-            } else {
-                queries_db_insert($ns . '-', NULL, $model, $count, $time);
-            }
         }
     }
     $inst_coll_counts = all_institution_each_collection_query_count();
