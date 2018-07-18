@@ -240,7 +240,8 @@ EOQ;
         $count_array = array();
         //count of number of collections with given namespace
         //for each cmodel, count members of each collection
-        foreach ($valid_cmodels as $model => $count) {
+        foreach ($valid_cmodels as $model) {
+          $count_array[$model] = 0;
                 //query asks for items and models, which are active, and belong
                 //to a collection, Filter by current model only. 
                 $query_cm = <<<EOL
