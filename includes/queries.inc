@@ -16,32 +16,58 @@ module_load_include('php', 'islandora_namespace_homepage', 'includes/utilities')
  * @return array $modelCount
  * keyed valued with 'cmodel' (string) => count (int)
  */
-function all_cmodels() {
-    $tuque = islandora_get_tuque_connection();
-    $modelquery = <<<EOL
-select ?cmodel
-from <#ri>
-where { ?cmodel <info:fedora/fedora-system:def/model#ownerId> 'fedoraAdmin' }
-EOL;
-    $modelCount = array();
-    $models = $tuque->repository->ri->sparqlQuery($modelquery, 'unlimited');
-    foreach ($models as $model) {
-        $model = $model['cmodel']['value'];
-        if ($model != 'islandora:root') {
-            $cmodelq = '<info:fedora/' . $model . '>';
 
-            $oneModelq = <<<EOL
+// function get_all_models() {
+//   $tuque = islandora_get_tuque_connection();
+//   $modelquery = <<<EOL
+// select ?cmodel
+// from <#ri>
+// where { ?cmodel <info:fedora/fedora-system:def/model#ownerId> 'fedoraAdmin' }
+// EOL;
+//   $models = $tuque->repository->ri->sparqlQuery($modelquery, 'unlimited');
+//   $model_strings = array();
+//   foreach ($models as $model) {
+//     $model_strings[] = $model['cmodel']['value'];
+//   }
+//   return $model_strings;
+// }
+
+
+
+function get_all_collections($prefix = FALSE) {
+  $filter = $prefix ? "FILTER regex(str(?pid), '$prefix')" : '';
+  $tuque = islandora_get_tuque_connection();
+  $query = <<<EOQ
+SELECT ?obj
+FROM <#ri>
+WHERE {{ ?obj <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> .
+?obj <info:fedora/fedora-system:def/model#hasModel> <info:fedora/islandora:collectionCModel> }
+$filter }
+EOQ;
+  $colls =  $tuque->repository->ri->sparqlQuery($query, 'unlimited');
+  $coll_pids = array();
+  foreach ($colls as $coll) {
+    $coll_pids[] = $coll['obj']['value'];
+  }
+  return $coll_pids;
+}
+
+function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
+  $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid>" : '';
+  $filter = $prefix ? "FILTER regex(str(?item), '$prefix')" : '';
+    $query = <<<EOL
 select ?item
 from <#ri>
-where { ?item <info:fedora/fedora-system:def/model#hasModel> $cmodelq }
+where {{ ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
+$where_coll
+
+} $filter}
 EOL;
-            $result = $tuque->repository->ri->countQuery($oneModelq, 'sparql');
-            if ($result > 0) {
-                $modelCount[$model] = $result;
-            }
-        }
-    }
-    return $modelCount;
+  if($prefix){dpm($query);}
+    $tuque = islandora_get_tuque_connection();
+    $result = $tuque->repository->ri->countQuery($query, 'sparql');
+
+  return $result;
 }
 
 /**
@@ -51,9 +77,9 @@ EOL;
  */
 function cmodel_types_for_form() {
     module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
-    $model_counts = all_cmodels();
+    $model_counts = array_keys(islandora_get_content_models());
     $return = array();
-    foreach ($model_counts as $model => $count) {
+    foreach ($model_counts as $model) {
         //when cmodel is FedoraObject or ContentModel, don't map
         $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
         $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
@@ -71,18 +97,18 @@ function cmodel_types_for_form() {
  * array of possible prefixes for inst and sub-inst
  * (better to use namespace_homepage? or not?)
  */
-function all_ns_prefix_incl_subs() {
+function get_all_prefixes() {
     $tuque = islandora_get_tuque_connection();
     $prefixes = array();
     $all_root_members = <<<EOL
-SELECT DISTINCT ?pid
+SELECT DISTINCT ?collection
 FROM <#ri>
 WHERE
-{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+{?collection <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
 EOL;
     $result = $tuque->repository->ri->sparqlQuery($all_root_members, 'unlimited');
     foreach ($result as $key => $val) {
-        $value = $val['pid']['value'];
+        $value = $val['collection']['value'];
         if ((isset($value)) && (strpos($value, '-'))) {
             $plode = explode('-', $value);
             array_pop($plode);
@@ -100,7 +126,7 @@ EOL;
  */
 function institutions_for_form() {
     module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
-    $prefixes = all_ns_prefix_incl_subs();
+    $prefixes = get_all_prefixes();
     $return = array();
     foreach ($prefixes as $inst) {
         $return[$inst . '-'] = map_institution($inst, 'form');
@@ -144,6 +170,8 @@ EOL;
     return $return;
 }
 
+
+
 /**
  * @return array $return
  * options for data.form.inc dropdown of colleciton names
@@ -175,16 +203,13 @@ function all_institution_each_collection_query_count() {
     $tuque = islandora_get_tuque_connection();
     $institution_colls = array();
     $fields = array();
-    $institutions = all_ns_prefix_incl_subs();
+    $institutions = get_all_prefixes();
     foreach ($institutions as $lib) {
         $lib = check_prefix($lib);
         $query = <<<EOQ
 SELECT ?pid
 FROM <#ri>
-WHERE {
-{ ?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
-FILTER regex(str(?pid), '$lib') }
-ORDER BY ?pid
+WHERE { ?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
 EOQ;
         $coll_results = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
         foreach ($coll_results as $num => $coll) {
@@ -206,16 +231,16 @@ EOQ;
 
 /**
  * marks up the content models available
- * @param string $ns_prefix
+ * @param string $prefix
  *  prefix of institution or sub-institution
  * @return array
  *  array of an institution's total of items with a particular content model.
  */
-function institution_cmodel_totals($ns_prefix) {
+function institution_cmodel_totals($prefix, $model) {
     module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
     $valid_cmodels = array();
     //total count of each cmodel
-    $cmodels = all_cmodels();
+    $cmodels = islandora_get_content_models();
     //we only use the model
     foreach ($cmodels as $model => $count) {
         if (cmodel_check($model)) {
@@ -223,14 +248,14 @@ function institution_cmodel_totals($ns_prefix) {
         }
     }
     $tuque = islandora_get_tuque_connection();
-    //first query gets all the collections that contain the ns_prefix string.
-    $ns_prefix = check_prefix($ns_prefix);
+    //first query gets all the collections that contain the $prefix string.
+    $prefix = check_prefix($prefix);
     $ns_member_q = <<<EOQ
 SELECT ?pid
 FROM <#ri>
 WHERE {
 { ?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
-FILTER regex(str(?pid), '$ns_prefix') }
+FILTER regex(str(?pid), '$prefix') }
 ORDER BY ?pid
 EOQ;
     //total collections in an institution
@@ -264,7 +289,6 @@ EOL;
             }
         }
         $count_array['islandora:collectionCModel'] = $tuque->repository->ri->countQuery($ns_member_q, 'sparql');
-        dpm($count_array);
     return $count_array;
 }
 
@@ -273,25 +297,38 @@ EOL;
  * manually runs the queries now.
  */
 function islandora_content_stats_run_queries() {
+    module_load_include('inc','islandora','includes/utilities');
     $time = time();
-    //site wide totals per cmodel
-    $all_cmodels = all_cmodels();
-    foreach ($all_cmodels as $model => $count) {
+    //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
+    $all_prefixes = get_all_prefixes();
+    dpm($all_prefixes);
+    //all available models
+    $all_cmodels = array_keys(islandora_get_content_models());
+
+    //all available collections at islandora:root
+    $all_colls = get_all_collections();
+    foreach ($all_cmodels as $model) {
+        $count = total_model_count($model);
+        //dpm($model .': ' . $count);
+
         $coll = 'islandora:root';
         queries_db_insert(NULL, $coll, $model, $count, $time);
-    }
-    //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
-    $ns_prefixes = all_ns_prefix_incl_subs();
-    foreach ($ns_prefixes as $ns) {
-        $inst_model_counts = institution_cmodel_totals($ns);
-        foreach ($inst_model_counts as $model => $count) {
-                queries_db_insert($ns . '-', NULL, $model, $count, $time);
+        foreach ($all_prefixes as $prefix) {
+          $inst_model_count = total_model_count($model, $prefix);
+          dpm( "$prefix $model $inst_model_count");
+          queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+          //dpm($model .' ' . $inst_colls);
+          $inst_colls = get_all_collections($prefix);
+          foreach ($inst_colls as $coll) {
+            $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+            //dpm($inst_collection_model_count);
+            queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
+          }
         }
-    }
-    $inst_coll_counts = all_institution_each_collection_query_count();
-    foreach ($inst_coll_counts as $inst) {
-        foreach ($inst['models'] as $model => $count) {
-            queries_db_insert($inst['inst'], $inst['coll'], $model, $count, $time);
+        foreach ($all_colls as $coll) {
+          $count = total_model_count($model, NULL, $coll);
+          //dpm($count);
+          queries_db_insert(NULL,$coll,$model,$count,$time);
         }
     }
 }
@@ -316,14 +353,14 @@ function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
 /**
  * makes sure queries for ns are distinct
  * otherwise lsu matches lsu-sub
- * @param string $ns_prefixe
+ * @param string $prefixe
  * institution string to check for '-'
  */
-function check_prefix($ns_prefix) {
-    if (strpos($ns_prefix, '-') === FALSE) {
-        $ns_prefix = $ns_prefix . '-';
+function check_prefix($prefix) {
+    if (strpos($prefix, '-') === FALSE) {
+        $prefix = $prefix . '-';
     }
-    return $ns_prefix;
+    return $prefix;
 }
 
 /**
@@ -390,7 +427,6 @@ function islandora_content_stats_block_inst($path) {
  * each query where coll is islandora:root (ints == NULL)
  */
 function islandora_root_stats_queries() {
-    $ns_prefixes = all_ns_prefix_incl_subs();
     $last_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
     $time = $last_time->fetchField();
     $pref = 'select * from ldl.islandora_content_stats where inst is NULL and timestamp = \'';
