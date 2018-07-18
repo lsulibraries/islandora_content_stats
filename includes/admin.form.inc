@@ -78,7 +78,7 @@ function direct_to_reports() {
 
 function islandora_content_stats_admin_form_submit($form, &$form_state) {
   $vset_str = 'islandora_content_stats_interval';
-  variable_set($vset_str , $form_state['input']['date']);
-  variable_set('islandora_content_stats_off_start', $form_state['input']['off_start']);
-  variable_set('islandora_content_stats_off_end', $form_state['input']['off_end']);
+  variable_set($vset_str , $form_state['values']['date']);
+  variable_set('islandora_content_stats_off_start', $form_state['values']['off_start']);
+  variable_set('islandora_content_stats_off_end', $form_state['values']['off_end']);
 }
