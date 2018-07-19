@@ -9,7 +9,7 @@
  */
 
 function get_all_collections($prefix = FALSE) {
-  $filter = $prefix ? "FILTER regex(str(?pid), '$prefix')" : '';
+  $filter = $prefix ? "FILTER regex(str(?obj), '$prefix')" : '';
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOQ
 SELECT ?obj
@@ -37,7 +37,6 @@ $where_coll
 
 } $filter}
 EOL;
-  // if($prefix){dpm($query);}
     $tuque = islandora_get_tuque_connection();
     $result = $tuque->repository->ri->countQuery($query, 'sparql');
 
@@ -90,7 +89,7 @@ EOL;
             $prefixes[] = $joined;
         }
     }
-    return $prefixes;
+    return array_unique($prefixes);
 }
 
 /**
@@ -156,10 +155,6 @@ function islandora_content_stats_run_queries() {
             queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
           }
         }
-        foreach ($all_colls as $coll) {
-          $count = total_model_count($model, NULL, $coll);
-          queries_db_insert(NULL,$coll,$model,$count,$time);
-        }
     }
 }
 
@@ -167,6 +162,7 @@ function islandora_content_stats_run_queries() {
  *  execute query returns to mysql.
  */
 function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
+  if ($count > 0){
     db_insert('islandora_content_stats')
             ->fields(array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp'))
             ->values(array(
@@ -178,6 +174,7 @@ function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
                 'timestamp' => $time,
             ))
             ->execute();
+  }
 }
 
 /**
