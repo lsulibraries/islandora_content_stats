@@ -27,20 +27,21 @@ EOQ;
 }
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
-  $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid>" : '';
+  $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
+  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
+  $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
   $filter = $prefix ? "FILTER regex(str(?item), '$prefix')" : '';
     $query = <<<EOL
-select ?item
+select ?item $xfactor
 from <#ri>
 where {{ ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
-$where_coll
+$where_coll 
+$not_constituent
 
 } $filter}
 EOL;
     $tuque = islandora_get_tuque_connection();
-    dpm($query);
     $result = $tuque->repository->ri->countQuery($query, 'sparql');
-
   return $result;
 }
 
@@ -119,7 +120,8 @@ function collection_pid_labels_for_form() {
     $query = <<<EOL
 SELECT ?pid
 FROM <#RI>
-{?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root>}
+WHERE {
+?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
 EOL;
     $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
     foreach ($collections as $coll) {
@@ -143,6 +145,23 @@ function get_collection_policy_array($pid) {
 }
 
 
+function compound_check_constituency($prefix, $coll = FALSE) {
+    $coll_check = $coll ? "?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> ." : '';
+    $tuque = islandora_get_tuque_connection();
+    $query = <<<EOL
+SELECT ?item ?x
+FROM <#RI>
+WHERE {{
+  $coll_check
+?item <info:fedora/fedora-system:def/relations-external#isConstituentOf> ?x
+}
+FILTER regex(str(?item), '$prefix')
+}
+EOL;
+    $count = $tuque->repository->ri->countQuery($query, 'sparql');
+    return $count;
+}
+
 /**
  * saves the results to a database table (with a timestamp)
  * manually runs the queries now.
@@ -160,11 +179,12 @@ function islandora_content_stats_run_queries() {
     //all available collections at islandora:root
     $all_colls = get_all_collections();
     //Loop for Totals at root
+    //constituent models
     foreach ($all_cmodels as $model) {
-        //root totals
-        $count = total_model_count($model);
-        $coll = 'islandora:root';
-        queries_db_insert(NULL, $coll, $model, $count, $time);
+            //root totals
+            $count = total_model_count($model);
+            $coll = 'islandora:root';
+            queries_db_insert(NULL, $coll, $model, $count, $time);    
     }
     //loop for all institutions
     foreach ($all_prefixes as $prefix) {
@@ -184,6 +204,11 @@ function islandora_content_stats_run_queries() {
             $total_policy = array_unique($total_policy);
             //loop through all models available in an inst.
             foreach ($total_policy as $model){
+                $bad = ['islandora:compoundCModel','islandora:newspaperIssueCModel','islandora:newspaperPageCModel','islandora:sp_large_image_cmodel'];
+                if (in_array($model, $bad)){
+                   $children_of_cpds = compound_check_constituency($prefix);
+                   queries_db_insert($prefix . '-', "Children of items", $model,$children_of_cpds,$time);
+                }
                 //inst_totals
                 $inst_model_count = total_model_count($model, $prefix);
                 queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);

@@ -72,7 +72,8 @@ function map_collection($pid, $context = FALSE) {
     $iobj_str = '/islandora/object/';
     if ($pid != '') {
         $obj = islandora_object_load($pid);
-        if (isset($obj)) {
+        if (isset($obj) && gettype($obj) == 'object') {
+            
             $label = $obj->label;
             if ($context == 'csv') {
                 //add port number after $_SERVER['SERVER_NAME'] if running locally
@@ -83,6 +84,9 @@ function map_collection($pid, $context = FALSE) {
                 $link = $label;
             }
             return $link;
+        }
+        else{
+            return $pid;
         }
     }
 }
