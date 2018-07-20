@@ -129,10 +129,26 @@ EOL;
     return $return;
 }
 
+function get_collection_policy_array($pid) {
+    $query_models = array();
+    $repo = islandora_get_tuque_connection();
+    $api_a = $repo->api->a;
+    $pol = $api_a->getDatastreamDissemination($pid,'COLLECTION_POLICY');
+    $models = simplexml_load_string($pol)->content_models;
+    foreach($models as $model){
+       $query_models[] = (string) $model->content_model['pid'];
+    }
+  return $query_models;
+}
+
+
 /**
  * saves the results to a database table (with a timestamp)
  * manually runs the queries now.
  */
+
+
+
 function islandora_content_stats_run_queries() {
     module_load_include('inc','islandora','includes/utilities');
     $time = time();
@@ -149,11 +165,16 @@ function islandora_content_stats_run_queries() {
         foreach ($all_prefixes as $prefix) {
           $inst_model_count = total_model_count($model, $prefix);
           queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
-          $inst_colls = get_all_collections($prefix);
-          foreach ($inst_colls as $coll) {
-            $inst_collection_model_count = total_model_count($model, $prefix, $coll);
-            queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
-          }
+        }
+    }
+    foreach ($all_prefixes as $prefix) {
+        $inst_colls = get_all_collections($prefix);
+        foreach ($inst_colls as $coll) {
+            $policy = get_collection_policy_array($coll);
+            foreach ($policy as $model) {
+                $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+                queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);    
+            }
         }
     }
 }
