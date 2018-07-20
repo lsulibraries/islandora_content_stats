@@ -38,6 +38,7 @@ $where_coll
 } $filter}
 EOL;
     $tuque = islandora_get_tuque_connection();
+    dpm($query);
     $result = $tuque->repository->ri->countQuery($query, 'sparql');
 
   return $result;
@@ -158,22 +159,34 @@ function islandora_content_stats_run_queries() {
     $all_cmodels = array_keys(islandora_get_content_models());
     //all available collections at islandora:root
     $all_colls = get_all_collections();
+    //Loop for Totals at root
     foreach ($all_cmodels as $model) {
+        //root totals
         $count = total_model_count($model);
         $coll = 'islandora:root';
         queries_db_insert(NULL, $coll, $model, $count, $time);
-        foreach ($all_prefixes as $prefix) {
-          $inst_model_count = total_model_count($model, $prefix);
-          queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
-        }
     }
+    //loop for all institutions
     foreach ($all_prefixes as $prefix) {
+        $total_policy = [];
         $inst_colls = get_all_collections($prefix);
+        //loop through each inst_collection, total for collection
         foreach ($inst_colls as $coll) {
             $policy = get_collection_policy_array($coll);
+            $total_policy = array_merge($policy);
+            //loop through each model in the collection policy
             foreach ($policy as $model) {
+                //collection_totals
                 $inst_collection_model_count = total_model_count($model, $prefix, $coll);
                 queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);    
+            }
+            //we have constructed total_policy as an array of cmodels possible in a given inst
+            $total_policy = array_unique($total_policy);
+            //loop through all models available in an inst.
+            foreach ($total_policy as $model){
+                //inst_totals
+                $inst_model_count = total_model_count($model, $prefix);
+                queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
             }
         }
     }
