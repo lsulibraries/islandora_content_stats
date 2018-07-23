@@ -172,9 +172,13 @@ EOL;
             }
         }
     }
+    $return = array();
     array_unique($parentarray);
-    $count = ['count' => $count,'parents' => $parenttitle];
-    return $count;
+    if (isset($parentarray)){
+      $return['parents'] = $parentarray;
+    }
+    $return['count'] = $count;
+    return $return;
 }
 
 /**
