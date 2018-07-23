@@ -28,8 +28,8 @@ function islandora_content_stats_form($form, &$form_state) {
         array('data' => t('Collection (optional)'),
               'field' => 'stats.coll',
               'class' => array('coll_header'),
-            ), 
-       array('data' => t('Content Model'),
+            ),
+        array('data' => t('Content Model'),
               'field' => 'stats.cmodel',
               'class' => array('cmodel_header'),
             ),
@@ -141,12 +141,12 @@ function islandora_content_stats_form($form, &$form_state) {
 //        '#empty_option' => '--none--',
 //        '#attributes' => array('class' => array('ics_filter_coll')),
 //    );
-    $form['filter']['all'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Show all results (history)'),
-        '#attributes' => array('class' => array('ics_filter_all')),
-
-    );
+//    $form['filter']['all'] = array(
+//        '#type' => 'checkbox',
+//        '#title' => t('Show all results (history)'),
+//        '#attributes' => array('class' => array('ics_filter_all')),
+//
+//    );
     $form['filter']['filtertitle'] = array(
         '#type' => 'item',
         '#title' => t('Press to apply filters to page results.'),
@@ -245,7 +245,7 @@ function download_data(&$form, &$form_state) {
             'inst' => $form_state['values']['institution'],
             'cmodel' => $form_state['values']['cmodel'],
             //'coll' => $form_state['values']['collection'],
-            'all' => $form_state['values']['all'],
+            //'all' => $form_state['values']['all'],
         ),
     );
     drupal_goto('data/download', $options);
