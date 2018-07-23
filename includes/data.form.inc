@@ -184,13 +184,13 @@ Sort by id, institution/owner, collection, content Model, count, or
         );
     $form['download']['dltitle'] = array(
         //'#type' => 'item',
-        '#markup' => "<p>" . t('Downloads results for use in a spreadsheet.
+        '#markup' => "<p>" . t('Downloads all historic results for use in a spreadsheet.
  (always applies current filters)') . "</p>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['button'] = array(
         '#type' => 'submit',
-        '#value' => t('Download as CSV'),
+        '#value' => t('Download History as CSV'),
         '#submit' => array('download_data'),
         '#attributes' => array('class' => array('ics_download_button')),
     );
@@ -245,7 +245,7 @@ function download_data(&$form, &$form_state) {
             'inst' => $form_state['values']['institution'],
             'cmodel' => $form_state['values']['cmodel'],
             //'coll' => $form_state['values']['collection'],
-            //'all' => $form_state['values']['all'],
+            'all' => TRUE, //$form_state['values']['all'],
         ),
     );
     drupal_goto('data/download', $options);
