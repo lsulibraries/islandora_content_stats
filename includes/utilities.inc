@@ -13,6 +13,7 @@
  *  String of model's label stripped of repetitous words
  */
 function map_cmodels($model) {
+    if($model == 'children of compound object types'){return $model;}  
     module_load_include('inc', 'islandora', 'includes/utilities');
     $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
     $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
@@ -27,6 +28,7 @@ function map_cmodels($model) {
             return $short_label;
         }
     }
+    
 }
 
 /**

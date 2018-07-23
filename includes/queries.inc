@@ -28,16 +28,16 @@ EOQ;
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
   $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
-  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
   $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
+  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
+
   $filter = $prefix ? "FILTER regex(str(?item), '$prefix')" : '';
     $query = <<<EOL
 select ?item $xfactor
 from <#ri>
 where {{ ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
-$where_coll 
+$where_coll
 $not_constituent
-
 } $filter}
 EOL;
     $tuque = islandora_get_tuque_connection();
@@ -144,21 +144,34 @@ function get_collection_policy_array($pid) {
   return $query_models;
 }
 
+  
 
 function compound_check_constituency($prefix, $coll = FALSE) {
-    $coll_check = $coll ? "?item <fedora-rels-ext:isMemberOfCollection> <info:fedora/$coll> ." : '';
+    $coll = $coll ? islandora_object_load($coll) : '';
+    $label = gettype($coll) == 'object' ? $coll->label : '';  
     $tuque = islandora_get_tuque_connection();
     $query = <<<EOL
-SELECT ?item ?x
+SELECT ?item ?parent ?dcrelation
 FROM <#RI>
 WHERE {{
-  $coll_check
-?item <info:fedora/fedora-system:def/relations-external#isConstituentOf> ?x
+?item <info:fedora/fedora-system:def/relations-external#isConstituentOf> ?parent .
+?item <http://purl.org/dc/elements/1.1/relation> ?dcrelation .
 }
 FILTER regex(str(?item), '$prefix')
 }
 EOL;
     $count = $tuque->repository->ri->countQuery($query, 'sparql');
+    $sparql = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
+    $parentarray = array();
+    foreach($sparql as $sparq){
+        $parentColl = $sparq['dcrelation']['value'];
+        $parenttitle = substr($parentColl, 0 ,strpos($parentColl,'-')  );
+        if($label == $parenttitle){
+            $parrentarray[] = trim($parenttitle);
+        }
+    }
+    array_unique($parentarray);
+    $count = ['count' => $count,'parents' => $parenttitle];
     return $count;
 }
 
@@ -179,7 +192,6 @@ function islandora_content_stats_run_queries() {
     //all available collections at islandora:root
     $all_colls = get_all_collections();
     //Loop for Totals at root
-    //constituent models
     foreach ($all_cmodels as $model) {
             //root totals
             $count = total_model_count($model);
@@ -190,8 +202,18 @@ function islandora_content_stats_run_queries() {
     foreach ($all_prefixes as $prefix) {
         $total_policy = [];
         $inst_colls = get_all_collections($prefix);
+        //check each inst for constituent members.
+        $children_of_cpds = compound_check_constituency($prefix);        
+        queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
+        //(check the type of parent of constituents.)
         //loop through each inst_collection, total for collection
         foreach ($inst_colls as $coll) {
+            $collCpds = compound_check_constituency($prefix,$coll);
+            $obj = islandora_object_load($coll);
+            
+            if($obj->label == $collCpds['parents']){
+                queries_db_insert($prefix . '-', $coll, 'children of compound object types',$collCpds['count'],$time);
+            }
             $policy = get_collection_policy_array($coll);
             $total_policy = array_merge($policy);
             //loop through each model in the collection policy
@@ -204,11 +226,7 @@ function islandora_content_stats_run_queries() {
             $total_policy = array_unique($total_policy);
             //loop through all models available in an inst.
             foreach ($total_policy as $model){
-                $bad = ['islandora:compoundCModel','islandora:newspaperIssueCModel','islandora:newspaperPageCModel','islandora:sp_large_image_cmodel'];
-                if (in_array($model, $bad)){
-                   $children_of_cpds = compound_check_constituency($prefix);
-                   queries_db_insert($prefix . '-', "Children of items", $model,$children_of_cpds,$time);
-                }
+       
                 //inst_totals
                 $inst_model_count = total_model_count($model, $prefix);
                 queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
