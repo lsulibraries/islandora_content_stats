@@ -164,10 +164,12 @@ EOL;
     $sparql = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
     $parentarray = array();
     foreach($sparql as $sparq){
-        $parentColl = $sparq['dcrelation']['value'];
-        $parenttitle = substr($parentColl, 0 ,strpos($parentColl,'-')  );
-        if($label == $parenttitle){
-            $parrentarray[] = trim($parenttitle);
+        if (isset($sparq['dcrelation']['values'])){
+            $parentColl = $sparq['dcrelation']['value'];
+            $parenttitle = substr($parentColl, 0 ,strpos($parentColl,'-')  );
+            if($label == $parenttitle){
+                $parrentarray[] = trim($parenttitle);
+            }
         }
     }
     array_unique($parentarray);
