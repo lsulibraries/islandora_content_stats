@@ -131,17 +131,16 @@ function islandora_content_stats_form($form, &$form_state) {
         '#attributes' => array('class' => array('ics_filter_inst')),
 
     );
-    $form['filter']['collection'] = array(
-        '#type' => 'select',
-        '#title' => t('Filter by specific collection'),
-        '#description' => t('Shows counts of object types
- for an individual collection.'),
-        '#options' => collection_pid_labels_for_form(),
-        '#required' => FALSE,
-        '#empty_option' => '--none--',
-        '#attributes' => array('class' => array('ics_filter_coll')),
-
-    );
+//    $form['filter']['collection'] = array(
+//        '#type' => 'select',
+//        '#title' => t('Filter by specific collection'),
+//        '#description' => t('Shows counts of object types
+// for an individual collection.'),
+//        '#options' => collection_pid_labels_for_form(),
+//        '#required' => FALSE,
+//        '#empty_option' => '--none--',
+//        '#attributes' => array('class' => array('ics_filter_coll')),
+//    );
     $form['filter']['all'] = array(
         '#type' => 'checkbox',
         '#title' => t('Show all results (history)'),
