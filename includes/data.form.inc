@@ -28,8 +28,8 @@ function islandora_content_stats_form($form, &$form_state) {
         array('data' => t('Collection (optional)'),
               'field' => 'stats.coll',
               'class' => array('coll_header'),
-            ),
-        array('data' => t('Content Model'),
+            ), 
+       array('data' => t('Content Model'),
               'field' => 'stats.cmodel',
               'class' => array('cmodel_header'),
             ),
@@ -217,7 +217,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
     if (isset($form_state['input']['institution'])) {
         $filters = array();
         $filters['inst'] = $form_state['input']['institution'];
-        $filters['coll'] = $form_state['input']['collection'];
+        //$filters['coll'] = $form_state['input']['collection'];
         $filters['cmodel'] = $form_state['input']['cmodel'];
         foreach ($filters as $key => $val) {
             if ($val == '') {
@@ -244,7 +244,7 @@ function download_data(&$form, &$form_state) {
     $options = array('query' => array(
             'inst' => $form_state['values']['institution'],
             'cmodel' => $form_state['values']['cmodel'],
-            'coll' => $form_state['values']['collection'],
+            //'coll' => $form_state['values']['collection'],
             'all' => $form_state['values']['all'],
         ),
     );
