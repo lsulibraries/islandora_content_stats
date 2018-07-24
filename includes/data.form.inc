@@ -193,7 +193,7 @@ function islandora_content_stats_form($form, &$form_state) {
     $form['table-collapse'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
+        '#collapsed' => FALSE,
         '#title' => lang('table-collapse_fieldset_#title'),
         '#attributes' => array('class' => array('ics_table_collapse')),
     );
@@ -208,10 +208,10 @@ function islandora_content_stats_form($form, &$form_state) {
         '#attributes' => array('class' => array('ics_table')),
 
     );
-    $form['table-collapse']['pager'] = array(
-        '#markup' => theme('pager'),
-        '#attributes' => array('class' => array('ics_table_pager')),
-        );
+    // $form['table-collapse']['pager'] = array(
+    //     '#markup' => theme('pager'),
+    //     '#attributes' => array('class' => array('ics_table_pager')),
+    //     );
     $form['download']['dltitle'] = array(
         //'#type' => 'item',
         '#markup' => "<p>" . t('Downloads all historic results for use in a spreadsheet.
@@ -262,7 +262,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
         }
     }
     return $mysqlpart->orderByHeader($headers)
-                    ->extend('TableSort')->extend('PagerDefault')
+                    ->extend('TableSort')->extend('PagerDefault')->limit(1000)
                     ->execute();
 }
 
