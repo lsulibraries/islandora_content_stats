@@ -151,33 +151,48 @@ function compound_check_constituency($prefix, $coll = FALSE) {
     $label = gettype($coll) == 'object' ? $coll->label : '';  
     $tuque = islandora_get_tuque_connection();
     $query = <<<EOL
-SELECT ?item ?parent ?dcrelation
+SELECT ?item ?parent ?dcrelation ?parentmodel
 FROM <#RI>
 WHERE {{
 ?item <info:fedora/fedora-system:def/relations-external#isConstituentOf> ?parent .
 ?item <http://purl.org/dc/elements/1.1/relation> ?dcrelation .
+?parent <info:fedora/fedora-system:def/model#hasModel> ?parentmodel
 }
 FILTER regex(str(?item), '$prefix')
 }
 EOL;
     $count = $tuque->repository->ri->countQuery($query, 'sparql');
     $sparql = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
-    $parentarray = array();
-    foreach($sparql as $sparq){
+    
+    $return = array();
+    $return['count'] = $count;
+    //loop for dc relation to collection parent of constituent items.
+    $coll_parent = array();
+    foreach ($sparql as $sparq){
         if (isset($sparq['dcrelation']['values'])){
-            $parentColl = $sparq['dcrelation']['value'];
-            $parenttitle = substr($parentColl, 0 ,strpos($parentColl,'-')  );
-            if($label == $parenttitle){
-                $parrentarray[] = trim($parenttitle);
+            $dccoll = $sparq['dcrelation']['value'];
+            $coll_title = substr($dccoll, 0 ,strpos($dccoll,'-')  );
+            if($label == $coll_title){
+                $coll_parent[] = trim($coll_title);
             }
         }
     }
-    $return = array();
-    array_unique($parentarray);
-    if (isset($parentarray)){
-      $return['parents'] = $parentarray;
+    
+    array_unique($coll_parent);
+    if (isset($coll_parent)){
+      $return['parents'] = $coll_parent;
     }
-    $return['count'] = $count;
+    
+    //loop for cmodel of compound parents
+    $cpdparentcmodels = array();
+    foreach ($sparql as $sparq) {
+        $cpdparentmodels[] = $sparq['parentmodel']['value'];
+    }
+    $parent_models = array_unique($cpdparentmodels);
+    $parent_models = array_diff($parent_models, ['fedora-system:FedoraObject-3.0']);
+    if(isset($parent_models)){
+        $return['parentModels'] = $parent_models;
+    }        
     return $return;
 }
 
