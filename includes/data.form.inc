@@ -14,6 +14,7 @@
 function islandora_content_stats_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', '/includes/queries');
     module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
+    module_load_include('inc', 'islandora_content_stats', 'includes/language');
     $rows = array();
     $headers = array(
         array('data' => t('ID'),
@@ -93,7 +94,7 @@ function islandora_content_stats_form($form, &$form_state) {
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
-        '#title' => t('Totals for each content model'),
+        '#title' => lang('totals_item_#title'),
         '#attributes' => array('class' => array('ics_totals')),
     );
     foreach ($total_counts as $id => $count) {
@@ -104,7 +105,7 @@ function islandora_content_stats_form($form, &$form_state) {
     }
     $form['filter'] = array(
         '#type' => 'fieldset',
-        '#title' => t('Filter results by type, ownership, or collection name'),
+        '#title' => lang('filter_fieldset_#title'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#attributes' => array('class' => array('ics_filters')),
@@ -160,21 +161,17 @@ function islandora_content_stats_form($form, &$form_state) {
     $form['table-collapse'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
-        '#title' => t('Table of results'),
+        '#title' => lang('table-collapse_fieldset_#title'),
         '#attributes' => array('class' => array('ics_table_collapse')),
     );
     $form['table-collapse']['explain'] = array(
-        '#markup' => '<p class="ics_table_explain">' . t('Content from institutions and collections, can be
- filtered by choosing from drop downs above, and pressing the "Filter" button.
-(not every choice combination will return results)
-Sort by id, institution/owner, collection, content Model, count, or
- timestamp by clicking headers below.') . "</p>",
+        '#markup' => '<p class="ics_table_explain">' . lang('table-collapse_explain') . "</p>",
     );
     $form['table-collapse']['table'] = array(
         '#theme' => 'table',
         '#header' => $headers,
         '#rows' => $rows,
-        '#empty' => t('table is empty'),
+        '#empty' => lang('table-collapse_table_#empty'),
         '#attributes' => array('class' => array('ics_table')),
 
     );
