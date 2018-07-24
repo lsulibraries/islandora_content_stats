@@ -51,7 +51,7 @@ EOL;
  * puts into dropdown for filter on data.form.inc
  */
 function cmodel_types_for_form() {
-    module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
+    module_load_include('inc', 'islandora', 'includes/utilities');
     $model_counts = array_keys(islandora_get_content_models());
     $return = array();
     foreach ($model_counts as $model) {
