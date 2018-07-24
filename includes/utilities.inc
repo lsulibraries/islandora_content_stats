@@ -47,8 +47,8 @@ function map_institution($inst, $context = FALSE) {
     }
     if ($inst == 'islandora:root') {
         return $inst;
-    } else {
-      return $inst;
+    } 
+    else {
         $inst = rtrim($inst, '-');
         $query = 'select * from {islandora_namespace_homepage} where prefix = \'' . $inst . '\'';
         $ns_homepage_table = db_query($query);

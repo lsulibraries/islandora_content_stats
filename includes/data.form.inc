@@ -129,7 +129,7 @@ function islandora_content_stats_form($form, &$form_state) {
 
     }
     $globals_string .= "</div>";
-    $form['totals']['timestamp'] = array(
+    $form['timestamp'] = array(
         '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</div>"
     );
     $form['totals']['item'][$id] = array(
@@ -142,7 +142,8 @@ function islandora_content_stats_form($form, &$form_state) {
     $string = "<div class='inst_wrapper $prefix'>";
       foreach ($inst_totals as $id => $count) {
         if($count['inst'] == $prefix.'-'){
-        $string .= "<div class='cmodel_wrapper_inst'><div class='inst'>" . map_institution($count['inst']) . "</div><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] ."</div></div>";
+            dpm(map_institution($prefix));
+        $string .= "<div class='cmodel_wrapper_inst'><div class='inst'>" . map_institution($prefix) . "</div><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] ."</div></div>";
         }
       }
         $string .="</div>";
