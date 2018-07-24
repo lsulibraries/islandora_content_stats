@@ -147,13 +147,14 @@ function islandora_content_stats_form($form, &$form_state) {
 
 
     $form['totals']['timestamp'] = array(
-        '#markup' => "<p>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</p>"    );
+        '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</div>"    );
     $form['filter'] = array(
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#attributes' => array('class' => array('ics_filters')),
+        //this will not work. '#markup' => "<div class='filter'></div>",
     );
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
@@ -211,7 +212,7 @@ function islandora_content_stats_form($form, &$form_state) {
         '#attributes' => array('class' => array('ics_table_collapse')),
     );
     $form['table-collapse']['explain'] = array(
-        '#markup' => '<p class="ics_table_explain">' . lang('table-collapse_explain') . "</p>",
+        '#markup' => '<div class="ics_table_explain">' . lang('table-collapse_explain') . "</div>",
     );
     $form['table-collapse']['table'] = array(
         '#theme' => 'table',
@@ -227,8 +228,8 @@ function islandora_content_stats_form($form, &$form_state) {
     //     );
     $form['download']['dltitle'] = array(
         //'#type' => 'item',
-        '#markup' => "<p>" . t('Downloads all historic results for use in a spreadsheet.
- (always applies current filters)') . "</p>",
+        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
+ (always applies current filters)') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['button'] = array(
