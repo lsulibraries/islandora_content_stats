@@ -17,11 +17,11 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
   }
 
 
-  public function testStats() {
+  public function testBasicStats() {
 
     $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
     $this->drupalLogin($user);
-    $this->createTestCollection('Test Collection', array('islandora:batch_testCM'), $this->testCollection);
+    $this->createTestCollection('Test Collection', array('islandora:sp_large_image_cmodel', 'islandora:batch_testCM'), $this->testCollection);
     $properties = [
       'models' => 'islandora:sp_large_image_cmodel',
       'parent' => $this->testCollection
@@ -41,12 +41,12 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
     $this->drupalGet("/islandora/object/{$this->testCollection}/manage/properties");
     $this->drupalPost('/admin/islandora/tools/content_stats', array(), 'Run Queries Now');
     $this->drupalGet('/data');
+    $this->assertNoText('table is empty', "Should not see the text 'table is empty'");
 
     $query = $this->getQuery('islandora:sp_large_image_cmodel');
     $img_count = $query->fetchField();
     $this->assertEqual($imagesToCreate, $img_count, "Created $imagesToCreate images, found $img_count");
 
-    $this->assertNoText('table is empty', "Should not see 'table is empty'");
   }
 
   public function getQuery($cmodel = FALSE, $institution = FALSE) {
@@ -117,13 +117,13 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
 
     $this->drupalPost('/admin/islandora/tools/content_stats', array(), 'Run Queries Now');
     $this->drupalGet('/data');
+    $this->assertNoText('table is empty', "Should not see the text 'table is empty'");
 
     foreach ($institutions as $institution) {
       foreach ($institution->getAllModels() as $m) {
         $query = $this->getQuery($m, $institution->prefix);
         $db_count = $query->fetchField();
-        debug("counted $db_count for model $m in institution {$institution->prefix}");
-        $this->assertEqual($institution->getModelCount($m), $db_count);
+        $this->assertEqual($institution->getModelCount($m), $db_count, "found ($db_count) items having model ($m) in institution {$institution->prefix}");
       }
     }
   }

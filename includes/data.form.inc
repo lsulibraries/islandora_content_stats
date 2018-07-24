@@ -7,6 +7,8 @@
  * with a more humant readable format, and links to collection items.
  */
 
+
+
 /**
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
