@@ -59,7 +59,7 @@ function islandora_content_stats_mini_form($form, &$form_state) {
     $cmodel_map = islandora_get_content_models();
     $variables = array();
     //get latest timestamp from run queries
-    $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+    $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
     $max_time = $q_time->fetchField();
     $all_inst = all_ns_prefix_incl_subs();
     $uri_split = explode('/', request_uri());

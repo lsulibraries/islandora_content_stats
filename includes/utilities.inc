@@ -43,13 +43,14 @@ function map_cmodels($model) {
 //needs a rework code smell
 function map_institution($inst, $context = FALSE) {
     if ($context != FALSE) {
-        
+
     }
     if ($inst == 'islandora:root') {
         return $inst;
     } else {
+      return $inst;
         $inst = rtrim($inst, '-');
-        $query = 'select * from islandora_namespace_homepage where prefix = \'' . $inst . '\'';
+        $query = 'select * from {islandora_namespace_homepage} where prefix = \'' . $inst . '\'';
         $ns_homepage_table = db_query($query);
         if ($ns_homepage_table->rowCount() == 0) {
             return $inst;
