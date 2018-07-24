@@ -124,11 +124,16 @@ function islandora_content_stats_form($form, &$form_state) {
         '#title' => lang('totals_item_#title'),
         '#attributes' => array('class' => array('ics_totals', 'global')),
     );
+    $globals_string = "<div class='global_totals'>";
     foreach ($total_counts as $id => $count) {
-        $form['totals']['item'][$id] = array(
-            '#markup' => "<div class='total global'>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</div>",
-        );
+
+             $globals_string .= "<div class='total global'>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</div>";
+
     }
+    $globals_string .= "</div>";
+    $form['totals']['item'][$id] = array(
+      '#markup' => $globals_string,
+    );
     $string = '';
     $prefixes = get_all_prefixes();
     foreach ($prefixes as $prefix){
