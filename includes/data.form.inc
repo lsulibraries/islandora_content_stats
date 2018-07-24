@@ -100,7 +100,7 @@ function islandora_content_stats_form($form, &$form_state) {
     $i_cond = $i_totals->condition('coll', NULL)
             ->condition('timestamp', $stamp)
             ->execute();
-    
+
     foreach($i_cond as $icount) {
         $not_t_fobj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
         $not_t_cmobj = $total->cmodel != 'fedora-system:ContentModel-3.0';
@@ -113,7 +113,7 @@ function islandora_content_stats_form($form, &$form_state) {
                 );
             }
         }
-        
+
     }
     $form = array();
     $form['totals']['item'] = array(
@@ -125,12 +125,12 @@ function islandora_content_stats_form($form, &$form_state) {
     );
     foreach ($total_counts as $id => $count) {
         $form['totals']['item'][$id] = array(
-            '#markup' => "<p>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</p>",
+            '#markup' => "<div class='total global'>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</div>",
         );
     }
     foreach ($inst_totals as $id => $count) {
         $form['totals']['item'][$id] = array(
-            '#markup' => "<p>" . t($count['inst'] . " " . $count['cmodel'] .' Total: ' . $count['count']) . "</p>",
+            '#markup' => "<div class='total inst'>" . t($count['inst'] . " " . $count['cmodel'] .' Total: ' . $count['count']) . "</div>",
         );
     }
     $form['totals']['timestamp'] = array(
