@@ -127,7 +127,7 @@ function islandora_content_stats_form($form, &$form_state) {
     $globals_string = "<div class='global_totals'>";
     foreach ($total_counts as $id => $count) {
 
-             $globals_string .= "<div class='total global'>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</div>";
+             $globals_string .= "<div class='total global'>" . t($count['cmodel'] . ' ' . $count['count']) . "</div>";
 
     }
     $globals_string .= "</div>";
@@ -140,7 +140,7 @@ function islandora_content_stats_form($form, &$form_state) {
     $string = "<div class='inst_wrapper $prefix'>";
       foreach ($inst_totals as $id => $count) {
         if($count['inst'] == $prefix.'-'){
-        $string .= "<div class='cmodel_wrapper_inst'>" . "<div class='inst'>" . $count['inst'] . "</div>" ."<div class='cmodel'>" . $count['cmodel'] . "</div>" . "<div class='total'>" . ' Total: ' . $count['count'] ."</div>". "</div>";
+        $string .= "<div class='cmodel_wrapper_inst'>" . "<div class='inst'>" . $count['inst'] . "</div>" ."<div class='cmodel'>" . $count['cmodel'] . "</div>" . "<div class='total'>" . ' ' . $count['count'] ."</div>". "</div>";
         }
       }
         $string .="</div>";
