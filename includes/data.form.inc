@@ -116,23 +116,36 @@ function islandora_content_stats_form($form, &$form_state) {
 
     }
     $form = array();
+    module_load_include('inc', 'islandora_content_stats','include/queries' );
     $form['totals']['item'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
         '#collapsed' => FALSE,
         '#title' => lang('totals_item_#title'),
-        '#attributes' => array('class' => array('ics_totals')),
+        '#attributes' => array('class' => array('ics_totals', 'global')),
     );
     foreach ($total_counts as $id => $count) {
         $form['totals']['item'][$id] = array(
             '#markup' => "<div class='total global'>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</div>",
         );
     }
-    foreach ($inst_totals as $id => $count) {
-        $form['totals']['item'][$id] = array(
-            '#markup' => "<div class='total inst'>" . t($count['inst'] . " " . $count['cmodel'] .' Total: ' . $count['count']) . "</div>",
+    $string = '';
+    $prefixes = get_all_prefixes();
+    foreach ($prefixes as $prefix){
+    $string = "<div class='inst_wrapper $prefix'>";
+      foreach ($inst_totals as $id => $count) {
+        if($count['inst'] == $prefix.'-'){
+        $string .= "<div class='cmodel_wrapper_inst'>" . "<div class='inst'>" . $count['inst'] . "</div>" ."<div class='cmodel'>" . $count['cmodel'] . "</div>" . "<div class='total'>" . ' Total: ' . $count['count'] ."</div>". "</div>";
+        }
+      }
+        $string .="</div>";
+        $form['totals']['item'][$prefix] = array(
+            '#markup' => $string,
         );
-    }
+      }
+
+
+
     $form['totals']['timestamp'] = array(
         '#markup' => "<p>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</p>"    );
     $form['filter'] = array(
