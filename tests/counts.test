@@ -94,6 +94,18 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
           ],
         ],
       ],
+      [
+        'prefix' => 'zzz-aaa-',
+        'collections' => [
+          'eee' => [
+            'islandora:sp_large_image_cmodel' => 15,
+          ],
+          'uuu' => [
+            'islandora:sp_large_image_cmodel' => 7
+          ],
+        ],
+        'parentInst' => 'zzz-',
+      ],
     ];
     // get logged in and such
     $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
@@ -119,12 +131,48 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
     $this->drupalGet('/data');
     $this->assertNoText('table is empty', "Should not see the text 'table is empty'");
 
+    // Build up arrays of expected/found values at global/inst levels.
+    $global_counts = [];
+    $institution_counts = [];
     foreach ($institutions as $institution) {
       foreach ($institution->getAllModels() as $m) {
         $query = $this->getQuery($m, $institution->prefix);
-        $db_count = $query->fetchField();
-        $this->assertEqual($institution->getModelCount($m), $db_count, "found ($db_count) items having model ($m) in institution {$institution->prefix}");
+
+        $expected = $institution->getModelCount($m);
+        if (!array_key_exists($institution->prefix, $institution_counts)) {
+          $institution_counts[$institution->prefix] = [];
+        }
+        if (!array_key_exists($m, $institution_counts[$institution->prefix])) {
+          $institution_counts[$institution->prefix][$m] = [];
+          $institution_counts[$institution->prefix][$m]['found'] = 0;
+          $institution_counts[$institution->prefix][$m]['expected'] = 0;
+        }
+        $institution_counts[$institution->prefix][$m]['found'] += (int)$query->fetchField();
+        $institution_counts[$institution->prefix][$m]['expected'] += $expected;
+        if ($institution->parentInst) {
+          $institution_counts[$institution->parentInst][$m]['expected'] += $expected;
+        }
+
+        if (!array_key_exists($m, $global_counts)) {
+          $global_counts[$m] = 0;
+        }
+        $global_counts[$m] += $expected;
       }
+    }
+
+    // Check inst counts.
+    foreach ($institution_counts as $inst => $models) {
+      foreach ($models as $model => $results) {
+        $this->assertEqual($results['expected'], $results['found'], "found ({$results['found']}) items having model ($model) in institution {$inst}");
+      }
+    }
+    
+    // Check global counts.
+    $this->drupalGet('/data');
+    foreach ($global_counts as $model => $count) {
+      module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
+      $human_readable = map_cmodels($model);
+      $this->assertText("$human_readable Total: $count");
     }
   }
 
@@ -147,10 +195,13 @@ class Institution {
   public function __construct ($params) {
     $this->prefix = $params['prefix'];
     $this->collections = $params['collections'];
-    $this->parentInst = FALSE;
+    $this->parentInst = array_key_exists('parentInst', $params) ? $params['parentInst'] : FALSE;
   }
 
   public function getModelCount($model) {
+    if ($model == 'islandora:collectionCModel') {
+      return count($this->collections);
+    }
     $total = 0;
     foreach ($this->collections as $name => $details) {
       if (in_array($model, array_keys($details))) {
@@ -164,6 +215,9 @@ class Institution {
     $all = [];
     foreach ($this->collections as $name => $models) {
       $all = array_merge($all, array_keys($models));
+    }
+    if (count($this->collections > 1)) {
+      $all[] = 'islandora:collectionCModel';
     }
     return array_unique($all);
   }
