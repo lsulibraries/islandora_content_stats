@@ -116,31 +116,33 @@ function islandora_content_stats_form($form, &$form_state) {
 
     }
     $form = array();
-    module_load_include('inc', 'islandora_content_stats','include/queries' );
+    module_load_include('inc', 'islandora_content_stats', 'include/utilites');
+    module_load_include('inc', 'islandora_content_stats', 'include/queries');
     $form['totals']['item'] = array(
         '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
         '#title' => lang('totals_item_#title'),
         '#attributes' => array('class' => array('ics_totals', 'global')),
     );
     $globals_string = "<div class='global_totals'>";
     foreach ($total_counts as $id => $count) {
-
-             $globals_string .= "<div class='total global'>" . t($count['cmodel'] . ' ' . $count['count']) . "</div>";
+             $globals_string .= "<div class='global'><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] . "</div></div>";
 
     }
     $globals_string .= "</div>";
+    $form['totals']['timestamp'] = array(
+        '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</div>"
+    );
     $form['totals']['item'][$id] = array(
       '#markup' => $globals_string,
     );
     $string = '';
     $prefixes = get_all_prefixes();
+    sort($prefixes, SORT_NATURAL);
     foreach ($prefixes as $prefix){
     $string = "<div class='inst_wrapper $prefix'>";
       foreach ($inst_totals as $id => $count) {
         if($count['inst'] == $prefix.'-'){
-        $string .= "<div class='cmodel_wrapper_inst'>" . "<div class='inst'>" . $count['inst'] . "</div>" ."<div class='cmodel'>" . $count['cmodel'] . "</div>" . "<div class='total'>" . ' ' . $count['count'] ."</div>". "</div>";
+        $string .= "<div class='cmodel_wrapper_inst'><div class='inst'>" . map_institution($count['inst']) . "</div><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] ."</div></div>";
         }
       }
         $string .="</div>";
@@ -148,16 +150,9 @@ function islandora_content_stats_form($form, &$form_state) {
             '#markup' => $string,
         );
       }
-
-
-
-    $form['totals']['timestamp'] = array(
-        '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</div>"    );
     $form['filter'] = array(
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
         '#attributes' => array('class' => array('ics_filters')),
         //this will not work. '#markup' => "<div class='filter'></div>",
     );
@@ -209,17 +204,15 @@ function islandora_content_stats_form($form, &$form_state) {
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
-    $form['table-collapse'] = array(
+    $form['table-results'] = array(
         '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
         '#title' => lang('table-collapse_fieldset_#title'),
         '#attributes' => array('class' => array('ics_table_collapse')),
     );
-    $form['table-collapse']['explain'] = array(
+    $form['table-results']['explain'] = array(
         '#markup' => '<div class="ics_table_explain">' . lang('table-collapse_explain') . "</div>",
     );
-    $form['table-collapse']['table'] = array(
+    $form['table-results']['table'] = array(
         '#theme' => 'table',
         '#header' => $headers,
         '#rows' => $rows,
@@ -232,7 +225,6 @@ function islandora_content_stats_form($form, &$form_state) {
     //     '#attributes' => array('class' => array('ics_table_pager')),
     //     );
     $form['download']['dltitle'] = array(
-        //'#type' => 'item',
         '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
  (always applies current filters)') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
