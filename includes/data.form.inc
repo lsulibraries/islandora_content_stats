@@ -19,19 +19,19 @@ function islandora_content_stats_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', 'includes/language');
     $rows = array();
     $headers = array(
-        array('data' => t('ID'),
-              'field' => 'stats.id',
-              'sort' => 'desc',
-              'class' => array('id_header'),
-            ),
+//        array('data' => t('ID'),
+//              'field' => 'stats.id',
+//              'sort' => 'desc',
+//              'class' => array('id_header'),
+//            ),
         array('data' => t('Instituton/Context'),
               'field' => 'stats.inst',
               'class' => array('inst_header'),
             ),
-        array('data' => t('Collection (optional)'),
-              'field' => 'stats.coll',
-              'class' => array('coll_header'),
-            ),
+//        array('data' => t('Collection (optional)'),
+//              'field' => 'stats.coll',
+//              'class' => array('coll_header'),
+//            ),
         array('data' => t('Content Model'),
               'field' => 'stats.cmodel',
               'class' => array('cmodel_header'),
@@ -40,10 +40,10 @@ function islandora_content_stats_form($form, &$form_state) {
               'field' => 'stats.count',
               'class' => array('count_header'),
             ),
-        array('data' => t('Timestamp'),
-              'field' => 'stats.timestamp',
-              'class' => array('stamp_header'),
-            ),
+//        array('data' => t('Timestamp'),
+//              'field' => 'stats.timestamp',
+//              'class' => array('stamp_header'),
+//            ),
     );
     $max_timestamp = db_query('select MAX(timestamp) from {islandora_content_stats}');
     //second argument in db select is an alias for the table (which is the first argument.)
@@ -60,23 +60,24 @@ function islandora_content_stats_form($form, &$form_state) {
         if ($record->count != 0) {
             if (($not_fobj) && ($not_cmobj) && ($not_nullinst)) {
                 $rows[$record->id] = array(
-                    'id' => $record->id,
+//                    'id' => $record->id,
                     'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+//                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                     'cmodel' => map_cmodels($record->cmodel),
                     'count' => $record->count,
-                    'timestamp' => gmdate('Y-m-d\TH:i:s\Z', $record->timestamp),
+//                    'timestamp' => gmdate('Y-m-d\TH:i:s\Z', $record->timestamp),
                 );
             }
         }
     }
     $total_counts = array();
     $timestamp = db_query('select MAX(timestamp) from {islandora_content_stats}');
+    $stamp = $timestamp->fetchField();
     $total_query = db_select('islandora_content_stats', 'total');
     $t_fields = array('id', 'inst', 'cmodel', 'count', 'timestamp');
     $totals = $total_query->fields('total', $t_fields);
     $totals_cond = $totals->condition('inst', NULL)
-            ->condition('timestamp', $timestamp->fetchField())
+            ->condition('timestamp', $stamp)
             ->execute();
     foreach ($totals_cond as $total) {
         //when query's cmodel is fedora-Object or ContentModel don't build total
@@ -91,20 +92,49 @@ function islandora_content_stats_form($form, &$form_state) {
             }
         }
     }
+    $timestamp = db_query('select MAX(timestamp) from {islandora_content_stats}');
+    $inst_totals = array();
+    $inst_query = db_select('islandora_content_stats','inst');
+    $i_fields = array('id', 'inst', 'coll', 'cmodel', 'count', 'timestamp');
+    $i_totals = $inst_query->fields('inst', $i_fields);
+    $i_cond = $i_totals->condition('coll', NULL)
+            ->condition('timestamp', $stamp)
+            ->execute();
+    
+    foreach($i_cond as $icount) {
+        $not_t_fobj = $total->cmodel != 'fedora-system:FedoraObject-3.0';
+        $not_t_cmobj = $total->cmodel != 'fedora-system:ContentModel-3.0';
+        if ($icount->count != 0) {
+            if (($not_t_fobj) && ($not_t_cmobj)) {
+                $inst_totals[$icount->id] = array(
+                    'cmodel' => map_cmodels($icount->cmodel),
+                    'count' => $icount->count,
+                    'inst' => $icount->inst,
+                );
+            }
+        }
+        
+    }
     $form = array();
     $form['totals']['item'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
+        '#collapsed' => FALSE,
         '#title' => lang('totals_item_#title'),
         '#attributes' => array('class' => array('ics_totals')),
     );
     foreach ($total_counts as $id => $count) {
         $form['totals']['item'][$id] = array(
-            //'#type' => 'item',
             '#markup' => "<p>" . t($count['cmodel'] .' Total: ' . $count['count']) . "</p>",
         );
     }
+    foreach ($inst_totals as $id => $count) {
+        $form['totals']['item'][$id] = array(
+            '#markup' => "<p>" . t($count['inst'] . " " . $count['cmodel'] .' Total: ' . $count['count']) . "</p>",
+        );
+    }
+    $form['totals']['timestamp'] = array(
+        '#markup' => "<p>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</p>"    );
     $form['filter'] = array(
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
@@ -163,6 +193,7 @@ function islandora_content_stats_form($form, &$form_state) {
     $form['table-collapse'] = array(
         '#type' => 'fieldset',
         '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
         '#title' => lang('table-collapse_fieldset_#title'),
         '#attributes' => array('class' => array('ics_table_collapse')),
     );
@@ -231,7 +262,7 @@ function apply_query_filters($form_state, $mysqlpart, $timestamp, $headers) {
         }
     }
     return $mysqlpart->orderByHeader($headers)
-                    ->extend('TableSort')->extend('PagerDefault')->limit(144)
+                    ->extend('TableSort')->extend('PagerDefault')
                     ->execute();
 }
 
