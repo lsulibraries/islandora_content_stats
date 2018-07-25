@@ -129,8 +129,9 @@ function islandora_content_stats_form($form, &$form_state) {
 
     }
     $globals_string .= "</div>";
-    $form['timestamp'] = array(
-        '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) .  "</div>"
+    $form['totals']['timestamp'] = array(
+        '#markup' => "<div class='last_run'>" ."Last run at: " .t(gmdate("M d Y H:i:s", $stamp)) . "</div>",
+        '#weight' => -1,
     );
     $form['totals']['item'][$id] = array(
       '#markup' => $globals_string,
