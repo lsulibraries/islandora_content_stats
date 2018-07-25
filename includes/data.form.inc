@@ -291,7 +291,7 @@ function download_data(&$form, &$form_state) {
             'inst' => $form_state['values']['institution'],
             'cmodel' => $form_state['values']['cmodel'],
             //'coll' => $form_state['values']['collection'],
-            'all' => TRUE, //$form_state['values']['all'],
+            'all' => FALSE, //$form_state['values']['all'],
         ),
     );
     drupal_goto('data/download', $options);
