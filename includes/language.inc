@@ -9,7 +9,7 @@ function islandora_content_stats_language() {
         'title' => "Description for data page",
         'default' => t("Page describes item totals for content models at different levels of hierarchy."),
     ],
-      'filter_fieldset_#title' => [
+    'filter_fieldset_#title' => [
       'title' => "Label filter fieldset",
       'default' => t('Filter results by type, ownership, or collection name')
     ],
@@ -29,6 +29,15 @@ function islandora_content_stats_language() {
     'table-collapse_table_#empty' => [
       'title' => t('Display text when no results'),
       'default' => t('Table is empty'),
+    ],
+    'download_#title' => [
+      'title' => "Title above download button.",
+      'default' => t('Downloads results for use in a spreadsheet.
+ (always applies current filters)'),
+    ],
+    'download_#submit' => [
+      'title' => "Label in download button.",
+      'default' => t('Download History as CSV')
     ],
   ];
 

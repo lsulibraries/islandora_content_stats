@@ -234,13 +234,12 @@ function islandora_content_stats_form($form, &$form_state) {
     //     '#attributes' => array('class' => array('ics_table_pager')),
     //     );
     $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
- (always applies current filters)') . "</div>",
+        '#markup' => "<div class='dl_txt'>" . lang('download_#title') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['button'] = array(
         '#type' => 'submit',
-        '#value' => t('Download History as CSV'),
+        '#value' => lang('download_#submit'),
         '#submit' => array('download_data'),
         '#attributes' => array('class' => array('ics_download_button')),
     );
