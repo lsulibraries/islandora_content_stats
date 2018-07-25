@@ -5,7 +5,11 @@ function islandora_content_stats_language() {
       'title' => "Label for global item counts",
       'default' => t('Totals for each content model')
     ],
-    'filter_fieldset_#title' => [
+    'data_description' => [
+        'title' => "Description for data page",
+        'default' => t("Page describes item totals for content models at different levels of hierarchy."),
+    ],
+      'filter_fieldset_#title' => [
       'title' => "Label filter fieldset",
       'default' => t('Filter results by type, ownership, or collection name')
     ],
