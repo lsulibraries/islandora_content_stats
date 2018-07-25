@@ -34,7 +34,7 @@ function islandora_content_stats_menu() {
  */
 function islandora_content_stats_csv_download() {
     module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
-    $query = 'SELECT * FROM ldl.islandora_content_stats';
+    $query = 'SELECT * FROM {islandora_content_stats}';
     $filters = array();
     foreach ($_GET as $key => $filter) {
         if ($filter != 'data/download') {
@@ -62,7 +62,7 @@ function islandora_content_stats_csv_download() {
         //when requesting latest data
         else {
             $max_time = '';
-            $q_time = db_query('select MAX(timestamp) from ldl.islandora_content_stats');
+            $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
             $max_time = $q_time->fetchField();
             $query .= ' WHERE timestamp = \'' . $max_time . '\'';
             array_pop($filters);
@@ -107,7 +107,7 @@ function islandora_content_stats_cron() {
     $time = time();
     $is_off_hours = is_off_hours($time);
     $days = 86400 * variable_get('islandora_content_stats_interval');
-    $last_run = db_query('select max(timestamp) from ldl.islandora_content_stats');
+    $last_run = db_query('select max(timestamp) from {islandora_content_stats}');
     $last_run_time = $last_run->fetchField();
     $elapsed = $time - $last_run_time;
     if ($elapsed > $days && $is_off_hours) {

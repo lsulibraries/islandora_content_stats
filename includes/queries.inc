@@ -51,7 +51,7 @@ EOL;
  * puts into dropdown for filter on data.form.inc
  */
 function cmodel_types_for_form() {
-    module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
+    module_load_include('inc', 'islandora', 'includes/utilities');
     $model_counts = array_keys(islandora_get_content_models());
     $return = array();
     foreach ($model_counts as $model) {
@@ -281,8 +281,8 @@ function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
  * each query for a particular collection pid
  */
 function islandora_content_stats_block_coll($pid) {
-    $pref = 'select * from ldl.islandora_content_stats where coll = \'';
-    $last_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
+    $pref = 'select * from {islandora_content_stats} where coll = \'';
+    $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
     $time = $last_time->fetchField();
     $suff = ' and timestamp = \'';
     $query = db_query($pref . $pid . '\'' . $suff . $time . '\'');
@@ -310,9 +310,9 @@ function islandora_content_stats_block_coll($pid) {
  * each query for a particular institution
  */
 function islandora_content_stats_block_inst($path) {
-    $pref = 'select * from ldl.islandora_content_stats where inst = \'';
+    $pref = 'select * from {islandora_content_stats} where inst = \'';
     $end = '\' and coll is NULL';
-    $last_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
+    $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
     $time = $last_query_time_db->fetchField();
     $suff = ' and timestamp = \'';
     $query = db_query($pref . $path . '\'' . $suff . $time . $end);
@@ -338,9 +338,9 @@ function islandora_content_stats_block_inst($path) {
  * each query where coll is islandora:root (ints == NULL)
  */
 function islandora_root_stats_queries() {
-    $last_time = db_query('select max(timestamp) from ldl.islandora_content_stats');
+    $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
     $time = $last_time->fetchField();
-    $pref = 'select * from ldl.islandora_content_stats where inst is NULL and timestamp = \'';
+    $pref = 'select * from {islandora_content_stats} where inst is NULL and timestamp = \'';
     $suff = '\' and cmodel not like \'fedora-system%\'';
     $query = db_query($pref . $time . $suff);
     $results = $query->fetchAll();
