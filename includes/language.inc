@@ -6,6 +6,7 @@ function islandora_content_stats_language() {
       'default' => t('Totals for each content model')
     ],
     'data_description' => [
+        'type' => 'textarea',
         'title' => "Description for data page",
         'default' => t("Page describes item totals for content models at different levels of hierarchy."),
     ],
