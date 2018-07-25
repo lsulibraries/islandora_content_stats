@@ -137,13 +137,16 @@ function islandora_content_stats_form($form, &$form_state) {
     );
     $string = '';
     $prefixes = get_all_prefixes();
-    sort($prefixes, SORT_NATURAL);
-    foreach ($prefixes as $prefix){
+    $prefix_label = array();
+    foreach( $prefixes as $prefix) {
+        $prefix_label[$prefix] = map_institution($prefix);
+    }
+    asort($prefix_label, SORT_NATURAL);
+    foreach ($prefix_label as $prefix => $label){
     $string = "<div class='inst_wrapper $prefix'>";
       foreach ($inst_totals as $id => $count) {
         if($count['inst'] == $prefix.'-'){
-            dpm(map_institution($prefix));
-        $string .= "<div class='cmodel_wrapper_inst'><div class='inst'>" . map_institution($prefix) . "</div><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] ."</div></div>";
+        $string .= "<div class='cmodel_wrapper_inst'><div class='inst'>" . $label . "</div><div class='cmodel'>" . $count['cmodel'] . "</div><div class='total'> " . $count['count'] ."</div></div>";
         }
       }
         $string .="</div>";
