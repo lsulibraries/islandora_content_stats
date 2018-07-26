@@ -8,9 +8,10 @@
  */
 ?>
 
+<?php //dpm($variables) ?>
 
 <div>
-<div class="page_description"><?php print $variables['lang-desc'];?></div>
+<div class="page_description"><?php print $variables['lang_desc'];?></div>
 <div class="last_run">Last run at: <?php print $variables['last_run'];?></div>
 
 
@@ -30,14 +31,23 @@
     <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
     <div class="inst"><?php print $itotal['inst-label'] ?></div>
     <div class='total'><?php print $itotal['count'] ?></div>
-<!-- <div class=''><?php print $itotal['id'] . ' ' ?></div> -->
-<!-- <div class=''><?php print $itotal['coll'] . ' ' ?></div> -->
-<!-- <div class=''><?php print $itotal['timestamp'] . ' ' ?></div> -->
+
 </div>
 <?php endforeach; ?>
 </div>
 
 
+<div class='tableStats'>
+    <div class='ics_filter'>
+        <legend>
+            <span class='fieldset-legend'><?php print $variables['lang_filter']?></span>
+        </legend>
+    </div>
+</div>
 
+
+<!-- <div class=''><?php print $itotal['id'] . ' ' ?></div> -->
+<!-- <div class=''><?php print $itotal['coll'] . ' ' ?></div> -->
+<!-- <div class=''><?php print $itotal['timestamp'] . ' ' ?></div> -->
 
 </div>

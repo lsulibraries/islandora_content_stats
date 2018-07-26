@@ -48,7 +48,8 @@ function islandora_content_stats_theme() {
             'variables' => array(
                 'global_totals' => global_totals(),
                 'inst_totals' => inst_totals(),
-                'lang-desc' => lang('data_description'),
+                'lang_desc' => lang('data_description'),
+                'lang_filter' => lang('filter_fieldset_#title'),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 
             ),
