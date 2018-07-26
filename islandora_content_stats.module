@@ -40,20 +40,24 @@ function islandora_content_stats_data_page() {
 }
 
 function islandora_content_stats_theme() {
+    module_load_include('inc','islandora_content_stats','includes/language');
+    module_load_include('inc','islandora_content_stats','includes/utilities');
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
-            'arguments' => array(
+            'variables' => array( 'global_totals' => global_totals(), 'lang-desc' => lang('data_description'),
             ),
         ),
     );
 }
 
-function data_preprocess_islandora_content_stats(&$variables) {
-    $variables['test'] ='eeey';
-    return $variables;
+function islandora_content_stats_preprocess_data(&$variables) {
+    $variables['attributes'] ='eeey';
 }
 
+function data_process(&$variables){
+    
+}
 
 
 /**

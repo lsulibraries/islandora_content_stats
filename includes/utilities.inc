@@ -105,3 +105,41 @@ function cmodel_check($model) {
         return true;
     }
 }
+
+function global_totals() {
+    $rows = array();
+    $maxtime = db_query('select max(timestamp) from islandora_content_stats');
+    $time = $maxtime->fetchField();
+    $query = db_select('islandora_content_stats','stats')
+            ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+            ->execute();
+    $totals = $query->fetchAll();
+            
+    
+//    
+//    
+//    
+//    $query = db_query("select * from islandora_content_stats where coll = NULL and timestamp = '$time'");
+//    $global_totals = $query->fetchAll();
+//    dpm($gloabl_totals);
+   foreach ($totals as $record) {
+        //does not build row when query's cmodel is fedora-Object or ContentModel
+        $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+        $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+        //does not build row when query's inst is is_null
+        if ($record->count != 0) {
+            if (($not_fobj) && ($not_cmobj)) {
+                $rows[$record->id] = array(
+                    'id' => $record->id,
+                    'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                    'cmodel' => map_cmodels($record->cmodel),
+                    'count' => $record->count,
+                    'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
+                );
+            }
+        }
+    }
+    dpm($rows);
+  return $rows;
+}

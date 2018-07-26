@@ -10,6 +10,6 @@
 
 <?php dpm( $variables); ?>
 
-<div class="data-description"><?php print 'Hello World';?></div>
+<div class="data-description"><?php print $variables['lang-desc'];?></div>
 
 
