@@ -22,7 +22,7 @@ function islandora_content_stats_menu() {
 //    );
         $items['data'] = array(
         'title' => 'Content Statistics',
-        'page callback' => 'islandora_content_stats_data_page',
+        'page callback' => 'islandora_content_stats_data',
         'access callback' => TRUE,
     );
 
@@ -34,7 +34,7 @@ function islandora_content_stats_menu() {
     return $items;
 }
 
-function islandora_content_stats_data_page() {
+function islandora_content_stats_data() {
     return theme('islandora_content_stats_data_tpl');
     
 }
@@ -45,7 +45,12 @@ function islandora_content_stats_theme() {
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
-            'variables' => array( 'global_totals' => global_totals(), 'lang-desc' => lang('data_description'),
+            'variables' => array(
+                'global_totals' => global_totals(),
+                'inst_totals' => inst_totals(),
+                'lang-desc' => lang('data_description'),
+                'last_run' => gmdate("M d Y H:i:s", latest_run()),
+                
             ),
         ),
     );
