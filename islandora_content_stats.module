@@ -12,14 +12,20 @@ function islandora_content_stats_menu() {
         'access arguments' => array('administer site configuration'),
         'file' => 'includes/admin.form.inc',
     );
-    $items['data'] = array(
+//    $items['data'] = array(
+//        'title' => 'Content Statistics',
+//        'page callback' => 'drupal_get_form',
+//        'page arguments' => array('islandora_content_stats_form'),
+//        'access arguments' => array('administer site configuration'),
+//        'access callback' => TRUE,
+//        'file' => 'includes/data.form.inc',
+//    );
+        $items['data'] = array(
         'title' => 'Content Statistics',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('islandora_content_stats_form'),
-        'access arguments' => array('administer site configuration'),
+        'page callback' => 'islandora_content_stats_data_page',
         'access callback' => TRUE,
-        'file' => 'includes/data.form.inc',
     );
+
     $items['data/download'] = array(//data
         'title' => t('Download Content Stats to CSV'),
         'page callback' => 'islandora_content_stats_csv_download',
@@ -27,6 +33,28 @@ function islandora_content_stats_menu() {
     );
     return $items;
 }
+
+function islandora_content_stats_data_page() {
+    return theme('islandora_content_stats_data_tpl');
+    
+}
+
+function islandora_content_stats_theme() {
+    return array(
+        'islandora_content_stats_data_tpl' => array(
+            'template' => 'theme/data',
+            'arguments' => array(
+            ),
+        ),
+    );
+}
+
+function data_preprocess_islandora_content_stats(&$variables) {
+    $variables['test'] ='eeey';
+    return $variables;
+}
+
+
 
 /**
  * Download function
