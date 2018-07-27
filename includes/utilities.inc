@@ -173,14 +173,15 @@ function inst_totals() {
   return $rows;
 }
 
-function latest_counts_for_table() {
+function latest_counts_for_table() { //&$form_state
     module_load_include('inc','islandora_content_stats','includes/queries');
     $rows = array();
     $time  = latest_run();
         $query = db_select('islandora_content_stats','stats')
                 ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-                ->condition('timestamp', $time)
+                ->condition('timestamp',$time)
                 ->execute();
+       //$query = apply_query_filters($form_state, $query, array('id','inst','coll','cmodel','count','timestamp'));
        $totals = $query->fetchAll();
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
