@@ -34,11 +34,8 @@
         <?php endforeach; ?>
     </div>
     <div class='tableStats'>
-        <div class='ics_filters'>
-            <legend>
-                <span class='fieldset-legend'><?php print $variables['lang_filter']?></span>
-            </legend>
-            <div><?php print render($filter_form)?></div>
+        <div class='ics_filters form-wrapper' id='edit-filter'>
+            <div class=''><?php print render($variables['form']) ?></div>
         </div>
         <div class='ics_table_collapse form-wrapper' id='edit-table-relsults'>
             <legend>

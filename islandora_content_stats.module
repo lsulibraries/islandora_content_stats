@@ -43,6 +43,9 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/language');
     module_load_include('inc','islandora_content_stats','includes/utilities');
     module_load_include('inc','islandora_content_stats','includes/queries');
+    module_load_include('inc','islandora_content_stats','includes/data.form');
+
+    $form = drupal_get_form('islandora_content_stats_form');
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -55,13 +58,9 @@ function islandora_content_stats_theme() {
                 'lang_table_desc' => lang('table-collapse_explain'),
                 'latest' => latest_counts_for_table(),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
+                'form' => $form,
             ),
-            'filter_form' => array(
-                'render element' => 'form',
-                'template' => 'theme/data',
-                'path' => drupal_get_path('module','islandora_content_stats') . '/includes/data',
-                ),
-            ),
+        ),
     );
 }
 
