@@ -54,9 +54,14 @@ function islandora_content_stats_theme() {
                 'lang_table' => lang('table-collapse_fieldset_#title'),
                 'lang_table_desc' => lang('table-collapse_explain'),
                 'latest' => latest_counts_for_table(),
-                'last_run' => gmdate("M d Y H:i:s", latest_run()),                 
+                'last_run' => gmdate("M d Y H:i:s", latest_run()),
             ),
-        ),
+            'filter_form' => array(
+                'render element' => 'form',
+                'template' => 'theme/data',
+                'path' => drupal_get_path('module','islandora_content_stats') . '/includes/data',
+                ),
+            ),
     );
 }
 

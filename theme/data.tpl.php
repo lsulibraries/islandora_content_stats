@@ -38,7 +38,7 @@
             <legend>
                 <span class='fieldset-legend'><?php print $variables['lang_filter']?></span>
             </legend>
-            <div>Form Dropdowns...</div>
+            <div><?php print render($filter_form)?></div>
         </div>
         <div class='ics_table_collapse form-wrapper' id='edit-table-relsults'>
             <legend>
