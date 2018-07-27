@@ -135,35 +135,73 @@ function global_totals() {
   return $rows;
 }
 
+
+
 function inst_totals() {
+    module_load_include('inc','islandora_content_stats','includes/queries');
+    $prefixes = get_all_prefixes();
     $rows = array();
     $time  = latest_run();
-    $query = db_select('islandora_content_stats','stats')
-            ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-            ->condition('timestamp', $time)
-            ->condition('coll', NULL)
-            ->execute();
-   $totals = $query->fetchAll();
-   foreach ($totals as $record) {
-        //does not build row when query's cmodel is fedora-Object or ContentModel
-        $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
-        $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
-        //does not build row when query's inst is is_null
-        if ($record->count != 0) {
-            if (($not_fobj) && ($not_cmobj)) {
-                $rows[$record->id] = array(
-                    'id' => $record->id,
-                    'inst-label' => $record->inst,
-                    'inst' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
-                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
-                    'cmodel' => map_cmodels($record->cmodel),
-                    'count' => $record->count,
-                    'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
-                );
+    foreach($prefixes as $inst){
+        $query = db_select('islandora_content_stats','stats')
+                ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+                ->condition('timestamp', $time)
+                ->condition('coll', NULL)
+                ->condition('inst', $inst.'-')
+                ->execute();
+       $totals = $query->fetchAll();
+       foreach ($totals as $record) {
+            //does not build row when query's cmodel is fedora-Object or ContentModel
+            $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+            $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+            //does not build row when query's inst is is_null
+            if ($record->count != 0) {
+                if (($not_fobj) && ($not_cmobj)) {
+                    $rows[$inst][] = array(
+                        'id' => $record->id,
+                        'inst' => $record->inst,
+                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
+                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'cmodel' => map_cmodels($record->cmodel),
+                        'count' => $record->count,
+                        'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
+                    );
+                }
             }
         }
     }
   return $rows;
+}
+
+function latest_counts_for_table() {
+    module_load_include('inc','islandora_content_stats','includes/queries');
+    $rows = array();
+    $time  = latest_run();
+        $query = db_select('islandora_content_stats','stats')
+                ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+                ->condition('timestamp', $time)
+                ->execute();
+       $totals = $query->fetchAll();
+       foreach ($totals as $record) {
+            //does not build row when query's cmodel is fedora-Object or ContentModel
+            $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+            $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+            //does not build row when query's inst is is_null
+            if ($record->count != 0) {
+                if (($not_fobj) && ($not_cmobj)) {
+                    $rows[$record->id] = array(
+                        'id' => $record->id,
+                        'inst' => $record->inst,
+                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
+                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'cmodel' => map_cmodels($record->cmodel),
+                        'count' => $record->count,
+                        'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
+                    );
+                }
+            }
+        }
+  return $rows;  
 }
 
 function latest_run() {
