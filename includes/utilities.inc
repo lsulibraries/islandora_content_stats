@@ -186,9 +186,10 @@ function latest_counts_for_table() {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
             $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+            $not_global = $record->inst != NULL;
             //does not build row when query's inst is is_null
             if ($record->count != 0) {
-                if (($not_fobj) && ($not_cmobj)) {
+                if (($not_fobj) && ($not_cmobj) && ($not_global)) {
                     $rows[$record->id] = array(
                         'id' => $record->id,
                         'inst' => $record->inst,

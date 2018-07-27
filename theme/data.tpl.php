@@ -49,7 +49,7 @@
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                    <div class='row'><?php print $record['inst-label'] ?></div>
+                    <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
                     <?php endforeach; ?>
                 </div>
                 <div class='column'>
