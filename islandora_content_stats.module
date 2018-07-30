@@ -78,7 +78,7 @@ function islandora_content_stats_csv_download() {
     $attach_str = 'attachment; filename=islandora_content_stats.csv';
     drupal_add_http_header('Content-Disposition', $attach_str);
     $fh = fopen('php://output', 'w');
-    fputcsv($fh, array('ID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
+    fputcsv($fh, array('QID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
     foreach ($results as $result) {
         $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
         $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
