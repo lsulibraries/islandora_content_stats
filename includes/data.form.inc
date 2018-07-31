@@ -12,38 +12,25 @@
  * Builds form out of query results from db with latest timestamp.
  * accounts for custom content models
  */
-function islandora_content_stats_form($form, &$form_state) {
+function islandora_content_stats_data_dl_form($form, &$form_state) {
+    $form['download']['dltitle'] = array(
+        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
+ (always applies current filters)') . "</div>",
+        '#attributes' => array('class' => array('ics_download_title')),
+    );
+    $form['download']['button'] = array(
+        '#type' => 'submit',
+        '#value' => t('Download History as CSV'),
+        '#submit' => array('download_data'),
+        '#attributes' => array('class' => array('ics_download_button')),
+    );
+    return $form;
+}
+
+function islandora_content_stats_data_filter_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', 'include/utilites');
     $form = array();
-    $form['filter'] = array(
-        '#type' => 'fieldset',
-        '#title' => lang('filter_fieldset_#title'),
-        '#attributes' => array('class' => array('ics_filters')),
-        //this will not work. '#markup' => "<div class='filter'></div>",
-    );
-    $form['filter']['cmodel'] = array(
-        '#type' => 'select',
-        '#title' => t('Filter by type of object'),
-        '#options' => cmodel_types_for_form(),
-        '#description' => t('Shows results to that match a single content model.'),
-        '#required' => FALSE,
-        '#empty_option' => '--none--',
-        '#attributes' => array('class' => array('ics_filter_cmodel')),
-
-    );
-    $form['filter']['institution'] = array(
-        '#type' => 'select',
-        '#title' => t('Filter according to ownership by
- institution or sub-institution'),
-        '#options' => institutions_for_form(),
-        '#required' => FALSE,
-        '#description' => t('Shows results for any items owned
- by chosen institution or sub-institution.'),
-        '#empty_option' => '--none--',
-        '#attributes' => array('class' => array('ics_filter_inst')),
-
-    );
-//    $form['filter']['collection'] = array(
+    //    $form['filter']['collection'] = array(
 //        '#type' => 'select',
 //        '#title' => t('Filter by specific collection'),
 //        '#description' => t('Shows counts of object types
@@ -59,6 +46,34 @@ function islandora_content_stats_form($form, &$form_state) {
 //        '#attributes' => array('class' => array('ics_filter_all')),
 //
 //    );
+
+    $form['filter'] = array(
+        '#type' => 'fieldset',
+        '#title' => lang('filter_fieldset_#title'),
+        '#attributes' => array('class' => array('ics_filters')),
+        //this will not work. '#markup' => "<div class='filter'></div>",
+    );
+    $form['filter']['cmodel'] = array(
+        '#type' => 'select',
+        '#title' => t('Filter by type of object'),
+        '#options' => cmodel_types_for_form(),
+        '#description' => t('Shows results to that match a single content model.'),
+        '#required' => FALSE,
+        '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_cmodel')),
+    );
+    $form['filter']['institution'] = array(
+        '#type' => 'select',
+        '#title' => t('Filter according to ownership by
+ institution or sub-institution'),
+        '#options' => institutions_for_form(),
+        '#required' => FALSE,
+        '#description' => t('Shows results for any items owned
+ by chosen institution or sub-institution.'),
+        '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_inst')),
+
+    );
     $form['filter']['filtertitle'] = array(
         '#type' => 'item',
         '#title' => t('Press to apply filters to page results.'),
@@ -69,19 +84,9 @@ function islandora_content_stats_form($form, &$form_state) {
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
-    $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
- (always applies current filters)') . "</div>",
-        '#attributes' => array('class' => array('ics_download_title')),
-    );
-    $form['download']['button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Download History as CSV'),
-        '#submit' => array('download_data'),
-        '#attributes' => array('class' => array('ics_download_button')),
-    );
     return $form;
 }
+
 
 /**
  * @param array $form_state
@@ -117,7 +122,6 @@ function apply_query_filters($form_state, $mysqlpart, $headers) {
             }
         }
     }
-    dpm($mysqlpart);
     return $mysqlpart->condition('timestamp', latest_run())
                     //->orderByHeader($headers)
                     ->execute();
@@ -141,6 +145,6 @@ function download_data(&$form, &$form_state) {
 /**
  * implements hook_form_submit().
  */
-function islandora_content_stats_form_submit($form, &$form_state) {
+function islandora_content_stats_data_form_submit($form, &$form_state) {
     $form_state['rebuild'] = TRUE;
 }

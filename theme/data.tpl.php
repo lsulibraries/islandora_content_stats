@@ -34,10 +34,25 @@
         <?php endforeach; ?>
     </div>
     <div class='tableStats'>
-        <div class='ics_filters form-wrapper' id='edit-filter'>
-            <div class=''><?php print render($variables['form']) ?></div>
+        <div class='download form-wrapper'>
+            <form>
+                <?php print drupal_render_children($variables['dlform']); ?>
+                <?php echo drupal_render($variables['dlform']['form_build_id']);?>
+                <?php echo drupal_render($variables['dlform']['form_id']);?>
+                <?php echo drupal_render($variables['dlform']['actions']);?>
+                <?php echo drupal_render($variables['dlform']['form_tokens']);?>
+            </form>
         </div>
-        <div class='ics_table_collapse form-wrapper' id='edit-table-relsults'>
+        <div class='filter form-wrapper'>
+            <form>
+                <?php print drupal_render_children($variables['filter_form']); ?>
+                <?php echo drupal_render($variables['filter_form']['form_build_id']);?>
+                <?php echo drupal_render($variables['filter_form']['form_id']);?>
+                <?php echo drupal_render($variables['filter_form']['actions']);?>
+                <?php echo drupal_render($variables['filter_form']['form_tokens']);?>
+            </form>
+        </div>
+        <div class='ics_table_collapse form-wrapper' id='edit-table-results'>
             <legend>
                 <span><?php print $variables['lang_table'] ?></span>
             </legend>

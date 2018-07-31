@@ -45,7 +45,9 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/queries');
     module_load_include('inc','islandora_content_stats','includes/data.form');
 
-    $form = drupal_get_form('islandora_content_stats_form');
+    $dlform = drupal_get_form('islandora_content_stats_data_dl_form');
+    $flform = drupal_get_form('islandora_content_stats_data_filter_form');
+    dpm($flform);
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -58,34 +60,26 @@ function islandora_content_stats_theme() {
                 'lang_table_desc' => lang('table-collapse_explain'),
                 'latest' => latest_counts_for_table(),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
-                'form' => $form,
+                'dlform' => $dlform,
+                'filter_form' => $flform,
             ),
         ),
     );
 }
 
-function islandora_content_stats_preprocess_data(&$variables) {
-    $variables['attributes'] ='eeey';
-}
-
-function data_process(&$variables){
-    
-}
-
-
 /**
  * Download function
  * applies filters to queries and returns as csv file
  */
-function islandora_content_stats_csv_download() {
+function islandora_content_stats_csv_download(&$form_state) {
     module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
     $query = 'SELECT * FROM {islandora_content_stats}';
     $filters = array();
-    foreach ($_GET as $key => $filter) {
-        if ($filter != 'data/download') {
-            $filters[$key] = $filter;
-        }
-    }
+//    foreach ($_GET as $key => $filter) {
+//        if ($filter != 'data/download') {
+//            $filters[$key] = $filter;
+//        }
+//    }
     //if requesting historic data
     if (isset($filters['all'])) {
         if ($filters['all'] == 1) {
