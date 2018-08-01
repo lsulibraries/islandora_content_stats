@@ -61,19 +61,41 @@
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                    <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
+                    <?php if (isset($variabels['gets']['inst'])) : ?>
+                        <?php if ( $variabels['gets']['inst'] == $record['inst']) : ?>
+                        <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
+                        <?php endif; ?>
+                    <?php else : ?>
+                        <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
+                    <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
                 <div class='column'>
                     <div class='header'>Cmodel</div>
                     <?php foreach ($variables['latest'] as $record) :?>
-                        <div class='row'><?php print $record['cmodel'] ?></div>
+                    <?php if (isset($variables['gets']['cmodel'])) : ?> 
+                        <?php  if($variables['gets']['cmodel'] == $record['cmodel-id']) : ?>
+                            <div class='row'><?php print $record['cmodel-label'] ?></div>
+                        <?php endif; ?>
+                    <?php else : ?>
+                            <div class='row'><?php print $record['cmodel-label'] ?></div>
+                    <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
                 <div class='column'>
                     <div class='header'>Count</div>    
                     <?php foreach ($variables['latest'] as $record) :?>
-                        <div class='row <?php print $record['cmodel'] ?>'><?php print $record['count'] ?></div>
+                        <?php if (isset($variables['gets']['inst']) && !isset($variables['gets']['cmodel'])) : ?>
+                            <?php if($variables['gets']['inst'] == $record['inst']) : ?>
+                                <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
+                            <?php endif; ?>
+                        <?php elseif( isset($variables['gets']['cmodel']) && !isset($variables['gets']['inst'])) : ?>
+                            <?php if ($variables['gets']['cmodel'] == $record['cmodel-id']) : ?>
+                                <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
+                            <?php endif; ?>
+                        <?php else :?>
+                            <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </div>

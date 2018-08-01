@@ -145,6 +145,11 @@ function download_data(&$form, &$form_state) {
 /**
  * implements hook_form_submit().
  */
-function islandora_content_stats_data_form_submit($form, &$form_state) {
+function islandora_content_stats_data_dl_form_submit($form, &$form_state) {
+    
+    $form_state['rebuild'] = TRUE;
+}
+
+function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
     $form_state['rebuild'] = TRUE;
 }

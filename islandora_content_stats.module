@@ -47,7 +47,6 @@ function islandora_content_stats_theme() {
 
     $dlform = drupal_get_form('islandora_content_stats_data_dl_form');
     $flform = drupal_get_form('islandora_content_stats_data_filter_form');
-    dpm($flform);
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -62,6 +61,7 @@ function islandora_content_stats_theme() {
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 'dlform' => $dlform,
                 'filter_form' => $flform,
+                'gets' => $_GET,
             ),
         ),
     );

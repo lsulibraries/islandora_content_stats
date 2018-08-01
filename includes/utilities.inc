@@ -196,7 +196,8 @@ function latest_counts_for_table() { //&$form_state
                         'inst' => $record->inst,
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
                         'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
-                        'cmodel' => map_cmodels($record->cmodel),
+                        'cmodel-id' => $record->cmodel,
+                        'cmodel-label' => map_cmodels($record->cmodel),
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                     );
