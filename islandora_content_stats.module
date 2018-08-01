@@ -36,7 +36,7 @@ function islandora_content_stats_menu() {
 
 function islandora_content_stats_data() {
     return theme('islandora_content_stats_data_tpl');
-    
+
 }
 
 function islandora_content_stats_theme() {
@@ -66,6 +66,15 @@ function islandora_content_stats_theme() {
         ),
     );
 }
+// 
+// function islandora_content_stats_preprocess_page(&$variables) {
+//     // dpm( array_keys(theme_get_registry()));
+// }
+
+function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
+    dpm($variables);
+}
+
 
 /**
  * Download function
