@@ -3,7 +3,7 @@
 /**
  * @file
  * This is the template file for the object page for audio file
- * 
+ *
  * @TODO: add documentation about file and available variables
  */
 ?>
@@ -57,50 +57,24 @@
                 <span><?php print $variables['lang_table'] ?></span>
             </legend>
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
-            <div>TABLE GOES HERE
+            <div>
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
-                    <?php foreach  ($variables['latest'] as $record) :?>
-                    <?php if (isset($variabels['gets']['inst'])) : ?>
-                        <?php if ( $variabels['gets']['inst'] == $record['inst']) : ?>
-                        <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
-                        <?php endif; ?>
-                    <?php else : ?>
-                        <div class='row <?php print $record['inst'] ?>'><?php print $record['inst-label'] ?></div>
-                    <?php endif; ?>
-                    <?php endforeach; ?>
+                    <!-- <?php //foreach  ($variables['latest'] as $record) :?>
+                      <div class='row <?php //print $record['inst-id']; print $record['cmodel-id'] ?>'><?php //print $record['inst-label']; ?></div>
                 </div>
                 <div class='column'>
-                    <div class='header'>Cmodel</div>
-                    <?php foreach ($variables['latest'] as $record) :?>
-                    <?php if (isset($variables['gets']['cmodel'])) : ?> 
-                        <?php  if($variables['gets']['cmodel'] == $record['cmodel-id']) : ?>
-                            <div class='row'><?php print $record['cmodel-label'] ?></div>
-                        <?php endif; ?>
-                    <?php else : ?>
-                            <div class='row'><?php print $record['cmodel-label'] ?></div>
-                    <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
+                  <div class='header'>Cmodel</div>
+                        <div class='row <?php //print $record['cmodel-id']; ?>'><?php //print $record['cmodel-label']; ?></div>
+                  </div>
                 <div class='column'>
-                    <div class='header'>Count</div>    
-                    <?php foreach ($variables['latest'] as $record) :?>
-                        <?php if (isset($variables['gets']['inst']) && !isset($variables['gets']['cmodel'])) : ?>
-                            <?php if($variables['gets']['inst'] == $record['inst']) : ?>
-                                <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
-                            <?php endif; ?>
-                        <?php elseif( isset($variables['gets']['cmodel']) && !isset($variables['gets']['inst'])) : ?>
-                            <?php if ($variables['gets']['cmodel'] == $record['cmodel-id']) : ?>
-                                <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
-                            <?php endif; ?>
-                        <?php else :?>
-                            <div class='row <?php print $record['cmodel-label'] ?>'><?php print $record['count'] ?></div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                    <div class='header'>Count</div>
+                                <div class='row <?php //print $record['cmodel-id']; print $record['inst-id'] ?>'><?php //print $record['count']; ?></div>
+                    <?php //endforeach; ?> -->
                 </div>
             </div>
         </div>
     </div>
-</div>    
+</div>
 </div>
 </div>

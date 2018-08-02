@@ -23,6 +23,8 @@ function islandora_content_stats_menu() {
         $items['data'] = array(
         'title' => 'Content Statistics',
         'page callback' => 'islandora_content_stats_data',
+        'page arguments' => array('islandora_content_stats_form'),
+        'file' => 'includes/data.form.inc',
         'access callback' => TRUE,
     );
 
@@ -50,6 +52,7 @@ function islandora_content_stats_theme() {
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
+            'render element' => 'form',
             'variables' => array(
                 'global_totals' => global_totals(),
                 'inst_totals' => inst_totals(),
@@ -57,24 +60,53 @@ function islandora_content_stats_theme() {
                 'lang_filter' => lang('filter_fieldset_#title'),
                 'lang_table' => lang('table-collapse_fieldset_#title'),
                 'lang_table_desc' => lang('table-collapse_explain'),
-                'latest' => latest_counts_for_table(),
+                //'latest' => latest_counts_for_table($flform),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 'dlform' => $dlform,
                 'filter_form' => $flform,
-                'gets' => $_GET,
             ),
         ),
     );
 }
-// 
-// function islandora_content_stats_preprocess_page(&$variables) {
-//     // dpm( array_keys(theme_get_registry()));
+//
+// function filter_cmodel($variables,$run) {
+//   $value = $variables['filter_form']['filter']['cmodel']['#value'];
+//   if($value == $run['cmodel-id'] || $value == ''){
+//     return $run;
+//   }
+// }
+//
+// function filter_inst($variables,$run) {
+//   $value = $variables['filter_form']['filter']['institution']['#value'];
+//   if($value == $run['inst-id'] || $value == ''){
+//     return $run;
+//   }
+// }
+//
+// function filter_collection($variables,$run) {
+//   $value = $variables['filter_form']['filter']['collection']['#value'];
+//   if($value == $run['coll'] || $value == ''){
+//     return $run;
+//   }
 // }
 
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
-    dpm($variables);
+  dpm($variables);
+    // $filtered = array();
+    // if(isset($variables['latest'])){
+    //   foreach($variables['latest'] as $run)
+    //     // $run = filter_cmodel($variables, $run);
+    //     // $run = filter_inst($variables, $run);
+    //     //$run = filter($collection);
+    //     $filtered[] = $run;
+    //   }
+    //   $variables['latest'] = $filtered;
+    return $variables;
 }
 
+function template_process_islandora_content_stats_data_tpl(&$variables){
+  dpm($variables);
+}
 
 /**
  * Download function

@@ -59,6 +59,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#options' => cmodel_types_for_form(),
         '#description' => t('Shows results to that match a single content model.'),
         '#required' => FALSE,
+        '#default_value' => variable_get('content_stats_cmodel_filter'),
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
@@ -70,6 +71,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#required' => FALSE,
         '#description' => t('Shows results for any items owned
  by chosen institution or sub-institution.'),
+        '#default_value' => variable_get('content_stats_inst_filter'),
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
 
@@ -84,6 +86,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
+    $form['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
     return $form;
 }
 
@@ -102,9 +105,11 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
  * $mysqlpart-executed() with applied headers
  */
 function apply_query_filters($form_state, $mysqlpart, $headers) {
-//    if (!isset($form_state['input']['all'])) {
-//        $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
-//    }
+  module_load_include('inc','islandora_content_stats','includes/queries');
+   // if (!isset($form_state['input']['all'])) {
+
+   //     $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
+   // }
     if (isset($form_state['input']['institution'])) {
         $filters = array();
         $filters['inst'] = $form_state['input']['institution'];
@@ -146,10 +151,14 @@ function download_data(&$form, &$form_state) {
  * implements hook_form_submit().
  */
 function islandora_content_stats_data_dl_form_submit($form, &$form_state) {
-    
+
     $form_state['rebuild'] = TRUE;
 }
 
 function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
+    variable_set('content_stats_inst_filter',$form_state['filter']['institution']);
+    variable_set('content_stats_cmodel_filter',$form_state['filter']['cmodel']);
+    //variable_set('content_stats_coll_filter',$form_state['filter']['collection']);
     $form_state['rebuild'] = TRUE;
+
 }

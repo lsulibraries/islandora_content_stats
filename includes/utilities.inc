@@ -13,7 +13,7 @@
  *  String of model's label stripped of repetitous words
  */
 function map_cmodels($model) {
-    if($model == 'children of compound object types'){return $model;}  
+    if($model == 'children of compound object types'){return $model;}
     module_load_include('inc', 'islandora', 'includes/utilities');
     $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
     $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
@@ -28,7 +28,7 @@ function map_cmodels($model) {
             return $short_label;
         }
     }
-    
+
 }
 
 /**
@@ -47,7 +47,7 @@ function map_institution($inst, $context = FALSE) {
     }
     if ($inst == 'islandora:root') {
         return $inst;
-    } 
+    }
     else {
         $inst = rtrim($inst, '-');
         $query = 'select * from {islandora_namespace_homepage} where prefix = \'' . $inst . '\'';
@@ -76,7 +76,7 @@ function map_collection($pid, $context = FALSE) {
     if ($pid != '') {
         $obj = islandora_object_load($pid);
         if (isset($obj) && gettype($obj) == 'object') {
-            
+
             $label = $obj->label;
             if ($context == 'csv') {
                 //add port number after $_SERVER['SERVER_NAME'] if running locally
@@ -173,15 +173,13 @@ function inst_totals() {
   return $rows;
 }
 
-function latest_counts_for_table() { //&$form_state
+function latest_counts_for_table(&$form_state) { //&$form_state
+module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $rows = array();
     $time  = latest_run();
-        $query = db_select('islandora_content_stats','stats')
-                ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
-                ->condition('timestamp',$time)
-                ->execute();
-       //$query = apply_query_filters($form_state, $query, array('id','inst','coll','cmodel','count','timestamp'));
+       $query = db_select('islandora_content_stats','stats');
+       $query = apply_query_filters($form_state, $query, array('id','inst','coll','cmodel','count','timestamp'));
        $totals = $query->fetchAll();
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
@@ -193,9 +191,10 @@ function latest_counts_for_table() { //&$form_state
                 if (($not_fobj) && ($not_cmobj) && ($not_global)) {
                     $rows[$record->id] = array(
                         'id' => $record->id,
-                        'inst' => $record->inst,
+                        'inst-id' => $record->inst,
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
-                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'coll' => $record->coll,
                         'cmodel-id' => $record->cmodel,
                         'cmodel-label' => map_cmodels($record->cmodel),
                         'count' => $record->count,
@@ -204,7 +203,7 @@ function latest_counts_for_table() { //&$form_state
                 }
             }
         }
-  return $rows;  
+  return $rows;
 }
 
 function latest_run() {
