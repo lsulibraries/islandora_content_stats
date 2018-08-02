@@ -151,33 +151,50 @@ function compound_check_constituency($prefix, $coll = FALSE) {
     $label = gettype($coll) == 'object' ? $coll->label : '';  
     $tuque = islandora_get_tuque_connection();
     $query = <<<EOL
-SELECT ?item ?parent ?dcrelation
+SELECT ?item ?parent ?coll_parent ?parentmodel ?itemmodel
 FROM <#RI>
 WHERE {{
 ?item <info:fedora/fedora-system:def/relations-external#isConstituentOf> ?parent .
-?item <http://purl.org/dc/elements/1.1/relation> ?dcrelation .
+?parent <info:fedora/fedora-system:def/model#hasModel> ?itemmodel .
+?parent <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?coll_parent .
+?parent <info:fedora/fedora-system:def/model#hasModel> ?parentmodel
 }
-FILTER regex(str(?item), '$prefix')
+FILTER regex(str(?item), '$prefix')      
 }
 EOL;
     $count = $tuque->repository->ri->countQuery($query, 'sparql');
     $sparql = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
-    $parentarray = array();
-    foreach($sparql as $sparq){
-        if (isset($sparq['dcrelation']['values'])){
-            $parentColl = $sparq['dcrelation']['value'];
-            $parenttitle = substr($parentColl, 0 ,strpos($parentColl,'-')  );
-            if($label == $parenttitle){
-                $parrentarray[] = trim($parenttitle);
-            }
-        }
-    }
+    
+    
     $return = array();
-    array_unique($parentarray);
-    if (isset($parentarray)){
-      $return['parents'] = $parentarray;
+    $return['count'] = $count / 2;
+    //loop for dc relation to collection parent of constituent items.
+    $coll_parents = array();
+    $item_models = array();
+    foreach ($sparql as $sparq){
+            $coll_pid = $sparq['coll_parent']['value']; 
+            explode('/',$coll_pid);
+            $coll_parents[] = $coll_pid;
+            $item_models[] = $sparq['itemmodel']['value'];
+        }
+    
+    $coll_parent = array_unique($coll_parents);
+    if (isset($coll_parent)){
+      $return['coll_parent'] = $coll_parent;
     }
-    $return['count'] = $count;
+    
+    //loop for cmodel of compound parents
+    $cpdparentcmodels = array();
+    foreach ($sparql as $sparq) {
+        $cpdparentcmodels[] = $sparq['parentmodel']['value'];
+    }
+    $parent_models = array_unique($cpdparentcmodels);
+    $parent_models = array_diff($parent_models, ['fedora-system:FedoraObject-3.0']);
+    $item_models = array_unique($item_models);
+    $item_models = array_diff($item_models, ['fedora-system:FedoraObject-3.0']);
+    $return['parentModels'] = $parent_models;
+    $return['itemmodels'] = $item_models;
+    //dpm($return);
     return $return;
 }
 
@@ -204,44 +221,38 @@ function islandora_content_stats_run_queries() {
             $coll = 'islandora:root';
             queries_db_insert(NULL, $coll, $model, $count, $time);
             //loop for all institutions
-        foreach ($all_prefixes as $prefix) {
-            $inst_model_count = total_model_count($model, $prefix);
-            queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
-        }
     }
-//        $total_policy = [];
-//        $inst_colls = get_all_collections($prefix);
+    foreach ($all_prefixes as $prefix) {
+        $total_policy = [];
+        $inst_colls = get_all_collections($prefix);
         //check each inst for constituent members.
-//        $children_of_cpds = compound_check_constituency($prefix);        
-//        queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
+        $children_of_cpds = compound_check_constituency($prefix);        
+        queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
         //(check the type of parent of constituents.)
         //loop through each inst_collection, total for collection
-        //foreach ($inst_colls as $coll) {
-//            $collCpds = compound_check_constituency($prefix,$coll);
-//            $obj = islandora_object_load($coll);
-//            
-//            if($obj->label == $collCpds['parents']){
-//                queries_db_insert($prefix . '-', $coll, 'children of compound object types',$collCpds['count'],$time);
-//            }
-//            $policy = get_collection_policy_array($coll);
-//            $total_policy = array_merge($policy);
-//            //loop through each model in the collection policy
-//            foreach ($policy as $model) {
-//                //collection_totals
-//                $inst_collection_model_count = total_model_count($model, $prefix, $coll);
-//                queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);    
-//            }
+        foreach ($inst_colls as $coll) {
+            $collCpds = compound_check_constituency($prefix,$coll);
+            queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'],$collCpds['count'],$time);
+            $policy = get_collection_policy_array($coll);
+            $total_policy = array_merge($policy);
+            //loop through each model in the collection policy
+            foreach ($policy as $model) {
+                //collection_totals
+                $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+                queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);    
+            }
             //we have constructed total_policy as an array of cmodels possible in a given inst
-            //$total_policy = array_unique($total_policy);
+            $total_policy = array_unique($total_policy);
             //loop through all models available in an inst.
-            //foreach ($total_policy as $model){
-       
+            foreach ($total_policy as $model){
                 //inst_totals
-                
-          //  }
-       // }
-    //}
+                $inst_model_count = total_model_count($model, $prefix);
+                queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+            }
+        }
+    }
 }
+
 
 /**
  *  execute query returns to mysql.
