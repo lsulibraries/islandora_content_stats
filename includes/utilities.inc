@@ -180,8 +180,6 @@ function latest_counts_for_table($gets) {
   $cmodel = '';
   $inst = '';
     if(isset($gets['cmodel']) && isset($gets['inst'])){
-
-
     $cmodel = $gets['cmodel'];
     $inst = $gets['institution'];
   }
@@ -193,14 +191,14 @@ function latest_counts_for_table($gets) {
     if($inst == '' && $cmodel != ''){
         $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and cmodel ='$cmodel'");
     }
-    elseif($cmodel == '' && $inst !=''){
+    if($cmodel == '' && $inst !=''){
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst'");
     }
-    elseif($cmodel != '' && $inst != ''){
+    if($cmodel != '' && $inst != ''){
 
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst' and cmodel ='$cmodel'");
     }
-    elseif($cmodel == '' && $inst == ''){
+    if($cmodel == '' && $inst == ''){
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time'");
     }
        foreach ($totals as $record) {

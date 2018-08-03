@@ -11,22 +11,6 @@
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', 'include/utilites');
     $form = array();
-    //    $form['filter']['collection'] = array(
-//        '#type' => 'select',
-//        '#title' => t('Filter by specific collection'),
-//        '#description' => t('Shows counts of object types
-// for an individual collection.'),
-//        '#options' => collection_pid_labels_for_form(),
-//        '#required' => FALSE,
-//        '#empty_option' => '--none--',
-//        '#attributes' => array('class' => array('ics_filter_coll')),
-//    );
-//    $form['filter']['all'] = array(
-//        '#type' => 'checkbox',
-//        '#title' => t('Show all results (history)'),
-//        '#attributes' => array('class' => array('ics_filter_all')),
-//
-//    );
     $form['filter'] = array(
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
@@ -95,61 +79,39 @@ function islandora_content_stats_csv_download() {
            $filters[$key] = $filter;
        }
    }
-    //if requesting historic data
-    // if (isset($filters['all'])) {
-    //     if ($filters['all'] == 1) {
-    //         array_pop($filters);
-    //         foreach ($filters as $key => $filter) {
-    //             if (($key == 'inst') || ($key == 'cmodel') || ($key == 'coll')) {
-    //                 if (strpos($query, 'WHERE') === FALSE) {
-    //                     if ($filter != '') {
-    //                         $query .= ' WHERE ' . $key . ' = \'' . $filter . '\'';
-    //                     }
-    //                 } else {
-    //                     if ($filter != '') {
-    //                         $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-        //when requesting latest data
-        // else {
-            $max_time = '';
-            $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
-            $max_time = $q_time->fetchField();
-            $query .= ' WHERE timestamp = \'' . $max_time . '\'';
-            array_pop($filters);
-            foreach ($filters as $key => $filter) {
-                if ($filter != '') {
-                    $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
-                }
-            }
-        //}
-    //}
-    $results = db_query($query) or die('Sql error : ' . mysql_error());
-    drupal_add_http_header('Content-type', 'text/csv; utf-8');
-    $attach_str = 'attachment; filename=islandora_content_stats.csv';
-    drupal_add_http_header('Content-Disposition', $attach_str);
-    $fh = fopen('php://output', 'w');
-    fputcsv($fh, array('ID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
-    foreach ($results as $result) {
-        $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
-        $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
-        $not_rootcoll = $result->coll != 'islandora:root';
-        if (($not_fobj) && ($not_cmobj) && ($not_rootcoll)) {
-            $mapped_results = array(
-                $result->id,
-                map_institution($result->inst),
-                map_collection($result->coll),
-                map_cmodels($result->cmodel),
-                $result->count,
-                strftime('%d:%m:%Y:%r', $result->timestamp),
-                map_collection($result->coll, 'csv')
-            );
-            fputcsv($fh, $mapped_results);
-        }
+  $max_time = '';
+  $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
+  $max_time = $q_time->fetchField();
+  $query .= ' WHERE timestamp = \'' . $max_time . '\'';
+  array_pop($filters);
+  foreach ($filters as $key => $filter) {
+    if ($filter != '') {
+       $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
     }
+  }
+  $results = db_query($query) or die('Sql error : ' . mysql_error());
+  drupal_add_http_header('Content-type', 'text/csv; utf-8');
+  $attach_str = 'attachment; filename=islandora_content_stats.csv';
+  drupal_add_http_header('Content-Disposition', $attach_str);
+  $fh = fopen('php://output', 'w');
+  fputcsv($fh, array('ID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
+  foreach ($results as $result) {
+      $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
+      $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
+      $not_rootcoll = $result->coll != 'islandora:root';
+      if (($not_fobj) && ($not_cmobj) && ($not_rootcoll)) {
+          $mapped_results = array(
+              $result->id,
+              map_institution($result->inst),
+              map_collection($result->coll),
+              map_cmodels($result->cmodel),
+              $result->count,
+              strftime('%d:%m:%Y:%r', $result->timestamp),
+              map_collection($result->coll, 'csv')
+          );
+          fputcsv($fh, $mapped_results);
+      }
+  }
 }
 
 /**

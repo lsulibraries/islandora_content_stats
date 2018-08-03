@@ -55,6 +55,7 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $variables['latest'] = latest_counts_for_table($_GET);
+  dpm($variables['latest']);
     return $variables;
 }
 
