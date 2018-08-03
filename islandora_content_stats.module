@@ -60,7 +60,7 @@ function islandora_content_stats_theme() {
                 'lang_filter' => lang('filter_fieldset_#title'),
                 'lang_table' => lang('table-collapse_fieldset_#title'),
                 'lang_table_desc' => lang('table-collapse_explain'),
-                //'latest' => latest_counts_for_table($flform),
+                'latest' => latest_counts_for_table($_GET),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 'dlform' => $dlform,
                 'filter_form' => $flform,
@@ -92,11 +92,14 @@ function islandora_content_stats_theme() {
 
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   dpm($variables);
+  module_load_include('inc','islandora_content_stats','includes/utilities');
+  $variables['latest'] = latest_counts_for_table($_GET);
+  dpm($variables['latest']);
     // $filtered = array();
     // if(isset($variables['latest'])){
     //   foreach($variables['latest'] as $run)
-    //     // $run = filter_cmodel($variables, $run);
-    //     // $run = filter_inst($variables, $run);
+    //      $run = filter_cmodel($variables, $run);
+    //      $run = filter_inst($variables, $run);
     //     //$run = filter($collection);
     //     $filtered[] = $run;
     //   }
@@ -105,7 +108,6 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
 }
 
 function template_process_islandora_content_stats_data_tpl(&$variables){
-  dpm($variables);
 }
 
 /**

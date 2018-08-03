@@ -86,7 +86,8 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
-    $form['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
+    //$form['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
+    $form['actions']['submit']['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
     return $form;
 }
 
@@ -104,32 +105,19 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
  * @return object
  * $mysqlpart-executed() with applied headers
  */
-function apply_query_filters($form_state, $mysqlpart, $headers) {
+function apply_query_filters($filters, $mysqlpart,$headers) {
   module_load_include('inc','islandora_content_stats','includes/queries');
-   // if (!isset($form_state['input']['all'])) {
-
-   //     $mysqlpart = $mysqlpart->condition('timestamp', $timestamp->fetchField());
-   // }
-    if (isset($form_state['input']['institution'])) {
-        $filters = array();
-        $filters['inst'] = $form_state['input']['institution'];
-        //$filters['coll'] = $form_state['input']['collection'];
-        $filters['cmodel'] = $form_state['input']['cmodel'];
         foreach ($filters as $key => $val) {
-            if ($val == '') {
-                //do nothing to the sqlpart
-            } elseif ($val == 'All') {
-                //'All' is same as NULL in mysql field
-                $mysqlpart = $mysqlpart->isNull($key);
-            } else {
+            if ($val != '') {
                 //apply filter if not '' or 'All'
+                dpm($val);
                 $mysqlpart = $mysqlpart->condition($key, $val);
+                dpm($mysqlpart);
             }
         }
-    }
-    return $mysqlpart->condition('timestamp', latest_run())
-                    //->orderByHeader($headers)
-                    ->execute();
+     return $mysqlpart->condition('timestamp', latest_run())
+                     //->orderByHeader($headers)
+                     ->execute();
 }
 
 /**

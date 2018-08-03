@@ -173,14 +173,39 @@ function inst_totals() {
   return $rows;
 }
 
-function latest_counts_for_table(&$form_state) { //&$form_state
-module_load_include('inc','islandora_content_stats','includes/data.form');
+function latest_counts_for_table($gets) {
+  $filters = [];
+  $cmodel = $gets['cmodel'];
+  $inst = $gets['institution'];
+  if($gets['op'] == 'Filter'){
+    module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $rows = array();
     $time  = latest_run();
-       $query = db_select('islandora_content_stats','stats');
-       $query = apply_query_filters($form_state, $query, array('id','inst','coll','cmodel','count','timestamp'));
-       $totals = $query->fetchAll();
+    $totals = '';
+    if($inst == '' && $cmodel != ''){
+        $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and cmodel ='$cmodel'");
+    }
+    if($cmodel == '' && $inst !=''){
+      $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst'");
+    }
+    if($cmodel != '' && $inst != ''){
+
+      $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst' and cmodel ='$cmodel'");
+    }
+    if($cmodel == '' && $inst == ''){
+      $totals = db_query("select * from islandora_content_stats where timestamp ='$time'");
+    }
+
+    //    $query = db_select('islandora_content_stats','stats')
+    //             ->condition('timestamp', $time)
+    //             ->condition('inst', 'lsu-')
+    //             ->condition('cmodel', 'islandora:collectionCModel');
+
+      // dpm($query);
+                // $query = $query->execute();
+      //$query = apply_query_filters($filters, $query, array('id','inst','coll','cmodel','count','timestamp'));
+       //$totals = $query->fetchAll();
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
@@ -203,6 +228,7 @@ module_load_include('inc','islandora_content_stats','includes/data.form');
                 }
             }
         }
+     }
   return $rows;
 }
 

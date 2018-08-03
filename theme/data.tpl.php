@@ -60,17 +60,17 @@
             <div>
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
-                    <!-- <?php //foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php //print $record['inst-id']; print $record['cmodel-id'] ?>'><?php //print $record['inst-label']; ?></div>
+                    <?php foreach  ($variables['latest'] as $record) :?>
+                      <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
                 </div>
                 <div class='column'>
                   <div class='header'>Cmodel</div>
-                        <div class='row <?php //print $record['cmodel-id']; ?>'><?php //print $record['cmodel-label']; ?></div>
+                        <div class='row <?php print $record['cmodel-id']; ?>'><?php print $record['cmodel-label']; ?></div>
                   </div>
                 <div class='column'>
                     <div class='header'>Count</div>
-                                <div class='row <?php //print $record['cmodel-id']; print $record['inst-id'] ?>'><?php //print $record['count']; ?></div>
-                    <?php //endforeach; ?> -->
+                                <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
