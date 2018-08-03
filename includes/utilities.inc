@@ -13,6 +13,7 @@
  *  String of model's label stripped of repetitous words
  */
 function map_cmodels($model) {
+  module_load_include('inc','islandora','includes/utilities');
     if($model == 'children of compound object types'){return $model;}
     module_load_include('inc', 'islandora', 'includes/utilities');
     $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
@@ -231,4 +232,64 @@ function latest_run() {
     $maxtime = db_query('select max(timestamp) from islandora_content_stats');
     $time = $maxtime->fetchField();
     return $time;
+}
+
+/**
+ * @return array $return
+ * array of mapped cmodel labels
+ * puts into dropdown for filter on data.form.inc
+ */
+
+function cmodel_types_for_form() {
+  module_load_include('inc','islandora','includes/utilities');
+    $model_counts = array_keys(islandora_get_content_models());
+    $return = array();
+    foreach ($model_counts as $model) {
+        //when cmodel is FedoraObject or ContentModel, don't map
+        $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
+        $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
+        if (($not_fobj) && ($not_cmobj)) {
+            $string = map_cmodels($model);
+            $return[$model] = t($string);
+        }
+    }
+    return $return;
+}
+
+
+/**
+ * @return array $return
+ * mapped names of institutions as array
+ * puts into dropdown for filter on data.form.inc
+ */
+function institutions_for_form() {
+    $prefixes = get_all_prefixes();
+    $return = array();
+    foreach ($prefixes as $inst) {
+        $return[$inst . '-'] = map_institution($inst, 'form');
+    }
+    return $return;
+}
+
+
+/**
+ * @return array $return
+ * options for data.form.inc dropdown of colleciton names
+ */
+function collection_pid_labels_for_form() {
+    $return = array();
+    $tuque = islandora_get_tuque_connection();
+    $query = <<<EOL
+SELECT ?pid
+FROM <#RI>
+WHERE {
+?pid <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:root> }
+EOL;
+    $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
+    foreach ($collections as $coll) {
+        $coll = $coll['pid']['value'];
+        $return[$coll] = map_collection($coll);
+    }
+    $return['All'] = 'All';
+    return $return;
 }

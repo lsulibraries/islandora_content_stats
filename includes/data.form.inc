@@ -84,36 +84,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 
 
 /**
- * @param array $form_state
- * containing filter strings.
- * @param object $mysqlpart
- * query to apply filters on.
- * @param string $timestamp
- * last time queries were run, or empty when history is requested
- * is applied only if recent queries are requested,
- * @param array $headers
- * for the orderby rows
- * @return object
- * $mysqlpart-executed() with applied headers
- */
-function apply_query_filters($filters, $mysqlpart,$headers) {
-  module_load_include('inc','islandora_content_stats','includes/queries');
-        foreach ($filters as $key => $val) {
-            if ($val != '') {
-                //apply filter if not '' or 'All'
-                dpm($val);
-                $mysqlpart = $mysqlpart->condition($key, $val);
-                dpm($mysqlpart);
-            }
-        }
-     return $mysqlpart->condition('timestamp', latest_run())
-                     //->orderByHeader($headers)
-                     ->execute();
-}
-
-
-
-/**
  * Download function
  * applies filters to queries and returns as csv file
  */

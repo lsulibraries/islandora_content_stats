@@ -43,7 +43,7 @@
                 <span><?php print $variables['lang_table'] ?></span>
             </legend>
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
-            <div>
+            <div class='table'>
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
                     <?php foreach  ($variables['latest'] as $record) :?>
