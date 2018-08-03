@@ -12,25 +12,11 @@ function islandora_content_stats_menu() {
         'access arguments' => array('administer site configuration'),
         'file' => 'includes/admin.form.inc',
     );
-//    $items['data'] = array(
-//        'title' => 'Content Statistics',
-//        'page callback' => 'drupal_get_form',
-//        'page arguments' => array('islandora_content_stats_form'),
-//        'access arguments' => array('administer site configuration'),
-//        'access callback' => TRUE,
-//        'file' => 'includes/data.form.inc',
-//    );
         $items['data'] = array(
         'title' => 'Content Statistics',
         'page callback' => 'islandora_content_stats_data',
         'page arguments' => array('islandora_content_stats_form'),
         'file' => 'includes/data.form.inc',
-        'access callback' => TRUE,
-    );
-
-    $items['data/download'] = array(//data
-        'title' => t('Download Content Stats to CSV'),
-        'page callback' => 'islandora_content_stats_csv_download',
         'access callback' => TRUE,
     );
     return $items;
@@ -46,8 +32,6 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/utilities');
     module_load_include('inc','islandora_content_stats','includes/queries');
     module_load_include('inc','islandora_content_stats','includes/data.form');
-
-    $dlform = drupal_get_form('islandora_content_stats_data_dl_form');
     $flform = drupal_get_form('islandora_content_stats_data_filter_form');
     return array(
         'islandora_content_stats_data_tpl' => array(
@@ -60,124 +44,27 @@ function islandora_content_stats_theme() {
                 'lang_filter' => lang('filter_fieldset_#title'),
                 'lang_table' => lang('table-collapse_fieldset_#title'),
                 'lang_table_desc' => lang('table-collapse_explain'),
-                'latest' => latest_counts_for_table($_GET),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
-                'dlform' => $dlform,
                 'filter_form' => $flform,
             ),
         ),
     );
 }
-//
-// function filter_cmodel($variables,$run) {
-//   $value = $variables['filter_form']['filter']['cmodel']['#value'];
-//   if($value == $run['cmodel-id'] || $value == ''){
-//     return $run;
-//   }
-// }
-//
-// function filter_inst($variables,$run) {
-//   $value = $variables['filter_form']['filter']['institution']['#value'];
-//   if($value == $run['inst-id'] || $value == ''){
-//     return $run;
-//   }
-// }
-//
-// function filter_collection($variables,$run) {
-//   $value = $variables['filter_form']['filter']['collection']['#value'];
-//   if($value == $run['coll'] || $value == ''){
-//     return $run;
-//   }
-// }
 
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
-  dpm($variables);
   module_load_include('inc','islandora_content_stats','includes/utilities');
+  module_load_include('inc','islandora_content_stats','includes/data.form');
   $variables['latest'] = latest_counts_for_table($_GET);
   dpm($variables['latest']);
-    // $filtered = array();
-    // if(isset($variables['latest'])){
-    //   foreach($variables['latest'] as $run)
-    //      $run = filter_cmodel($variables, $run);
-    //      $run = filter_inst($variables, $run);
-    //     //$run = filter($collection);
-    //     $filtered[] = $run;
-    //   }
-    //   $variables['latest'] = $filtered;
     return $variables;
 }
 
-function template_process_islandora_content_stats_data_tpl(&$variables){
-}
-
-/**
- * Download function
- * applies filters to queries and returns as csv file
- */
-function islandora_content_stats_csv_download(&$form_state) {
-    module_load_include('inc', 'islandora_content_stats', '/includes/utilities');
-    $query = 'SELECT * FROM {islandora_content_stats}';
-    $filters = array();
-//    foreach ($_GET as $key => $filter) {
-//        if ($filter != 'data/download') {
-//            $filters[$key] = $filter;
-//        }
-//    }
-    //if requesting historic data
-    if (isset($filters['all'])) {
-        if ($filters['all'] == 1) {
-            array_pop($filters);
-            foreach ($filters as $key => $filter) {
-                if (($key == 'inst') || ($key == 'cmodel') || ($key == 'coll')) {
-                    if (strpos($query, 'WHERE') === FALSE) {
-                        if ($filter != '') {
-                            $query .= ' WHERE ' . $key . ' = \'' . $filter . '\'';
-                        }
-                    } else {
-                        if ($filter != '') {
-                            $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
-                        }
-                    }
-                }
-            }
-        }
-        //when requesting latest data
-        else {
-            $max_time = '';
-            $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
-            $max_time = $q_time->fetchField();
-            $query .= ' WHERE timestamp = \'' . $max_time . '\'';
-            array_pop($filters);
-            foreach ($filters as $key => $filter) {
-                if ($filter != '') {
-                    $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
-                }
-            }
-        }
+function template_process_islandora_content_stats_data_tpl(&$variables) {
+  if(isset($_GET['op'])){
+    if($_GET['op']== 'Download History as CSV'){
+      islandora_content_stats_csv_download();
     }
-    $results = db_query($query) or die('Sql error : ' . mysql_error());
-    drupal_add_http_header('Content-type', 'text/csv; utf-8');
-    $attach_str = 'attachment; filename=islandora_content_stats.csv';
-    drupal_add_http_header('Content-Disposition', $attach_str);
-    $fh = fopen('php://output', 'w');
-    fputcsv($fh, array('ID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
-    foreach ($results as $result) {
-        $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
-        $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
-        $not_rootcoll = $result->coll != 'islandora:root';
-        if (($not_fobj) && ($not_cmobj) && ($not_rootcoll)) {
-            $mapped_results = array(
-                $result->id,
-                map_institution($result->inst),
-                map_collection($result->coll),
-                map_cmodels($result->cmodel),
-                $result->count,
-                strftime('%d:%m:%Y:%r', $result->timestamp),
-                map_collection($result->coll, 'csv')
-            );
-            fputcsv($fh, $mapped_results);
-        }
-    }
+  }
 }
 
 /**
@@ -211,46 +98,4 @@ function is_off_hours($time) {
     if (in_array($check, $range)) {
         return TRUE;
     }
-}
-
-/**
- * Implements hook_block_info().
- * Displays cmodel count on content region
- * at islandora:root it shows totals sitewide
- * at a given collection it shows totals for that collection
- */
-function islandora_content_stats_block_info() {
-    $blocks = array();
-    $blocks['mini'] = array(
-        'info' => t('Content Stats Mini'),
-        'status' => 0, //change to 1 to enable block.
-        'region' => 'content',
-        'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-        'pages' => '',
-    );
-    return $blocks;
-}
-
-/**
- * Implements hook_block_view().
- * Logic for which totals to display in block.
- */
-function islandora_content_stats_block_view($delta = '') {
-    module_load_include('inc', 'islandora_content_stats', 'includes/block.form');
-    $blocks = array();
-    module_load_include('php', 'islandora_namespace_homepage', 'includes/namespaces');
-    $frontpage = drupal_is_front_page();
-    $instpage = '';
-    $ns_prefix = update_namespace_prefixes_cache();
-    foreach ($ns_prefix as $prefix) {
-        if (request_uri() == '/' . $prefix) {
-            $instpage = TRUE;
-        }
-    }
-    $collpage = strpos(request_uri(), 'collection');
-    if ($frontpage || $instpage || $collpage) {
-        $blocks['subject'] = t('Content Models');
-        $blocks['content'] = drupal_get_form('islandora_content_stats_mini_form');
-    }
-    return $blocks;
 }

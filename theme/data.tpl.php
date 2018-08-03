@@ -19,7 +19,6 @@
             </div>
         <?php endforeach; ?>
     </div>
-
     <div class='instGroup'>
         <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
         <div class="inst_wrapper <?php print $inst ?>">
@@ -34,22 +33,9 @@
         <?php endforeach; ?>
     </div>
     <div class='tableStats'>
-        <div class='download form-wrapper'>
-            <form>
-                <?php print drupal_render_children($variables['dlform']); ?>
-                <?php echo drupal_render($variables['dlform']['form_build_id']);?>
-                <?php echo drupal_render($variables['dlform']['form_id']);?>
-                <?php echo drupal_render($variables['dlform']['actions']);?>
-                <?php echo drupal_render($variables['dlform']['form_tokens']);?>
-            </form>
-        </div>
-        <div class='filter form-wrapper'>
+        <div class='filter download form-wrapper'>
             <form>
                 <?php print drupal_render_children($variables['filter_form']); ?>
-                <?php echo drupal_render($variables['filter_form']['form_build_id']);?>
-                <?php echo drupal_render($variables['filter_form']['form_id']);?>
-                <?php echo drupal_render($variables['filter_form']['actions']);?>
-                <?php echo drupal_render($variables['filter_form']['form_tokens']);?>
             </form>
         </div>
         <div class='ics_table_collapse form-wrapper' id='edit-table-results'>

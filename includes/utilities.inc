@@ -175,37 +175,33 @@ function inst_totals() {
 
 function latest_counts_for_table($gets) {
   $filters = [];
-  $cmodel = $gets['cmodel'];
-  $inst = $gets['institution'];
-  if($gets['op'] == 'Filter'){
+  $rows = [];
+  $cmodel = '';
+  $inst = '';
+    if(isset($gets['cmodel']) && isset($gets['inst'])){
+
+
+    $cmodel = $gets['cmodel'];
+    $inst = $gets['institution'];
+  }
+
     module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
-    $rows = array();
     $time  = latest_run();
     $totals = '';
     if($inst == '' && $cmodel != ''){
         $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and cmodel ='$cmodel'");
     }
-    if($cmodel == '' && $inst !=''){
+    elseif($cmodel == '' && $inst !=''){
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst'");
     }
-    if($cmodel != '' && $inst != ''){
+    elseif($cmodel != '' && $inst != ''){
 
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst' and cmodel ='$cmodel'");
     }
-    if($cmodel == '' && $inst == ''){
+    elseif($cmodel == '' && $inst == ''){
       $totals = db_query("select * from islandora_content_stats where timestamp ='$time'");
     }
-
-    //    $query = db_select('islandora_content_stats','stats')
-    //             ->condition('timestamp', $time)
-    //             ->condition('inst', 'lsu-')
-    //             ->condition('cmodel', 'islandora:collectionCModel');
-
-      // dpm($query);
-                // $query = $query->execute();
-      //$query = apply_query_filters($filters, $query, array('id','inst','coll','cmodel','count','timestamp'));
-       //$totals = $query->fetchAll();
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
@@ -228,7 +224,6 @@ function latest_counts_for_table($gets) {
                 }
             }
         }
-     }
   return $rows;
 }
 

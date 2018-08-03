@@ -8,25 +8,6 @@
  */
 
 
-/**
- * Builds form out of query results from db with latest timestamp.
- * accounts for custom content models
- */
-function islandora_content_stats_data_dl_form($form, &$form_state) {
-    $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
- (always applies current filters)') . "</div>",
-        '#attributes' => array('class' => array('ics_download_title')),
-    );
-    $form['download']['button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Download History as CSV'),
-        '#submit' => array('download_data'),
-        '#attributes' => array('class' => array('ics_download_button')),
-    );
-    return $form;
-}
-
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', 'include/utilites');
     $form = array();
@@ -51,7 +32,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
-        //this will not work. '#markup' => "<div class='filter'></div>",
     );
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
@@ -59,7 +39,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#options' => cmodel_types_for_form(),
         '#description' => t('Shows results to that match a single content model.'),
         '#required' => FALSE,
-        '#default_value' => variable_get('content_stats_cmodel_filter'),
+        // '#default_value' => variable_get('content_stats_cmodel_filter'),
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
@@ -71,7 +51,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#required' => FALSE,
         '#description' => t('Shows results for any items owned
  by chosen institution or sub-institution.'),
-        '#default_value' => variable_get('content_stats_inst_filter'),
+        //'#default_value' => variable_get('content_stats_inst_filter'),
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
 
@@ -86,8 +66,19 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
-    //$form['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
-    $form['actions']['submit']['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
+    $form['download']['dltitle'] = array(
+        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
+    (always applies current filters)') . "</div>",
+        '#attributes' => array('class' => array('ics_download_title')),
+    );
+    $form['download']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Download History as CSV'),
+        '#submit' => array('islandora_content_stats_csv_download'),
+        '#attributes' => array('class' => array('ics_download_button')),
+    );
+    $form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
+    $form['actions']['filter']['submit']['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
     return $form;
 }
 
@@ -120,33 +111,81 @@ function apply_query_filters($filters, $mysqlpart,$headers) {
                      ->execute();
 }
 
+
+
 /**
- * sends the filter options to the islandora_content_stats_csv_download function
- * sent as url parameters to page data/download
+ * Download function
+ * applies filters to queries and returns as csv file
  */
-function download_data(&$form, &$form_state) {
-    $options = array('query' => array(
-            'inst' => $form_state['values']['institution'],
-            'cmodel' => $form_state['values']['cmodel'],
-            //'coll' => $form_state['values']['collection'],
-            'all' => FALSE, //$form_state['values']['all'],
-        ),
-    );
-    drupal_goto('data/download', $options);
+function islandora_content_stats_csv_download() {
+  $query = 'SELECT * FROM {islandora_content_stats}';
+  $filters = array();
+   foreach ($_GET as $key => $filter) {
+       if ($key == 'cmodel' || $key == 'inst') {
+           $filters[$key] = $filter;
+       }
+   }
+    //if requesting historic data
+    // if (isset($filters['all'])) {
+    //     if ($filters['all'] == 1) {
+    //         array_pop($filters);
+    //         foreach ($filters as $key => $filter) {
+    //             if (($key == 'inst') || ($key == 'cmodel') || ($key == 'coll')) {
+    //                 if (strpos($query, 'WHERE') === FALSE) {
+    //                     if ($filter != '') {
+    //                         $query .= ' WHERE ' . $key . ' = \'' . $filter . '\'';
+    //                     }
+    //                 } else {
+    //                     if ($filter != '') {
+    //                         $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+        //when requesting latest data
+        // else {
+            $max_time = '';
+            $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
+            $max_time = $q_time->fetchField();
+            $query .= ' WHERE timestamp = \'' . $max_time . '\'';
+            array_pop($filters);
+            foreach ($filters as $key => $filter) {
+                if ($filter != '') {
+                    $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
+                }
+            }
+        //}
+    //}
+    $results = db_query($query) or die('Sql error : ' . mysql_error());
+    drupal_add_http_header('Content-type', 'text/csv; utf-8');
+    $attach_str = 'attachment; filename=islandora_content_stats.csv';
+    drupal_add_http_header('Content-Disposition', $attach_str);
+    $fh = fopen('php://output', 'w');
+    fputcsv($fh, array('ID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
+    foreach ($results as $result) {
+        $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
+        $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
+        $not_rootcoll = $result->coll != 'islandora:root';
+        if (($not_fobj) && ($not_cmobj) && ($not_rootcoll)) {
+            $mapped_results = array(
+                $result->id,
+                map_institution($result->inst),
+                map_collection($result->coll),
+                map_cmodels($result->cmodel),
+                $result->count,
+                strftime('%d:%m:%Y:%r', $result->timestamp),
+                map_collection($result->coll, 'csv')
+            );
+            fputcsv($fh, $mapped_results);
+        }
+    }
 }
 
 /**
  * implements hook_form_submit().
  */
-function islandora_content_stats_data_dl_form_submit($form, &$form_state) {
-
-    $form_state['rebuild'] = TRUE;
-}
 
 function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
-    variable_set('content_stats_inst_filter',$form_state['filter']['institution']);
-    variable_set('content_stats_cmodel_filter',$form_state['filter']['cmodel']);
-    //variable_set('content_stats_coll_filter',$form_state['filter']['collection']);
-    $form_state['rebuild'] = TRUE;
-
+   $form_state['rebuild'] = TRUE;
 }
