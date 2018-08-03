@@ -211,64 +211,6 @@ function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
   }
 }
 
-// /**
-//  * @param string $pid
-//  * pid of collection is parsed from path of browser
-//  * @return array $display
-//  * each query for a particular collection pid
-//  */
-// function islandora_content_stats_block_coll($pid) {
-//     $pref = 'select * from {islandora_content_stats} where coll = \'';
-//     $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
-//     $time = $last_time->fetchField();
-//     $suff = ' and timestamp = \'';
-//     $query = db_query($pref . $pid . '\'' . $suff . $time . '\'');
-//     $results = $query->fetchAll();
-//     $display = array();
-//     foreach ($results as $result) {
-//         $test = $result->cmodel;
-//         if (strpos($test, 'fedora-system') === FALSE) {
-//             $display[$result->id] = array(
-//                 // 'id' => $result->id,
-//                 // 'inst' => $result->inst,
-//                 'coll' => $result->coll,
-//                 'cmodel' => $result->cmodel,
-//                 'count' => $result->count
-//             );
-//         }
-//     }
-//     return $display;
-// }
-//
-// /**
-//  * @param string $path
-//  * path of browser which matches a prefix
-//  * @return array $display
-//  * each query for a particular institution
-//  */
-// function islandora_content_stats_block_inst($path) {
-//     $pref = 'select * from {islandora_content_stats} where inst = \'';
-//     $end = '\' and coll is NULL';
-//     $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
-//     $time = $last_query_time_db->fetchField();
-//     $suff = ' and timestamp = \'';
-//     $query = db_query($pref . $path . '\'' . $suff . $time . $end);
-//     $results = $query->fetchAll();
-//     $display = array();
-//     foreach ($results as $result) {
-//         $test = $result->cmodel;
-//         if (strpos($test, 'fedora-system') === FALSE) {
-//             $display[$result->id] = array(
-//                 // 'id' => $result->id,
-//                 // 'inst' => $result->inst,
-//                 'coll' => $result->coll,
-//                 'cmodel' => $result->cmodel,
-//                 'count' => $result->count
-//             );
-//         }
-//     }
-//     return $display;
-// }
 
 /**
  * @return array $display

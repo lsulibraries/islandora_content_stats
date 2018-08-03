@@ -27,7 +27,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 //        '#attributes' => array('class' => array('ics_filter_all')),
 //
 //    );
-
     $form['filter'] = array(
         '#type' => 'fieldset',
         '#title' => lang('filter_fieldset_#title'),
@@ -88,6 +87,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
  * applies filters to queries and returns as csv file
  */
 function islandora_content_stats_csv_download() {
+  module_load_include('inc','islandora_content_stats','includes/utilities');
   $query = 'SELECT * FROM {islandora_content_stats}';
   $filters = array();
    foreach ($_GET as $key => $filter) {
@@ -157,5 +157,6 @@ function islandora_content_stats_csv_download() {
  */
 
 function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
-   $form_state['rebuild'] = TRUE;
+  clear_cache_all();
+  $form_state['rebuild'] = TRUE;
 }
