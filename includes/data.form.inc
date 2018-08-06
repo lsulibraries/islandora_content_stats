@@ -7,22 +7,22 @@
  * with a more humant readable format, and links to collection items.
  */
 
-function islandora_content_stats_data_dl_form($form, &$form_state){
-  $form['download']['dltitle'] = array(
-      '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
-  (always applies current filters)') . "</div>",
-      '#attributes' => array('class' => array('ics_download_title')),
-  );
-  $form['download']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Download History as CSV'),
-      '#submit' => array('islandora_content_stats_csv_download'),
-      '#attributes' => array('class' => array('ics_download_button')),
-  );
-
-  $form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
-  return $form;
-}
+// function islandora_content_stats_data_dl_form($form, &$form_state){
+//   $form['download']['dltitle'] = array(
+//       '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
+//   (always applies current filters)') . "</div>",
+//       '#attributes' => array('class' => array('ics_download_title')),
+//   );
+//   $form['download']['submit'] = array(
+//       '#type' => 'submit',
+//       '#value' => t('Download History as CSV'),
+//       '#submit' => array('islandora_content_stats_csv_download'),
+//       '#attributes' => array('class' => array('ics_download_button')),
+//   );
+//
+//   //$form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
+//   return $form;
+// }
 
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     module_load_include('inc', 'islandora_content_stats', 'include/utilites');
@@ -81,6 +81,19 @@ for an individual collection.'),
         '#value' => t('Filter'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
+    $form['download']['dltitle'] = array(
+        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
+    (always applies current filters)') . "</div>",
+        '#attributes' => array('class' => array('ics_download_title')),
+    );
+    $form['download']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Download History as CSV'),
+        '#submit' => array('islandora_content_stats_csv_download'),
+        '#attributes' => array('class' => array('ics_download_button')),
+    );
+
+    $form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
     $form['actions']['filter']['submit']['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
     return $form;
 }
@@ -94,13 +107,14 @@ function islandora_content_stats_csv_download() {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   $query = 'SELECT * FROM {islandora_content_stats}';
   $filters = array();
-    // var_dump($_GET);
-    // die;
+
    foreach ($_GET as $key => $filter) {
    if($key === 'cmodel' || $key === 'inst' || $key == 'coll') {
            $filters[$key] = $filter;
        }
    }
+
+
   $max_time = '';
   $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
   $max_time = $q_time->fetchField();
@@ -140,6 +154,5 @@ function islandora_content_stats_csv_download() {
  */
 
 function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
-  dpm($form_state);
   $form_state['rebuild'] = TRUE;
 }

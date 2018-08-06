@@ -10,7 +10,6 @@
 
 <div>
     <div class='headerStats'>
-      <div class=''
       <div class='headerDescription'><?php print $variables['lang_desc'];?></div>
       <div class='headerTime'>Last run at: <?php print $variables['last_run'];?></div>
     </div>
@@ -44,7 +43,7 @@
                 <span><?php print $variables['lang_table'] ?></span>
             </legend>
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
-            <div class='filter form-wrapper'>
+            <div class='filter download form-wrapper'>
                 <form>
                     <?php print drupal_render_children($variables['filter_form']); ?>
                 </form>
@@ -74,12 +73,6 @@
                                 <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
                     <?php endforeach; ?>
                 </div>
-            </div>
-
-            <div class='download form-wrapper'>
-                <form>
-                    <?php print drupal_render_children($variables['dl_form']); ?>
-                </form>
             </div>
         </div>
 
