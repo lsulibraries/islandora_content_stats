@@ -49,13 +49,23 @@
                     <div class='header'>Institution/Sub-institution</div>
                     <?php foreach  ($variables['latest'] as $record) :?>
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
+                    <?php endforeach; ?>
+                </div>
+                <div class='column'>
+                  <div class='header'>Collection</div>
+                  <?php foreach  ($variables['latest'] as $record) :?>
+                        <div class='row <?php print $record['coll-id']; ?>'><?php print $record['cmodel-label']; ?></div>
+                        <?php endforeach; ?>
                 </div>
                 <div class='column'>
                   <div class='header'>Cmodel</div>
+                  <?php foreach  ($variables['latest'] as $record) :?>
                         <div class='row <?php print $record['cmodel-id']; ?>'><?php print $record['cmodel-label']; ?></div>
-                  </div>
+                        <?php endforeach; ?>
+                </div>
                 <div class='column'>
                     <div class='header'>Count</div>
+                    <?php foreach  ($variables['latest'] as $record) :?>
                                 <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
                     <?php endforeach; ?>
                 </div>
