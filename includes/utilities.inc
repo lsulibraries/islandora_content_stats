@@ -174,35 +174,42 @@ function inst_totals() {
   return $rows;
 }
 
+function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time){
+  $text = "select  * from islandora_content_stats where timestamp = $time ";
+  if($inst){
+    $text .= "and inst = '$inst' ";
+  }
+  if($coll){
+    $text .= "and coll = '$coll' ";
+  }
+  if($cmodel){
+    $text .= "and cmodel = '$cmodel' ";
+  }
+  $totals = db_query($text);
+  return $totals;
+}
+
+
 function latest_counts_for_table($gets) {
   $filters = [];
   $rows = [];
-  $cmodel = '';
-  $inst = '';
+  $cmodel = FALSE;
+  $inst = FALSE;
+  $coll = FALSE;
+  if(isset($gets['institution'])){
+    $inst = $gets['institution'];
+  }
   if(isset($gets['cmodel'])){
     $cmodel = $gets['cmodel'];
   }
-  if(isset($gets['inst'])){
-    $inst = $gets['institution'];
+  if(isset($gets['coll'])){
+    $cmodel = $gets['coll'];
   }
 
     module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $time  = latest_run();
-    $totals = '';
-    if($inst == '' && $cmodel != ''){
-        $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and cmodel ='$cmodel'");
-    }
-    if($cmodel == '' && $inst !=''){
-      $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst'");
-    }
-    if($cmodel != '' && $inst != ''){
-
-      $totals = db_query("select * from islandora_content_stats where timestamp ='$time' and inst ='$inst' and cmodel ='$cmodel'");
-    }
-    if($cmodel == '' && $inst == ''){
-      $totals = db_query("select * from islandora_content_stats where timestamp ='$time'");
-    }
+    $totals = conditionals_for_table($inst, $coll, $cmodel, $time);
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';

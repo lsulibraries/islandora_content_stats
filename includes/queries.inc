@@ -28,7 +28,7 @@ EOQ;
 }
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
-  $prefix = $prefix . '-';
+  if($prefix != FALSE){$prefix = $prefix . '-';}
   $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
   $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
   $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
@@ -79,10 +79,10 @@ function get_collection_policy_array($pid) {
     $query_models = array();
     $repo = islandora_get_tuque_connection();
     $api_a = $repo->api->a;
-    $pol = $api_a->getDatastreamDissemination($pid,'COLLECTION_POLICY');
+    $pol = $api_a->getDatastreamDissemination($pid, 'COLLECTION_POLICY');
     $models = simplexml_load_string($pol)->content_models;
-    foreach($models as $model){
-       $query_models[] = (string) $model->content_model['pid'];
+    foreach( $models->content_model as $model){
+      $query_models[] = (string) $model['pid'];
     }
   return $query_models;
 }
@@ -169,8 +169,8 @@ function islandora_content_stats_run_queries() {
         //(check the type of parent of constituents.)
         //loop through each inst_collection, total for collection
         foreach ($inst_colls as $coll) {
-            $collCpds = compound_check_constituency($prefix,$coll);
-            queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'],$collCpds['count'],$time);
+            $collCpds = compound_check_constituency($prefix, $coll);
+            queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
             $policy = get_collection_policy_array($coll);
             $total_policy = array_merge($policy);
             //loop through each model in the collection policy
