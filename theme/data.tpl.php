@@ -44,6 +44,11 @@
                 <span><?php print $variables['lang_table'] ?></span>
             </legend>
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
+            <div class='filter form-wrapper'>
+                <form>
+                    <?php print drupal_render_children($variables['filter_form']); ?>
+                </form>
+            </div>
             <div class='table'>
                 <div class='column'>
                     <div class='header'>Institution/Sub-institution</div>
@@ -70,11 +75,7 @@
                     <?php endforeach; ?>
                 </div>
             </div>
-            <div class='filter  form-wrapper'>
-                <form>
-                    <?php print drupal_render_children($variables['filter_form']); ?>
-                </form>
-            </div>
+
             <div class='download form-wrapper'>
                 <form>
                     <?php print drupal_render_children($variables['dl_form']); ?>
