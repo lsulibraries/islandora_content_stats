@@ -9,6 +9,7 @@
  */
 
 function get_all_collections($prefix = FALSE) {
+  $prefix = $prefix . '-';
   $filter = $prefix ? "FILTER regex(str(?obj), '$prefix')" : '';
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOQ
@@ -27,6 +28,7 @@ EOQ;
 }
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
+  $prefix = $prefix . '-';
   $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
   $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
   $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
@@ -133,7 +135,6 @@ EOL;
     $item_models = array_diff($item_models, ['fedora-system:FedoraObject-3.0']);
     $return['parentModels'] = $parent_models;
     $return['itemmodels'] = $item_models;
-    //dpm($return);
     return $return;
 }
 
@@ -147,7 +148,6 @@ function islandora_content_stats_run_queries() {
     $time = time();
     //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
     $all_prefixes = get_all_prefixes();
-    dpm($all_prefixes);
     //all available models
     $all_cmodels = array_keys(islandora_get_content_models());
     //all available collections at islandora:root
@@ -182,6 +182,7 @@ function islandora_content_stats_run_queries() {
             //we have constructed total_policy as an array of cmodels possible in a given inst
             $total_policy = array_unique($total_policy);
             //loop through all models available in an inst.
+
             foreach ($total_policy as $model){
                 //inst_totals
                 $inst_model_count = total_model_count($model, $prefix);
