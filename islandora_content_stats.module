@@ -33,6 +33,7 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/queries');
     module_load_include('inc','islandora_content_stats','includes/data.form');
     $flform = drupal_get_form('islandora_content_stats_data_filter_form');
+    $dlform = drupal_get_form('islandora_content_stats_data_dl_form');
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -46,6 +47,7 @@ function islandora_content_stats_theme() {
                 'lang_table_desc' => lang('table-collapse_explain'),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 'filter_form' => $flform,
+                'dl_form' => $dlform,
             ),
         ),
     );

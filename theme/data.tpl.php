@@ -70,12 +70,18 @@
                     <?php endforeach; ?>
                 </div>
             </div>
+            <div class='filter  form-wrapper'>
+                <form>
+                    <?php print drupal_render_children($variables['filter_form']); ?>
+                </form>
+            </div>
+            <div class='download form-wrapper'>
+                <form>
+                    <?php print drupal_render_children($variables['dl_form']); ?>
+                </form>
+            </div>
         </div>
-        <div class='filter download form-wrapper'>
-            <form>
-                <?php print drupal_render_children($variables['filter_form']); ?>
-            </form>
-        </div>
+
     </div>
 </div>
 </div>
