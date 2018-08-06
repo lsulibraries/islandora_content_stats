@@ -196,8 +196,8 @@ function latest_counts_for_table($gets) {
   $cmodel = FALSE;
   $inst = FALSE;
   $coll = FALSE;
-  if(isset($gets['institution'])){
-    $inst = $gets['institution'];
+  if(isset($gets['inst'])){
+    $inst = $gets['inst'];
   }
   if(isset($gets['cmodel'])){
     $cmodel = $gets['cmodel'];
