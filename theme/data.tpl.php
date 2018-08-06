@@ -9,35 +9,36 @@
 ?>
 
 <div>
-    <div class="page_description"><?php print $variables['lang_desc'];?></div>
-    <div class="last_run">Last run at: <?php print $variables['last_run'];?></div>
-    <div class='global_totals'>
-        <?php foreach ($variables['global_totals'] as $global) :?>
-            <div class='gloabl'>
-                <div class='cmodel'><?php print $global['cmodel'] ?></div>
-                <div class='total'><?php print $global['count'] ?></div>
-            </div>
-        <?php endforeach; ?>
+    <div class='headerStats'>
+      <div class=''
+      <div class='headerDescription'><?php print $variables['lang_desc'];?></div>
+      <div class='headerTime'>Last run at: <?php print $variables['last_run'];?></div>
     </div>
-    <div class='instGroup'>
-        <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
-        <div class="inst_wrapper <?php print $inst ?>">
-            <?php foreach ($model_counts as $itotal) : ?>
-                <div class='cmodel_wrapper_inst'>
-                    <div class="inst"><?php print $itotal['inst-label'] ?></div>
-                    <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
-                    <div class='total'><?php print $itotal['count'] ?></div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endforeach; ?>
+
+    <div class='glanceStats'>
+      <div class='globalStats global_totals'>
+          <?php foreach ($variables['global_totals'] as $global) :?>
+              <div class='globalStat'>
+                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+              </div>
+          <?php endforeach; ?>
+      </div>
+      <div class='instStats instGroup'>
+          <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
+          <div class="inst_wrapper <?php print $inst ?>">
+              <?php foreach ($model_counts as $itotal) : ?>
+                  <div class='cmodel_wrapper_inst'>
+                      <div class="inst"><?php print $itotal['inst-label'] ?></div>
+                      <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
+                      <div class='total'><?php print $itotal['count'] ?></div>
+                  </div>
+              <?php endforeach; ?>
+          </div>
+          <?php endforeach; ?>
+      </div>
     </div>
     <div class='tableStats'>
-        <div class='filter download form-wrapper'>
-            <form>
-                <?php print drupal_render_children($variables['filter_form']); ?>
-            </form>
-        </div>
         <div class='ics_table_collapse form-wrapper' id='edit-table-results'>
             <legend>
                 <span><?php print $variables['lang_table'] ?></span>
@@ -59,6 +60,11 @@
                     <?php endforeach; ?>
                 </div>
             </div>
+        </div>
+        <div class='filter download form-wrapper'>
+            <form>
+                <?php print drupal_render_children($variables['filter_form']); ?>
+            </form>
         </div>
     </div>
 </div>
