@@ -45,7 +45,7 @@
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
             <div class='filter download form-wrapper'>
                 <form>
-                    <?php print drupal_render_children($variables['filter_form']); ?>
+                    <?php print drupal_render($variables['filter_form']); ?>
                 </form>
             </div>
             <div class='table'>

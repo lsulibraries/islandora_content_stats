@@ -25,6 +25,9 @@
 // }
 
 function islandora_content_stats_data_filter_form($form, &$form_state) {
+    // important to note that this pulls $_GET by default https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_query_parameters/7.x
+    // forms usually get POST-ed
+    $gets = drupal_get_query_parameters();
     module_load_include('inc', 'islandora_content_stats', 'include/utilites');
     $form = array();
     $form['filter'] = array(
@@ -39,13 +42,14 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 //        '#attributes' => array('class' => array('ics_filter_all')),
 //
 //    );
+$ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
         '#title' => t('Filter by type of object'),
         '#options' => cmodel_types_for_form(),
         '#description' => t('Shows results to that match a single content model.'),
         '#required' => FALSE,
-        // '#default_value' => variable_get('content_stats_cmodel_filter'),
+        '#default_value' => $ternary,
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
@@ -57,7 +61,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#required' => FALSE,
         '#description' => t('Shows results for any items owned
  by chosen institution or sub-institution.'),
-        //'#default_value' => variable_get('content_stats_inst_filter'),
+        '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
 
@@ -83,9 +87,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#submit' => array('islandora_content_stats_csv_download'),
         '#attributes' => array('class' => array('ics_download_button')),
     );
-
-    $form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
-    $form['actions']['filter']['submit']['#submit'][] = 'islandora_content_stats_data_filter_form_submit';
     return $form;
 }
 
@@ -143,12 +144,4 @@ function islandora_content_stats_csv_download() {
     'Content-Dispositon' => 'attachment; filename=islandora_content_stats.csv'
   ];
   file_transfer($filename, $headers);
-}
-
-/**
- * implements hook_form_submit().
- */
-
-function islandora_content_stats_data_filter_form_submit($form, &$form_state) {
-  $form_state['rebuild'] = TRUE;
 }
