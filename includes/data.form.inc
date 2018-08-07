@@ -32,16 +32,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#title' => lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
     );
-       $form['filter']['coll'] = array(
-       '#type' => 'select',
-       '#title' => t('Filter by specific collection'),
-       '#description' => t('Shows counts of object types
-for an individual collection.'),
-       '#options' => collection_pid_labels_for_form(),
-       '#required' => FALSE,
-       '#empty_option' => '--none--',
-       '#attributes' => array('class' => array('ics_filter_coll')),
-   );
+
 //    $form['filter']['all'] = array(
 //        '#type' => 'checkbox',
 //        '#title' => t('Show all results (history)'),
