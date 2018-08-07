@@ -124,12 +124,10 @@ function islandora_content_stats_csv_download() {
        $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
     }
   }
-  $results = db_query($query) or die('Sql error : ' . mysql_error());
-  drupal_add_http_header('Content-type', 'text/csv; utf-8');
-  $attach_str = 'attachment; filename=islandora_content_stats.csv';
-  drupal_add_http_header('Content-Disposition', $attach_str);
-  $fh = fopen('php://output', 'w');
-  fputcsv($fh, array('QID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
+
+  $csv = [];
+  $results = db_query($query) or die('Sql error : ' . mysql_error()); // why is `die()` in this code ? watchdog or similar would be better.
+  $csv[] = implode(',', array('QID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
   foreach ($results as $result) {
       $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
       $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
@@ -144,9 +142,16 @@ function islandora_content_stats_csv_download() {
               strftime('%d:%m:%Y:%r', $result->timestamp),
               map_collection($result->coll, 'csv')
           );
-          fputcsv($fh, $mapped_results);
+          $csv[] = implode(',', $mapped_results);
       }
   }
+  $csv = implode("\n", $csv);
+  $filename = file_unmanaged_save_data($csv, "temporary://" . 'data.csv', FILE_EXISTS_RENAME);
+  $headers = [
+    'Content-type' => 'text/csv; utf-8',
+    'Content-Dispositon' => 'attachment; filename=islandora_content_stats.csv'
+  ];
+  file_transfer($filename, $headers);
 }
 
 /**
