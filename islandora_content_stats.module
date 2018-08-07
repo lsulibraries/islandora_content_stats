@@ -63,8 +63,10 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
 
 function template_process_islandora_content_stats_data_tpl() {
   module_load_include('inc','islandora_content_stats','includes/data.form');
-  if(isset($_GET['op'])){
-    if($_GET['op']== 'Download History as CSV'){
+  $gets = drupal_get_query_parameters();
+
+  if(isset($gets['op'])){
+    if($gets['op']== 'Download History as CSV'){
       islandora_content_stats_csv_download();
     }
   }
