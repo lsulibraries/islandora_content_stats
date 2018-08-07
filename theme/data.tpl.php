@@ -10,7 +10,7 @@
 
 <div>
     <div class='headerStats'>
-      <div class='headerDescription'><?php print $variables['lang_desc'];?></div>
+   <div class='headerDescription'>
       <div class='headerTime'>Last run at: <?php print $variables['last_run'];?></div>
     </div>
 
@@ -45,7 +45,7 @@
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
             <div class='filter download form-wrapper'>
                 <form>
-                    <?php print drupal_render($variables['filter_form']); ?>
+   <?php $form = drupal_get_form('islandora_content_stats_data_filter_form'); print drupal_render($form); ?>
                 </form>
             </div>
             <div class='table'>

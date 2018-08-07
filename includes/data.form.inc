@@ -28,7 +28,8 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     // important to note that this pulls $_GET by default https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_query_parameters/7.x
     // forms usually get POST-ed
     $gets = drupal_get_query_parameters();
-    module_load_include('inc', 'islandora_content_stats', 'include/utilites');
+    module_load_include('inc', 'islandora_content_stats', 'includes/utilites');
+    module_load_include('inc', 'islandora_content_stats', 'includes/language');
     $form = array();
     $form['filter'] = array(
         '#type' => 'fieldset',
@@ -42,7 +43,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 //        '#attributes' => array('class' => array('ics_filter_all')),
 //
 //    );
-$ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
+    $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
         '#title' => t('Filter by type of object'),
