@@ -13,21 +13,24 @@
     <div class="backgroundDiv"></div>
     <div class="dataHeader">
       <div class='headerTitle'>Content Statistics</div>
-      <div class='headerDescription'>The page details the contents of the LDL as of <?php print $variables['last_run'];?></div>
+      <div class='headerDescription'>This page details the contents of the LDL as of <?php print $variables['last_run'];?></div>
     </div>
 
     <div class='glanceStats'>
-      <div class='globalStats global_totals'>
-          <div class='globalHeader'>Overall</div>
-          <?php foreach ($variables['global_totals'] as $global) :?>
-              <div class='globalStat'>
-                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
-              </div>
-          <?php endforeach; ?>
+
+      <div class='globalContainer'>
+        <div class='globalHeader statHeader'>Overall</div>
+        <div class='globalStats global_totals'>
+            <?php foreach ($variables['global_totals'] as $global) :?>
+                <div class='globalStat'>
+                    <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+                    <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
       </div>
       <div class='instContainer'>
-        <div class='instHeader'>By Institution</div>
+        <div class='instHeader statHeader'>By Institution</div>
         <div class='instStats instGroup' data-masonry='{ "columnWidth": 200, "itemSelector": ".inst_wrapper" }'>
             <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
             <div class="inst_wrapper <?php print $inst ?>">
