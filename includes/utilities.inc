@@ -186,7 +186,7 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
     $text .= "and cmodel = '$cmodel' ";
   }
   if($orderby){
-    $text .= "order by $orderby"
+    $text .= "order by $orderby";
   }
   $totals = db_query($text);
   return $totals;

@@ -31,7 +31,7 @@
       </div>
       <div class='instContainer'>
         <div class='instHeader statHeader'>By Institution</div>
-        <div class='instStats instGroup' data-masonry='{ "columnWidth": 212, "itemSelector": ".inst_wrapper" }'>
+        <div class='instStats instGroup' data-masonry='{ "columnWidth": 200, "itemSelector": ".inst_wrapper" }'>
             <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
             <div class="inst_wrapper <?php print $inst ?>">
                 <?php foreach ($model_counts as $itotal) : ?>
@@ -60,7 +60,10 @@
             </div>
             <div class='table'>
                 <div class='column'>
-                    <div class='header'>Institution/Sub-institution</div>
+                    <div class='header'>
+                      <?php $url = url('/data'.urlencode('?sortby=inst')); ?>
+                      <?php print l(t('Institution/Sub-institution'), $url);?>
+                    </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
