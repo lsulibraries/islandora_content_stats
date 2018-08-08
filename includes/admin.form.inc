@@ -15,18 +15,8 @@ function islandora_content_stats_admin_form($form, &$form_state) {
   $form['when']['date'] = array(
     '#title' => 'Every Nth Days',
     '#type' => 'textfield',
-    //'#type' => 'select',
-    //'#options' => array_combine(range(1,31),range(1,31)),
     '#default_value' => variable_get('islandora_content_stats_interval'),
   );
-  // $days = array('Monday',
-  //   'Tuesday',
-  //   'Wednesday',
-  //   'Thursday',
-  //   'Friday',
-  //   'Saturday',
-  //   'Sunday',
-  // );
    $form['when']['off_start'] = array(
     '#title' => 'Begin off-hours',
     '#type' => 'select',
@@ -41,8 +31,6 @@ function islandora_content_stats_admin_form($form, &$form_state) {
   );
   $run_interval = variable_get('islandora_content_stats_interval');
   $run_interval = (isset($run_interval) ? $run_interval : 'not set' );
-//  $hour =variable_get('islandora_content_stats_query_run_hour');
-//  $hour = (isset($hour) ? $hour : 'not set' );
   $descr_str = "queries update every $run_interval days";
   $form['current_setting'] = array(
     '#title' => t('Currently setting'),
