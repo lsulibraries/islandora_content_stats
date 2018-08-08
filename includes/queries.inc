@@ -145,6 +145,8 @@ EOL;
 
 function islandora_content_stats_run_queries() {
     module_load_include('inc','islandora','includes/utilities');
+    module_load_include('inc','islandora_content_stats','includes/utilities');
+
     $time = time();
     //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
     $all_prefixes = get_all_prefixes();
@@ -157,7 +159,7 @@ function islandora_content_stats_run_queries() {
             //root totals
             $count = total_model_count($model);
             $coll = 'islandora:root';
-            queries_db_insert(NULL, $coll, $model, $count, $time);
+            queries_db_insert(NULL, $coll, map_cmodels($model), $count, $time);
             //loop for all institutions
     }
     foreach ($all_prefixes as $prefix) {
@@ -186,7 +188,7 @@ function islandora_content_stats_run_queries() {
               foreach ($total_policy as $model){
               //inst_totals
               $inst_model_count = total_model_count($model, $prefix);
-              queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+              queries_db_insert($prefix . '-', NULL, map_cmodels($model), $inst_model_count, $time);
              }
         }
     }

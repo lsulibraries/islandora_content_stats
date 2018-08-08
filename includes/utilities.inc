@@ -222,7 +222,7 @@ function latest_counts_for_table($gets) {
                         'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'coll' => $record->coll,
                         'cmodel-id' => $record->cmodel,
-                        'cmodel-label' => map_cmodels($record->cmodel),
+                        'cmodel-label' => $record->cmodel,
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                     );
@@ -254,7 +254,7 @@ function cmodel_types_for_form() {
         $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
         if (($not_fobj) && ($not_cmobj)) {
             $string = map_cmodels($model);
-            $return[$model] = t($string);
+            $return[map_cmodels($model)] = t($string);
         }
     }
     return $return;

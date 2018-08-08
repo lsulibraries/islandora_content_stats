@@ -56,6 +56,8 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
+  if(isset($gets['sortby'])){
+
   if($gets['sortby'] == 'inst' && $gets['order'] == 'asc'){
     $iorder = 'desc';
   }
@@ -68,11 +70,36 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
     $corder = 'desc';
   }
   else{$corder='asc';}
+}
+else{
+  $iorder = 'asc';
+  $torder = 'asc';
+  $corder = 'asc';
+}
+  $inst_arr = array('sortby' => 'inst', 'order' => $iorder);
+  $cmodel_arr = array('sortby' => 'cmodel', 'order' => $iorder);
+  $count_arr = array('sortby' => 'count', 'order' => $iorder);
+  if(isset($gets['inst']) && isset($gets['cmodel'])){
+    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
+    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
+    $count_arr = array('sortby' => 'count', 'order' => $corder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
+  }
+  if(isset($gets['cmodel']) && !isset($gets['inst'])){
+    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'cmodel' => $gets['cmodel']);
+    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'cmodel' => $gets['cmodel']);
+    $count_arr =  array('sortby' => 'count', 'order' => $corder,'cmodel' => $gets['cmodel']);
+  }
+  if(isset($gets['inst']) && !isset($gets['cmodel'])){
+    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'inst' => $gets['inst']);
+    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'inst' => $gets['inst']);
+    $count_arr = array('sortby' => 'count', 'order' => $corder,'inst' => $gets['inst']);
+  }
+
   $variables['gets'] = $gets;
   $variables['latest'] = latest_counts_for_table($gets);
-  $variables['insturl'] = $insturl = url('data',array('query' => array('sortby' => 'inst', 'order' => $iorder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
-  $variables['typeurl'] = url('data',array('query' => array('sortby' => 'cmodel', 'order' => $torder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
-  $variables['counturl'] = url('data',array('query' => array('sortby' => 'count', 'order' => $corder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
+  $variables['insturl'] = url('data',array('query' => $inst_arr));
+  $variables['typeurl'] = url('data',array('query' => $cmodel_arr));
+  $variables['counturl'] = url('data',array('query' => $count_arr));
 
     return $variables;
 }

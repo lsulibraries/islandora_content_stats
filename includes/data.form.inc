@@ -130,7 +130,7 @@ function islandora_content_stats_csv_download() {
               $result->id,
               map_institution($result->inst),
               map_collection($result->coll),
-              map_cmodels($result->cmodel),
+              $result->cmodel,
               $result->count,
               strftime('%d:%m:%Y:%r', $result->timestamp),
               map_collection($result->coll, 'csv')
