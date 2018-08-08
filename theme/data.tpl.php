@@ -21,19 +21,20 @@
       <div class='globalContainer'>
         <div class='globalHeader statHeader'>Overall</div>
         <div class='globalStats global_totals'>
-            <?php foreach ($variables['global_totals'] as $global) :?>
-                <div class='globalStat'>
-                  <div class='collections'>
-                <?php if( $global['cmodel'] == 'Collection') : ?>
-                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
-                </div>
-              <?php else: ?>
-                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
-                <?php endif; ?>
-                </div>
-            <?php endforeach; ?>
+        <?php foreach ($variables['global_totals'] as $global) :?>
+            <div class='globalStat'>
+
+            <?php if( $global['cmodel'] == 'Collection') : ?>
+            <div class='collections'>              
+              <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+              <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+            </div>
+             <?php else: ?>
+              <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+              <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+            <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
         </div>
       </div>
       <div class='instContainer'>
