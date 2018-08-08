@@ -174,16 +174,19 @@ function inst_totals() {
   return $rows;
 }
 
-function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time){
+function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $orderby = FALSE){
   $text = "select  * from islandora_content_stats where timestamp = $time ";
-  if($inst){
+  if($inst) {
     $text .= "and inst = '$inst' ";
   }
-  if($coll){
+  if($coll) {
     $text .= "and coll = '$coll' ";
   }
-  if($cmodel){
+  if($cmodel) {
     $text .= "and cmodel = '$cmodel' ";
+  }
+  if($orderby){
+    $text .= "order by $orderby"
   }
   $totals = db_query($text);
   return $totals;
@@ -196,6 +199,10 @@ function latest_counts_for_table($gets) {
   $cmodel = FALSE;
   $inst = FALSE;
   $coll = FALSE;
+  $orderby = FALSE;
+  if(isset($gets['orderby'])){
+    $orderby = $gets['orderby'];
+  }
   if(isset($gets['inst'])){
     $inst = $gets['inst'];
   }
@@ -209,7 +216,7 @@ function latest_counts_for_table($gets) {
     module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $time  = latest_run();
-    $totals = conditionals_for_table($inst, $coll, $cmodel, $time);
+    $totals = conditionals_for_table($inst, $coll, $cmodel, $time, $orderby);
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
