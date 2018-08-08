@@ -56,9 +56,11 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
-  var_dump($gets);
-  die;
+  $variables['gets'] = $gets;
   $variables['latest'] = latest_counts_for_table($gets);
+  $variables['insturl'] = $insturl = url('data',array('query' => array('sortby' => 'inst', 'order' => 'asc','cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
+  $variables['typeurl'] = url('data',array('query' => array('sortby' => 'cmodel', 'order' => 'asc','cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
+  $variables['counturl'] = url('data',array('query' => array('sortby' => 'count', 'order' => 'asc','cmodel' => $gets['cmodel'],'inst' => $gets['inst'])));
     return $variables;
 }
 

@@ -65,7 +65,7 @@
             <div class='table'>
                 <div class='column'>
                     <div class='header'>
-                      <?php $insturl = url('data',array('query' => array('sortby' => 'inst', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst'])));?>
+                      <?php $insturl = $variables['insturl']?>
                       <?php print "<a href='$insturl'>Institution/Sub-institution</a>"?>
                     </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
@@ -80,7 +80,7 @@
                 </div> -->
                 <div class='column'>
                   <div class='header'>
-                    <?php $typeurl = url('data',array('query' => array('sortby' => 'cmodel', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst']))); ?>
+                    <?php $typeurl = $variables['typeurl']?>
                     <?php print "<a href='$typeurl'>Type</a>"?>
                   </div>
                   <?php foreach  ($variables['latest'] as $record) :?>
@@ -89,7 +89,7 @@
                 </div>
                 <div class='column'>
                     <div class='header'>
-                      <?php $counturl = url('data',array('query' => array('sortby' => 'count', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst']))); ?>
+                      <?php $counturl = $variables['counturl']?>
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
