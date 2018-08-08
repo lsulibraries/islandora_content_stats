@@ -147,7 +147,7 @@ function inst_totals() {
         $query = db_select('islandora_content_stats','stats')
                 ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
                 ->condition('timestamp', $time)
-                ->condition('coll', NULL)
+//                ->condition('coll', NULL)
                 ->condition('inst', $inst.'-')
                 ->execute();
        $totals = $query->fetchAll();

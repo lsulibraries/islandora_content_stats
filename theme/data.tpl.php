@@ -65,14 +65,14 @@
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
-                <div class='column'>
+                <!-- <div class='column'>
                   <div class='header'>Collection</div>
-                  <?php foreach  ($variables['latest'] as $record) :?>
-                        <div class='row <?php print $record['coll']; ?>'><?php print $record['coll-label']; ?></div>
-                        <?php endforeach; ?>
-                </div>
+                  <?php //foreach  ($variables['latest'] as $record) :?>
+                        <div class='row <?php //print $record['coll']; ?>'><?php //print $record['coll-label']; ?></div>
+                        <?php //endforeach; ?>
+                </div> -->
                 <div class='column'>
-                  <div class='header'>Cmodel</div>
+                  <div class='header'>Type</div>
                   <?php foreach  ($variables['latest'] as $record) :?>
                         <div class='row <?php print $record['cmodel-id']; ?>'><?php print $record['cmodel-label']; ?></div>
                         <?php endforeach; ?>
