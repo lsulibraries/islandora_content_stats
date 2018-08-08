@@ -164,30 +164,30 @@ function islandora_content_stats_run_queries() {
         $total_policy = [];
         $inst_colls = get_all_collections($prefix);
         //check each inst for constituent members.
-        $children_of_cpds = compound_check_constituency($prefix);
-        queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
-        //(check the type of parent of constituents.)
+        // $children_of_cpds = compound_check_constituency($prefix);
+        // queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
+        // //(check the type of parent of constituents.)
         //loop through each inst_collection, total for collection
-        foreach ($inst_colls as $coll) {
-            $collCpds = compound_check_constituency($prefix, $coll);
-            queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
-            $policy = get_collection_policy_array($coll);
-            $total_policy = array_merge($policy);
-            //loop through each model in the collection policy
-            foreach ($policy as $model) {
-                //collection_totals
-                $inst_collection_model_count = total_model_count($model, $prefix, $coll);
-                queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
-            }
-            //we have constructed total_policy as an array of cmodels possible in a given inst
-            $total_policy = array_unique($total_policy);
-            //loop through all models available in an inst.
+         foreach ($inst_colls as $coll) {
+        //     $collCpds = compound_check_constituency($prefix, $coll);
+        //     queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
+             $policy = get_collection_policy_array($coll);
+             $total_policy = array_merge($policy);
+        //     //loop through each model in the collection policy
+        //     foreach ($policy as $model) {
+        //         //collection_totals
+        //         $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+        //         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
+        //     }
+        //     //we have constructed total_policy as an array of cmodels possible in a given inst
+             $total_policy = array_unique($total_policy);
+        //     //loop through all models available in an inst.
 
-            foreach ($total_policy as $model){
-                //inst_totals
-                $inst_model_count = total_model_count($model, $prefix);
-                queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
-            }
+              foreach ($total_policy as $model){
+              //inst_totals
+              $inst_model_count = total_model_count($model, $prefix);
+              queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+             }
         }
     }
 }
