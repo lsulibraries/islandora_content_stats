@@ -9,52 +9,48 @@
 ?>
 
 <div class="dataPage">
-
-    <div class="backgroundDiv"></div>
-    <div class="dataHeader">
-      <div class='headerTitle'>Content Statistics</div>
-      <div class='headerDescription'>This page details the contents of the LDL as of <?php print $variables['last_run'];?></div>
-    </div>
-
-    <div class='glanceStats'>
-
-      <div class='globalContainer'>
-        <div class='globalHeader statHeader'>Overall</div>
-        <div class='globalStats global_totals'>
-        <?php foreach ($variables['global_totals'] as $global) :?>
-            <div class='globalStat'>
-
-            <?php if( $global['cmodel'] == 'Collection') : ?>
-            <div class='collections'>              
-              <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-              <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
-            </div>
-             <?php else: ?>
-              <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-              <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
-            <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
+  <div class="backgroundDiv"></div>
+  <div class="dataHeader">
+    <div class='headerTitle'>Content Statistics</div>
+    <div class='headerDescription'>This page details the contents of the LDL as of <?php print $variables['last_run'];?></div>
+  </div>
+  <div class='glanceStats'>
+    <div class='globalContainer'>
+      <div class='globalHeader statHeader'>Overall</div>
+      <div class='globalStats global_totals'>
+      <canvas id="globalChart" width="400" height="400"></canvas>
+      <?php foreach ($variables['global_totals'] as $global) :?>
+        <div class='globalStat'>
+          <?php if( $global['cmodel'] == 'Collection') : ?>
+          <div class='collections'>
+            <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+            <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+          </div>
+           <?php else: ?>
+            <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+            <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+          <?php endif; ?>
         </div>
+      <?php endforeach; ?>
       </div>
-      <div class='instContainer'>
-        <div class='instHeader statHeader'>By Institution</div>
-        <div class='instStats instGroup' data-masonry='{ "columnWidth": 200, "itemSelector": ".inst_wrapper" }'>
-            <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
-            <div class="inst_wrapper <?php print $inst ?>">
-                <?php foreach ($model_counts as $itotal) : ?>
-                    <div class='cmodel_wrapper_inst'>
-                        <div class="inst"><?php print $itotal['inst-label'] ?></div>
-                        <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
-                        <div class='total'><?php print $itotal['count'] ?></div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <?php endforeach; ?>
-        </div>
-      </div>
-
     </div>
+    <div class='instContainer'>
+      <div class='instHeader statHeader'>By Institution</div>
+      <div class='instStats instGroup' data-masonry='{ "columnWidth": 200, "itemSelector": ".inst_wrapper" }'>
+          <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
+          <div class="inst_wrapper <?php print $inst ?>">
+              <?php foreach ($model_counts as $itotal) : ?>
+                  <div class='cmodel_wrapper_inst'>
+                      <div class="inst"><?php print $itotal['inst-label'] ?></div>
+                      <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
+                      <div class='total'><?php print $itotal['count'] ?></div>
+                  </div>
+              <?php endforeach; ?>
+          </div>
+          <?php endforeach; ?>
+      </div>
+    </div>
+  </div>
     <div class='tableStats'>
         <div class='ics_table_collapse form-wrapper' id='edit-table-results'>
             <legend>
