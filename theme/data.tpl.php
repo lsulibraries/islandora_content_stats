@@ -59,13 +59,13 @@
             <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
             <div class='filter download form-wrapper'>
                 <form>
-   <?php $form = drupal_get_form('islandora_content_stats_data_filter_form'); print drupal_render($form); ?>
+                  <?php $form = drupal_get_form('islandora_content_stats_data_filter_form'); print drupal_render($form); ?>
                 </form>
             </div>
             <div class='table'>
                 <div class='column'>
                     <div class='header'>
-                      <?php $insturl = $variables['insturl'];?>
+                      <?php $insturl = url('data',array('query' => array('sortby' => 'inst', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst'])));?>
                       <?php print "<a href='$insturl'>Institution/Sub-institution</a>"?>
                     </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
@@ -80,7 +80,7 @@
                 </div> -->
                 <div class='column'>
                   <div class='header'>
-                    <?php $typeurl = $variables['typeurl'];?>
+                    <?php $typeurl = url('data',array('query' => array('sortby' => 'cmodel', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst']))); ?>
                     <?php print "<a href='$typeurl'>Type</a>"?>
                   </div>
                   <?php foreach  ($variables['latest'] as $record) :?>
@@ -89,11 +89,11 @@
                 </div>
                 <div class='column'>
                     <div class='header'>
-                      <?php $counturl = $variables['counturl'];?>
+                      <?php $counturl = url('data',array('query' => array('sortby' => 'count', 'order' => 'asc','cmodel' => $variables['params']['cmodel'],'inst' => $variables['params']['inst']))); ?>
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                                <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
+                      <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>

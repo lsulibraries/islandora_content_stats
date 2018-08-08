@@ -34,10 +34,6 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/queries');
     module_load_include('inc','islandora_content_stats','includes/data.form');
     $params =  drupal_get_query_parameters();
-    //$flform = drupal_get_form('islandora_content_stats_data_filter_form');
-    $insturl = url('data',array('query' => array('sortby' => 'inst', 'order' => 'asc','cmodel' => $params['cmodel'],'inst' => $params['inst'])));
-    $typeurl = url('data',array('query' => array('sortby' => 'cmodel', 'order' => 'asc','cmodel' => $params['cmodel'],'inst' => $params['inst'])));
-    $counturl = url('data',array('query' => array('sortby' => 'count', 'order' => 'asc','cmodel' => $params['cmodel'],'inst' => $params['inst'])));
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -50,9 +46,7 @@ function islandora_content_stats_theme() {
                 'lang_table' => lang('table-collapse_fieldset_#title'),
                 'lang_table_desc' => lang('table-collapse_explain'),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
-                'insturl' => $insturl,
-                'typeurl' => $typeurl,
-                'counturl' => $counturl,
+                'params' => $params,
             ),
         ),
     );
@@ -62,6 +56,8 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
+  var_dump($gets);
+  die;
   $variables['latest'] = latest_counts_for_table($gets);
     return $variables;
 }
