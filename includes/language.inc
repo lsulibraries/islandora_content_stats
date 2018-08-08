@@ -16,7 +16,7 @@ function islandora_content_stats_language() {
     ],
     'table-collapse_fieldset_#title' => [
       'title' => t('Fieldset title for results table'),
-      'default' => t('Table of results'),
+      'default' => t('Table'),
     ],
     'table-collapse_explain' => [
       'type' => 'textarea',
