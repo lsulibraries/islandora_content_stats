@@ -174,7 +174,7 @@ function inst_totals() {
   return $rows;
 }
 
-function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $orderby = FALSE){
+function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $order = FALSE, $sort = FALSE){
   $text = "select  * from islandora_content_stats where timestamp = $time ";
   if($inst) {
     $text .= "and inst = '$inst' ";
@@ -185,8 +185,8 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
   if($cmodel) {
     $text .= "and cmodel = '$cmodel' ";
   }
-  if($orderby){
-    $text .= "order by $orderby";
+  if($order && $sort){
+    $text .= "order by $sort $order";
   }
   $totals = db_query($text);
   return $totals;
@@ -196,27 +196,17 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
 function latest_counts_for_table($gets) {
   $filters = [];
   $rows = [];
-  $cmodel = FALSE;
-  $inst = FALSE;
-  $coll = FALSE;
-  $orderby = FALSE;
-  if(isset($gets['orderby'])){
-    $orderby = $gets['orderby'];
-  }
-  if(isset($gets['inst'])){
-    $inst = $gets['inst'];
-  }
-  if(isset($gets['cmodel'])){
-    $cmodel = $gets['cmodel'];
-  }
-  if(isset($gets['coll'])){
-    $cmodel = $gets['coll'];
-  }
+  $order = isset($gets['order']) ? $gets['order'] : FALSE;
+  $sort = isset($gets['sortby']) ? $gets['sortby'] : FALSE;
+  $inst = isset($gets['inst']) ? $gets['inst']: FALSE;
+  $cmodel = isset($gets['cmodel']) ? $gets['cmodel'] : FALSE;
+  $coll = isset($gets['coll']) ? $gets['coll'] : FALSE;
+
 
     module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $time  = latest_run();
-    $totals = conditionals_for_table($inst, $coll, $cmodel, $time, $orderby);
+    $totals = conditionals_for_table($inst, $coll, $cmodel, $time, $order, $sort);
        foreach ($totals as $record) {
             //does not build row when query's cmodel is fedora-Object or ContentModel
             $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';

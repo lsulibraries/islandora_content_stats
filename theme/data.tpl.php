@@ -23,8 +23,15 @@
         <div class='globalStats global_totals'>
             <?php foreach ($variables['global_totals'] as $global) :?>
                 <div class='globalStat'>
-                    <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-                    <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+                  <div class='collections'>
+                <?php if( $global['cmodel'] == 'Collection') : ?>
+                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+                </div>
+              <?php else: ?>
+                  <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+                  <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+                <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -61,8 +68,8 @@
             <div class='table'>
                 <div class='column'>
                     <div class='header'>
-                      <?php $url = url('/data'.urlencode('?sortby=inst')); ?>
-                      <?php print l(t('Institution/Sub-institution'), $url);?>
+                      <?php $insturl = $variables['insturl'];?>
+                      <?php print "<a href='$insturl'>Institution/Sub-institution</a>"?>
                     </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
@@ -75,13 +82,19 @@
                         <?php //endforeach; ?>
                 </div> -->
                 <div class='column'>
-                  <div class='header'>Type</div>
+                  <div class='header'>
+                    <?php $typeurl = $variables['typeurl'];?>
+                    <?php print "<a href='$typeurl'>Type</a>"?>
+                  </div>
                   <?php foreach  ($variables['latest'] as $record) :?>
                         <div class='row <?php print $record['cmodel-id']; ?>'><?php print $record['cmodel-label']; ?></div>
                         <?php endforeach; ?>
                 </div>
                 <div class='column'>
-                    <div class='header'>Count</div>
+                    <div class='header'>
+                      <?php $counturl = $variables['counturl'];?>
+                      <?php print "<a href='$counturl'>Count</a>"?>
+                      </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
                                 <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count']; ?></div>
                     <?php endforeach; ?>
