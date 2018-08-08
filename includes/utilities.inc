@@ -161,7 +161,7 @@ function inst_totals() {
                     $rows[$inst][] = array(
                         'id' => $record->id,
                         'inst' => $record->inst,
-                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
+                        'inst-label' => ($record->inst == '' ? 'All' : $record->inst),
                         'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
                         'count' => $record->count,
