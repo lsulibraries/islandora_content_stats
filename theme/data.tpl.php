@@ -36,7 +36,7 @@
     </div>
     <div class='instContainer'>
       <div class='instHeader statHeader'>By Institution</div>
-      <div class='instStats instGroup' data-masonry='{ "columnWidth": 200, "itemSelector": ".inst_wrapper" }'>
+      <div class='instStats instGroup' data-masonry='{ "columnWidth": 212, "itemSelector": ".inst_wrapper" }'>
           <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
           <div class="inst_wrapper <?php print $inst ?>">
               <?php foreach ($model_counts as $itotal) : ?>
