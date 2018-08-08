@@ -126,7 +126,7 @@ function global_totals() {
                 $rows[$record->id] = array(
                     'id' => $record->id,
                     'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
-                    'cmodel' => map_cmodels($record->cmodel),
+                    'cmodel' => $record->cmodel,
                     'count' => $record->count,
                     'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                 );
@@ -160,10 +160,9 @@ function inst_totals() {
                 if (($not_fobj) && ($not_cmobj)) {
                     $rows[$inst][] = array(
                         'id' => $record->id,
-                        'inst' => $record->inst,
-                        'inst-label' => ($record->inst == '' ? 'All' : $record->inst),
+                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
                         'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
-                        'cmodel' => map_cmodels($record->cmodel),
+                        'cmodel' => $record->cmodel,
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                     );
