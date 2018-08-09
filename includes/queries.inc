@@ -181,6 +181,7 @@ function islandora_content_stats_run_queries() {
         //         $inst_collection_model_count = total_model_count($model, $prefix, $coll);
         //         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
         //     }
+         }
         //     //we have constructed total_policy as an array of cmodels possible in a given inst
              $total_policy = array_unique($total_policy);
         //     //loop through all models available in an inst.
@@ -192,7 +193,7 @@ function islandora_content_stats_run_queries() {
               $inst_model_count = total_model_count($model, $prefix);
               queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
              }
-        }
+        //}
     }
 }
 
