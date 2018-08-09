@@ -145,9 +145,8 @@ function inst_totals() {
     $time  = latest_run();
     foreach($prefixes as $inst){
         $query = db_select('islandora_content_stats','stats')
-                ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
+                ->fields('stats', array('id','inst','cmodel','count','timestamp'))
                 ->condition('timestamp', $time)
-//                ->condition('coll', NULL)
                 ->condition('inst', $inst.'-')
                 ->execute();
        $totals = $query->fetchAll();
@@ -162,8 +161,10 @@ function inst_totals() {
                         'id' => $record->id,
                         'inst' => $record->inst,
                         'inst-label' => ($record->inst == '' ? 'All' : $record->inst),
-                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+//                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
+                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+                        'cmodel' => $record->cmodel,
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                     );
@@ -203,6 +204,7 @@ function latest_counts_for_table($gets) {
   $coll = isset($gets['coll']) ? $gets['coll'] : FALSE;
 
 
+
     module_load_include('inc','islandora_content_stats','includes/data.form');
     module_load_include('inc','islandora_content_stats','includes/queries');
     $time  = latest_run();
@@ -223,13 +225,27 @@ function latest_counts_for_table($gets) {
                         'coll' => $record->coll,
                         'cmodel-id' => $record->cmodel,
                         'cmodel-label' => $record->cmodel,
-                        'count' => $record->count,
+                        'count-label' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                     );
                 }
             }
         }
+        if ($sort){
+        $rows = tablesort($rows,$sort,$order);
+      }
   return $rows;
+}
+
+
+function tablesort($rows, $sort, $order){
+  $sorted = array();
+  foreach ($rows as $id => $record){
+    $sorted[$record[$sort.'-label'].$id] = $record;
+  }
+  $sortfn = $order == 'asc' ? 'ksort' : 'krsort';
+  $sortfn($sorted, SORT_NATURAL);
+  return $sorted;
 }
 
 function latest_run() {
