@@ -269,7 +269,7 @@ function cmodel_types_for_form() {
         $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
         if (($not_fobj) && ($not_cmobj)) {
             $string = map_cmodels($model);
-            $return[map_cmodels($model)] = t($string);
+            $return[$model] = t($string);
         }
     }
     return $return;
