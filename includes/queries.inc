@@ -184,7 +184,9 @@ function islandora_content_stats_run_queries() {
         //     //we have constructed total_policy as an array of cmodels possible in a given inst
              $total_policy = array_unique($total_policy);
         //     //loop through all models available in an inst.
-
+              if(!in_array('islandora:collectionCModel',$total_policy)){
+                $total_policy[] = 'islandora:collectionCModel';
+              }
               foreach ($total_policy as $model){
               //inst_totals
               $inst_model_count = total_model_count($model, $prefix);
