@@ -23,8 +23,8 @@
         <div class='globalStat'>
           <?php if( $global['cmodel'] == 'Collection') : ?>
           <div class='collections'>
-            <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-            <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+            <div class="cmodel <?php print $global['cmodel'] ?>"><?php print $global['cmodel']; ?></div>
+            <div class="total <?php print $global['count'] ?>"><?php print $global['count']; ?></div>
           </div>
            <?php else: ?>
             <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
@@ -41,9 +41,9 @@
           <div class="inst_wrapper <?php print $inst ?>">
               <?php foreach ($model_counts as $itotal) : ?>
                   <div class='cmodel_wrapper_inst'>
-                      <div class="inst"><?php print $itotal['inst-label'] ?></div>
-                      <div class='cmodel'><?php print $itotal['cmodel'] . ' ' ?></div>
-                      <div class='total'><?php print $itotal['count'] ?></div>
+                      <div class="inst"><?php print $itotal['inst-label']; ?></div>
+                      <div class='cmodel'><?php print $itotal['cmodel']; ?></div>
+                      <div class='total'><?php print $itotal['count']; ?></div>
                   </div>
               <?php endforeach; ?>
           </div>
