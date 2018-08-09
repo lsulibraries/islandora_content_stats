@@ -159,7 +159,7 @@ function islandora_content_stats_run_queries() {
             //root totals
             $count = total_model_count($model);
             $coll = 'islandora:root';
-            queries_db_insert(NULL, $coll, map_cmodels($model), $count, $time);
+            queries_db_insert(NULL, $coll, $model, $count, $time);
             //loop for all institutions
     }
     foreach ($all_prefixes as $prefix) {
