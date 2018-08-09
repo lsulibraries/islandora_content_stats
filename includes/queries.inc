@@ -182,12 +182,13 @@ function islandora_content_stats_run_queries() {
         //         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
         //     }
          }
-        //     //we have constructed total_policy as an array of cmodels possible in a given inst
+             //we have constructed total_policy as an array of cmodels possible in a given inst
              $total_policy = array_unique($total_policy);
-        //     //loop through all models available in an inst.
+             //policies may not be set on build boxes, but we know we always want to check collection.
               if(!in_array('islandora:collectionCModel',$total_policy)){
                 $total_policy[] = 'islandora:collectionCModel';
               }
+              //loop through all models available in an inst.
               foreach ($total_policy as $model){
               //inst_totals
               $inst_model_count = total_model_count($model, $prefix);
