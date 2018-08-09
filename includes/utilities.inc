@@ -160,9 +160,8 @@ function inst_totals() {
                     $rows[$inst][] = array(
                         'id' => $record->id,
                         'inst' => $record->inst,
-                        'inst-label' => ($record->inst == '' ? 'All' : $record->inst),
-//                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+//                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
@@ -219,8 +218,8 @@ function latest_counts_for_table($gets) {
                     $rows[$record->id] = array(
                         'id' => $record->id,
                         'inst-id' => $record->inst,
-                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst, 'form')),
-                        'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+                        'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
                         'coll' => $record->coll,
                         'cmodel-id' => $record->cmodel,
                         'cmodel-label' => map_cmodels($record->cmodel),
