@@ -47,9 +47,8 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
-        '#title' => lang('filter_cmodel#title'),
+        '#title' => lang('filterCmodel_desc'),
         '#options' => cmodel_types_for_form(),
-        '#description' => lang('filter_cmodel#description'),
         '#required' => FALSE,
         '#default_value' => $ternary,
         '#empty_option' => '--none--',
@@ -57,10 +56,9 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     );
     $form['filter']['inst'] = array(
         '#type' => 'select',
-        '#title' => lang('filter_inst#title'),
+        '#title' => lang('filterInst_desc'),
         '#options' => institutions_for_form(),
         '#required' => FALSE,
-        '#description' => lang('filter_inst#description'),
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
@@ -70,21 +68,21 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 
     $form['filter']['filtertitle'] = array(
         '#type' => 'item',
-        '#title' => lang('filter_submit#title'),
+        '#title' => lang('filterSubmit_desc'),
         '#attributes' => array('class' => array('ics_filter_submit_description')),
     );
     $form['filter']['submit'] = array(
         '#type' => 'submit',
-        '#value' => lang('filter_submit#value'),
+        '#value' => lang('filterSubmit'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
     $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . lang('download_#title') . "</div>",
+        '#markup' => "<div class='dl_txt'>" . lang('dlSubmit_desc') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['submit'] = array(
         '#type' => 'submit',
-        '#value' => lang('download_#submit'),
+        '#value' => lang('dlSubmit'),
         '#submit' => array('islandora_content_stats_csv_download'),
         '#attributes' => array('class' => array('ics_download_button')),
     );

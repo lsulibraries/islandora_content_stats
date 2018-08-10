@@ -11,12 +11,13 @@
 <div class="dataPage">
   <div class="backgroundDiv"></div>
   <div class="dataHeader">
-    <div class='headerTitle'>Content Statistics</div>
-    <div class='headerDescription'>This page details the contents of the LDL as of <?php print $variables['last_run'];?></div>
+    <div class='headerTitle'><?php print $variables['lang']['pageHeader_title']; ?></div>
   </div>
+  <div class='headerDescription'> <?php print $variables['lang']['pageHeader_desc']; print $variables['last_run']; ?></div>
   <div class='glanceStats'>
     <div class='globalContainer'>
-      <div class='globalHeader statHeader'>Overall</div>
+      <div class='globalHeader statHeader'><?php print $variables['lang']['globalHeader']?></div>
+      <div class='globalHeader_desc statHeader'><?php print $variables['lang']['globalHeader_desc']?></div>
       <div class='globalStats global_totals'>
       <canvas id="globalChart" width="400" height="400"></canvas>
       <?php foreach ($variables['global_totals'] as $global) :?>
@@ -28,14 +29,15 @@
           </div>
            <?php else: ?>
             <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-            <div class='total <?php print $global['count'] ?>'><?php print $global['count'] ?></div>
+            <div class='total <?php print $global['count'] ?>'><?php print $global['count']; ?></div>
           <?php endif; ?>
         </div>
       <?php endforeach; ?>
       </div>
     </div>
     <div class='instContainer'>
-      <div class='instHeader statHeader'>By Institution</div>
+      <div class='instHeader statHeader'><?php print $variables['lang']['instHeader']; ?></div>
+      <div class='instHeader_desc statHeader'><?php print $variables['lang']['instHeader_desc']; ?></div>
       <div class='instStats instGroup' data-masonry='{ "columnWidth": 212, "itemSelector": ".inst_wrapper" }'>
           <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
           <div class="inst_wrapper <?php print $inst ?>">
@@ -54,9 +56,9 @@
     <div class='tableStats'>
         <div class='ics_table_collapse form-wrapper' id='edit-table-results'>
             <legend>
-                <span><?php print $variables['lang']['lang_table_title'] ?></span>
+                <span><?php print $variables['lang']['tableTitle']; ?></span>
             </legend>
-            <div class='ics_table_explain'><?php print $variables['lang']['lang_table_desc'] ?></div>
+            <div class='ics_table_explain'><?php print $variables['lang']['tableDesc']; ?></div>
             <div class='filter download form-wrapper'>
                 <form>
                   <?php $form = drupal_get_form('islandora_content_stats_data_filter_form'); print drupal_render($form); ?>

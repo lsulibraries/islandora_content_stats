@@ -1,49 +1,56 @@
 <?php
 function islandora_content_stats_language() {
   return [
-    'totals_item_#title' => [
-      'title' => "Label for global item counts",
-      'default' => t('Totals for each content model')
+
+    'pageHeader' => [
+      'title' => 'Name of page',
+      'default' => ('Content Statistics'),
     ],
-    'data_description' => [
-        'type' => 'textarea',
-        'title' => "Description for data page",
-        'default' => t("Page describes item totals for content models at different levels of hierarchy."),
+    'pageHeader_description' => [
+      'title' => 'Describe the page',
+      'default' => t('Page was last updated: '),
     ],
-    'filter_cmodel#title' => [
+    'globalHeader' => [
+      'title' => 'Global totals header text',
+      'default' => t('Overall'),
+    ],
+    'globalHeader_description' => [
+      'title' => "Description for global totals",
+      'default' => t('Totals for each content model accross all collections')
+    ],
+    'instHeader' => [
+      'title' => 'Institution totals header text',
+      'default' => t('By Institution'),
+    ],
+    'instHeader_description' => [
+      'title' => "Description for institution totals",
+      'default' => t('Totals for each content model, sub institutions of a given institution count towards the parent institution/organization')
+    ],
+    'filterCmodel_desc' => [
       'title' => 'cmodel filter label',
       'default' => t('Filter by type of object'),
   ],
-    'filter_fieldset_#title' => [
+    'filtersGrouping' => [
       'title' => "Label filter fieldset",
-      'default' => t('Filter results by type, ownership, or collection name'),
+      'default' => t('Filter results by type, or institutional/organization ownership'),
     ],
-    'filter_cmodel#description' => [
-      'title' => 'Describe cmodel filter',
-      'default' => t('Shows results to that match a single content model.'),
-    ],
-    'filter_inst#title' => [
-      'title' => 'Label inst filter',
+    'filterInst_desc' => [
+      'title' => 'Describe inst filter',
       'default' => t('Filter according to ownership by institution or sub-institution'),
   ],
-    'filter_inst#description' => [
-      'type' => 'textarea',
-      'title' => 'Describe inst filter',
-      'default' => t('Shows results for any items owned by chosen institution or sub-institution.'),
-    ],
-    'filter_submit#title' => [
+    'filterSubmit_desc' => [
       'title' => 'Filter submit description',
       'default' => t('Press to apply filters to page results.'),
     ],
-    'filter_submit#value' => [
+    'filterSubmit' => [
       'title' => 'Filter submit label',
       'default' => t('Filter'),
     ],
-    'table_#title' => [
-      'title' => t('Fieldset title for results table'),
+    'tableTitle' => [
+      'title' => t('Table title text'),
       'default' => t('Table'),
     ],
-    'table-collapse_explain' => [
+    'tableDesc' => [
       'type' => 'textarea',
       'title' => t('Explanatory text for results table'),
       'default' => t('Content from institutions and collections, can be
@@ -56,13 +63,13 @@ function islandora_content_stats_language() {
       'title' => t('Display text when no results'),
       'default' => t('Table is empty'),
     ],
-    'download_#title' => [
+    'dlSubmit_desc' => [
       'type' => 'textarea',
       'title' => "Title above download button.",
       'default' => t('Downloads results for use in a spreadsheet.
  (always applies current filters)'),
     ],
-    'download_#submit' => [
+    'dlSubmit' => [
       'title' => "Label in download button.",
       'default' => t('Download History as CSV')
     ],
