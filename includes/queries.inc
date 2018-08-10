@@ -192,7 +192,7 @@ function islandora_content_stats_run_queries() {
               foreach ($total_policy as $model){
               //inst_totals
               $inst_model_count = total_model_count($model, $prefix);
-              queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+              queries_db_insert($prefix . '-', NULL, map_cmodels($model), $inst_model_count, $time);
              }
         //}
     }
