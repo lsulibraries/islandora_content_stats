@@ -54,9 +54,9 @@
     <div class='tableStats'>
         <div class='ics_table_collapse form-wrapper' id='edit-table-results'>
             <legend>
-                <span><?php print $variables['lang_table'] ?></span>
+                <span><?php print $variables['lang']['lang_table_title'] ?></span>
             </legend>
-            <div class='ics_table_explain'><?php print $variables['lang_table_desc'] ?></div>
+            <div class='ics_table_explain'><?php print $variables['lang']['lang_table_desc'] ?></div>
             <div class='filter download form-wrapper'>
                 <form>
                   <?php $form = drupal_get_form('islandora_content_stats_data_filter_form'); print drupal_render($form); ?>

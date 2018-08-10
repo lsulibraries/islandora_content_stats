@@ -41,10 +41,16 @@ function islandora_content_stats_theme() {
             'variables' => array(
                 'global_totals' => global_totals(),
                 'inst_totals' => inst_totals(),
-                'lang_desc' => lang('data_description'),
-                'lang_filter' => lang('filter_fieldset_#title'),
-                'lang_table' => lang('table-collapse_fieldset_#title'),
-                'lang_table_desc' => lang('table-collapse_explain'),
+                'lang' => array(
+                   'lanng_total_title' => lang('totals_item_#title'),
+                   'lang_desc' => lang('data_description'),
+                   'lang_filter' => lang('filter_fieldset_#title'),
+                   'lang_table_desc' => lang('table-collapse_explain'),
+                   'lang_table_empty' => lang('table-collapse_table_#empty'),
+                   'lang_dl_title' => lang('download_#title'),
+                   'lang_dl_submit' => lang('download_#submit'),
+                   'lang_table_title' => lang('table_#title')
+                 ),
                 'last_run' => gmdate("M d Y H:i:s", latest_run()),
                 'params' => $params,
             ),

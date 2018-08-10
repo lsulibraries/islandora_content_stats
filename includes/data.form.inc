@@ -43,12 +43,13 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
 //        '#attributes' => array('class' => array('ics_filter_all')),
 //
 //    );
+
     $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
-        '#title' => t('Filter by type of object'),
+        '#title' => lang('filter_cmodel#title'),
         '#options' => cmodel_types_for_form(),
-        '#description' => t('Shows results to that match a single content model.'),
+        '#description' => lang('filter_cmodel#description'),
         '#required' => FALSE,
         '#default_value' => $ternary,
         '#empty_option' => '--none--',
@@ -56,35 +57,34 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     );
     $form['filter']['inst'] = array(
         '#type' => 'select',
-        '#title' => t('Filter according to ownership by
- institution or sub-institution'),
+        '#title' => lang('filter_inst#title'),
         '#options' => institutions_for_form(),
         '#required' => FALSE,
-        '#description' => t('Shows results for any items owned
- by chosen institution or sub-institution.'),
+        '#description' => lang('filter_inst#description'),
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
 
     );
+
+
     $form['filter']['filtertitle'] = array(
         '#type' => 'item',
-        '#title' => t('Press to apply filters to page results.'),
+        '#title' => lang('filter_submit#title'),
         '#attributes' => array('class' => array('ics_filter_submit_description')),
     );
     $form['filter']['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Filter'),
+        '#value' => lang('filter_submit#value'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
     $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
-    (always applies current filters)') . "</div>",
+        '#markup' => "<div class='dl_txt'>" . lang('download_#title') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Download History as CSV'),
+        '#value' => lang('download_#submit'),
         '#submit' => array('islandora_content_stats_csv_download'),
         '#attributes' => array('class' => array('ics_download_button')),
     );
