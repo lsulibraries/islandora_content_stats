@@ -3,74 +3,70 @@ function islandora_content_stats_language() {
   return [
 
     'pageHeader' => [
-      'title' => 'Name of page',
+      'title' => 'Page title',
       'default' => ('Content Statistics'),
     ],
-    'pageHeader_description' => [
-      'title' => 'Describe the page',
+    'pageDesc' => [
+      'title' => 'Page description',
       'default' => t('Page was last updated: '),
     ],
     'globalHeader' => [
-      'title' => 'Global totals header text',
+      'title' => 'Global totals title',
       'default' => t('Overall'),
     ],
-    'globalHeader_description' => [
-      'title' => "Description for global totals",
+    'globalDesc' => [
+      'title' => "Global totals description",
       'default' => t('Totals for each content model accross all collections')
     ],
     'instHeader' => [
-      'title' => 'Institution totals header text',
+      'title' => 'Institution totals title',
       'default' => t('By Institution'),
     ],
-    'instHeader_description' => [
-      'title' => "Description for institution totals",
+    'instDesc' => [
+      'title' => "Institution totals description",
       'default' => t('Totals for each content model, sub institutions of a given institution count towards the parent institution/organization')
     ],
-    'filterCmodel_desc' => [
-      'title' => 'cmodel filter label',
-      'default' => t('Filter by type of object'),
-  ],
-    'filtersGrouping' => [
-      'title' => "Label filter fieldset",
-      'default' => t('Filter results by type, or institutional/organization ownership'),
-    ],
-    'filterInst_desc' => [
-      'title' => 'Describe inst filter',
-      'default' => t('Filter according to ownership by institution or sub-institution'),
-  ],
-    'filterSubmit_desc' => [
-      'title' => 'Filter submit description',
-      'default' => t('Press to apply filters to page results.'),
-    ],
-    'filterSubmit' => [
-      'title' => 'Filter submit label',
-      'default' => t('Filter'),
-    ],
     'tableTitle' => [
-      'title' => t('Table title text'),
+      'title' => t('Table title'),
       'default' => t('Table'),
     ],
     'tableDesc' => [
       'type' => 'textarea',
-      'title' => t('Explanatory text for results table'),
+      'title' => t('Table Description'),
       'default' => t('Content from institutions and collections, can be
-  filtered by choosing from drop downs below, and pressing the "Filter" button.
-  (not every choice combination will return results). Sub-institution totals are added to the total of the parent institution.
-  Sort by id, institution/owner, content Model, count, or
-  timestamp by clicking headers below.'),
+      filtered by choosing from drop downs below, and pressing the "Filter" button.
+      (not every choice combination will return results). Sub-institution totals are added to the total of the parent institution.
+      Sort by id, institution/owner, content Model, count, or
+      timestamp by clicking headers below.'),
     ],
-    'table-collapse_table_#empty' => [
+    'tableEmpty' => [
       'title' => t('Display text when no results'),
       'default' => t('Table is empty'),
     ],
-    'dlSubmit_desc' => [
+    'filterCmodel' => [
+      'title' => 'Type filter description',
+      'default' => t('Filter by type of object'),
+    ],
+    'filterInst' => [
+      'title' => 'Institution filter descritpion',
+      'default' => t('Filter according to ownership by institution or sub-institution'),
+  ],
+    'filterSubmitDesc' => [
+      'title' => 'Filter button description',
+      'default' => t('Press to apply filters to page results.'),
+    ],
+    'filterSubmit' => [
+      'title' => 'Filter button title',
+      'default' => t('Filter'),
+    ],
+    'dlSubmitDesc' => [
       'type' => 'textarea',
-      'title' => "Title above download button.",
+      'title' => "Download button description.",
       'default' => t('Downloads results for use in a spreadsheet.
  (always applies current filters)'),
     ],
     'dlSubmit' => [
-      'title' => "Label in download button.",
+      'title' => "Download button title.",
       'default' => t('Download History as CSV')
     ],
   ];

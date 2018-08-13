@@ -11,13 +11,13 @@
 <div class="dataPage">
   <div class="backgroundDiv"></div>
   <div class="dataHeader">
-    <div class='headerTitle'><?php print $variables['lang']['pageHeader_title']; ?></div>
+    <div class='headerTitle'><?php print $variables['lang']['pageHeader']; ?></div>
   </div>
-  <div class='headerDescription'> <?php print $variables['lang']['pageHeader_desc']; print $variables['last_run']; ?></div>
+  <div class='headerDescription'> <?php print $variables['lang']['pageDesc']; print $variables['lang']['lastRun']; ?></div>
   <div class='glanceStats'>
     <div class='globalContainer'>
       <div class='globalHeader statHeader'><?php print $variables['lang']['globalHeader']?></div>
-      <div class='globalHeader_desc statHeader'><?php print $variables['lang']['globalHeader_desc']?></div>
+      <div class='globalHeader_desc statHeader'><?php print $variables['lang']['globalDesc']?></div>
       <div class='globalStats global_totals'>
       <canvas id="globalChart" width="400" height="400"></canvas>
       <?php foreach ($variables['global_totals'] as $global) :?>
@@ -37,7 +37,7 @@
     </div>
     <div class='instContainer'>
       <div class='instHeader statHeader'><?php print $variables['lang']['instHeader']; ?></div>
-      <div class='instHeader_desc statHeader'><?php print $variables['lang']['instHeader_desc']; ?></div>
+      <div class='instHeader_desc statHeader'><?php print $variables['lang']['instDesc']; ?></div>
       <div class='instStats instGroup' data-masonry='{ "columnWidth": 212, "itemSelector": ".inst_wrapper" }'>
           <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
           <div class="inst_wrapper <?php print $inst ?>">

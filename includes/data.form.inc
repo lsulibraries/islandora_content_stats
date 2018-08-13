@@ -47,7 +47,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
-        '#title' => lang('filterCmodel_desc'),
+        '#title' => lang('filterCmodel'),
         '#options' => cmodel_types_for_form(),
         '#required' => FALSE,
         '#default_value' => $ternary,
@@ -56,19 +56,16 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     );
     $form['filter']['inst'] = array(
         '#type' => 'select',
-        '#title' => lang('filterInst_desc'),
+        '#title' => lang('filterInst'),
         '#options' => institutions_for_form(),
         '#required' => FALSE,
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
-
     );
-
-
-    $form['filter']['filtertitle'] = array(
+    $form['filter']['filterdesc'] = array(
         '#type' => 'item',
-        '#title' => lang('filterSubmit_desc'),
+        '#title' => lang('filterSubmitDesc'),
         '#attributes' => array('class' => array('ics_filter_submit_description')),
     );
     $form['filter']['submit'] = array(
@@ -77,7 +74,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
     $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . lang('dlSubmit_desc') . "</div>",
+        '#markup' => "<div class='dl_txt'>" . lang('dlSubmitDesc') . "</div>",
         '#attributes' => array('class' => array('ics_download_title')),
     );
     $form['download']['submit'] = array(
