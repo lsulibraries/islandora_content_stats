@@ -83,7 +83,6 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
     $torder = 'asc';
     $corder = 'asc';
   }
-  dpm($iorder. $torder. $corder);
   //defaults
   $inst_arr = array('sortby' => 'inst', 'order' => $iorder);
   $cmodel_arr = array('sortby' => 'cmodel', 'order' => $iorder);
