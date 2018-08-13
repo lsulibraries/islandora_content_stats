@@ -175,7 +175,7 @@ function islandora_content_stats_run_queries() {
     foreach ($all_cmodels as $model) {
             //root totals
             $count = total_model_count($model);
-            $coll = 'islandora:root';
+            $coll = variable_get('islandora_repository_pid');
             queries_db_insert(NULL, $coll, $model, $count, $time);
             //loop for all institutions
     }
