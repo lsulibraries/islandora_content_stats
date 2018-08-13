@@ -199,38 +199,35 @@ function latest_counts_for_table($gets) {
   $inst = isset($gets['inst']) ? $gets['inst']: FALSE;
   $cmodel = isset($gets['cmodel']) ? $gets['cmodel'] : FALSE;
   $coll = isset($gets['coll']) ? $gets['coll'] : FALSE;
-
-
-
-    module_load_include('inc','islandora_content_stats','includes/data.form');
-    module_load_include('inc','islandora_content_stats','includes/queries');
-    $time  = latest_run();
-    $totals = conditionals_for_table($inst, $coll, $cmodel, $time, $order, $sort);
-       foreach ($totals as $record) {
-            //does not build row when query's cmodel is fedora-Object or ContentModel
-            $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
-            $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
-            $not_global = $record->inst != NULL;
-            //does not build row when query's inst is is_null
-            if ($record->count != 0) {
-                if (($not_fobj) && ($not_cmobj) && ($not_global)) {
-                    $rows[$record->id] = array(
-                        'id' => $record->id,
-                        'inst-id' => $record->inst,
-                        'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-                        'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
-                        'coll' => $record->coll,
-                        'cmodel-id' => $record->cmodel,
-                        'cmodel-label' => map_cmodels($record->cmodel),
-                        'count-label' => $record->count,
-                        'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
-                    );
-                }
-            }
-        }
-        if ($sort){
-        $rows = tablesort($rows,$sort,$order);
+  module_load_include('inc','islandora_content_stats','includes/data.form');
+  module_load_include('inc','islandora_content_stats','includes/queries');
+  $time  = latest_run();
+  $totals = conditionals_for_table($inst, $coll, $cmodel, $time, $order, $sort);
+  foreach ($totals as $record) {
+    //does not build row when query's cmodel is fedora-Object or ContentModel
+    $not_fobj = $record->cmodel != 'fedora-system:FedoraObject-3.0';
+    $not_cmobj = $record->cmodel != 'fedora-system:ContentModel-3.0';
+    $not_global = $record->inst != NULL;
+    //does not build row when query's inst is is_null
+    if ($record->count != 0) {
+      if (($not_fobj) && ($not_cmobj) && ($not_global)) {
+          $rows[$record->id] = array(
+            'id' => $record->id,
+            'inst-id' => $record->inst,
+            'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+            'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
+            'coll' => $record->coll,
+            'cmodel-id' => $record->cmodel,
+            'cmodel-label' => map_cmodels($record->cmodel),
+            'count-label' => $record->count,
+            'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
+          );
       }
+    }
+  }
+  if ($sort){
+    $rows = tablesort($rows,$sort,$order);
+  }
   return $rows;
 }
 
