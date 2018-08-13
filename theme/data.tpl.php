@@ -19,6 +19,7 @@
       <div class='globalHeader statHeader'><?php print $variables['lang']['globalHeader']?></div>
       <div class='globalDescription statDescription'><?php print $variables['lang']['globalDesc']?></div>
       <div class='globalStats global_totals'>
+      <div class='globalLabel'> All Items </div>
       <canvas id="globalChart" width="400" height="400"></canvas>
       <?php foreach ($variables['global_totals'] as $global) :?>
         <div class='globalStat'>
