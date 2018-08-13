@@ -1,7 +1,6 @@
 <?php
 function islandora_content_stats_language() {
   return [
-
     'pageHeader' => [
       'title' => 'Page title',
       'default' => ('Content Statistics'),

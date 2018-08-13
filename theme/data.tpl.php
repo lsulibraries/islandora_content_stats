@@ -74,6 +74,7 @@
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
+                <!-- Keep for the return of collection-level stats.-->
                 <!-- <div class='column'>
                   <div class='header'>Collection</div>
                   <?php //foreach  ($variables['latest'] as $record) :?>

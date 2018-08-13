@@ -37,7 +37,6 @@ function islandora_content_stats_admin_form($form, &$form_state) {
     '#type' => 'fieldset',
     '#description' => t($descr_str),
   );
-
   $form['language'] = array(
     '#type' => 'fieldset',
     '#title' => 'Language strings',
@@ -69,8 +68,6 @@ function islandora_content_stats_admin_form($form, &$form_state) {
   );
   return $form;
 }
-
-
 
 /**
  *redirects to data.form page example.com/data

@@ -7,23 +7,6 @@
  * with a more humant readable format, and links to collection items.
  */
 
-// function islandora_content_stats_data_dl_form($form, &$form_state){
-//   $form['download']['dltitle'] = array(
-//       '#markup' => "<div class='dl_txt'>" . t('Downloads all historic results for use in a spreadsheet.
-//   (always applies current filters)') . "</div>",
-//       '#attributes' => array('class' => array('ics_download_title')),
-//   );
-//   $form['download']['submit'] = array(
-//       '#type' => 'submit',
-//       '#value' => t('Download History as CSV'),
-//       '#submit' => array('islandora_content_stats_csv_download'),
-//       '#attributes' => array('class' => array('ics_download_button')),
-//   );
-//
-//   //$form['actions']['download']['submit']['#submit'][] = 'islandora_content_stats_csv_download';
-//   return $form;
-// }
-
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     // important to note that this pulls $_GET by default https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_query_parameters/7.x
     // forms usually get POST-ed
@@ -36,14 +19,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#title' => lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
     );
-
-//    $form['filter']['all'] = array(
-//        '#type' => 'checkbox',
-//        '#title' => t('Show all results (history)'),
-//        '#attributes' => array('class' => array('ics_filter_all')),
-//
-//    );
-
     $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
@@ -95,14 +70,11 @@ function islandora_content_stats_csv_download() {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   $query = 'SELECT * FROM {islandora_content_stats}';
   $filters = array();
-
    foreach ($_GET as $key => $filter) {
    if($key === 'cmodel' || $key === 'inst' || $key == 'coll') {
            $filters[$key] = $filter;
        }
    }
-
-
   $max_time = '';
   $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
   $max_time = $q_time->fetchField();
@@ -112,7 +84,6 @@ function islandora_content_stats_csv_download() {
        $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
     }
   }
-
   $csv = [];
   $results = db_query($query) or die('Sql error : ' . mysql_error()); // why is `die()` in this code ? watchdog or similar would be better.
   $csv[] = implode(',', array('QID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));

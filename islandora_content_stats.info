@@ -5,3 +5,4 @@ files[] = includes/queries.inc
 files[] = includes/admin.form.inc
 files[] = tests/counts.test
 dependencies[] = islandora
+dependencies[] = islandora_namespace_homepage

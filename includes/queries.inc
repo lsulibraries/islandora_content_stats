@@ -28,7 +28,7 @@ EOQ;
 }
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
-  if($prefix != FALSE){$prefix = $prefix . '-';}
+  $prefix = $prefix == FALSE ? FALSE : $prefix . '-';
   $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
   $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
   $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
@@ -105,8 +105,6 @@ FILTER regex(str(?item), '$prefix')
 EOL;
     $count = $tuque->repository->ri->countQuery($query, 'sparql');
     $sparql = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
-
-
     $return = array();
     $return['count'] = $count / 2;
     //loop for dc relation to collection parent of constituent items.
@@ -123,7 +121,6 @@ EOL;
     if (isset($coll_parent)){
       $return['coll_parent'] = $coll_parent;
     }
-
     //loop for cmodel of compound parents
     $cpdparentcmodels = array();
     foreach ($sparql as $sparq) {
@@ -138,6 +135,27 @@ EOL;
     return $return;
 }
 
+function cpd_constituent_to_db($prefix, $coll = FALSE, $time) {
+  if ($coll != FALSE) {
+    //check each inst for constituent members.
+    $children_of_cpds = compound_check_constituency($prefix);
+    queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
+  }
+  if ($coll) {
+    $collCpds = compound_check_constituency($prefix, $coll);
+    queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
+  }
+}
+
+//loop through each model in the collection policy
+function loop_models_bypolicy_to_db($policy, $coll, $model, $prefix, $time) {
+  foreach ($policy as $model) {
+         //collection_totals
+         $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
+  }
+}
+
 /**
  * saves the results to a database table (with a timestamp)
  * manually runs the queries now.
@@ -146,7 +164,6 @@ EOL;
 function islandora_content_stats_run_queries() {
     module_load_include('inc','islandora','includes/utilities');
     module_load_include('inc','islandora_content_stats','includes/utilities');
-
     $time = time();
     //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
     $all_prefixes = get_all_prefixes();
@@ -165,36 +182,29 @@ function islandora_content_stats_run_queries() {
     foreach ($all_prefixes as $prefix) {
         $total_policy = [];
         $inst_colls = get_all_collections($prefix);
-        //check each inst for constituent members.
-        // $children_of_cpds = compound_check_constituency($prefix);
-        // queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
-        // //(check the type of parent of constituents.)
+        //un-comment for constituent counts.
+        //cpd_constituent_to_db($prefix, $time);
+
         //loop through each inst_collection, total for collection
          foreach ($inst_colls as $coll) {
-        //     $collCpds = compound_check_constituency($prefix, $coll);
-        //     queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
+             //cpd_constituent_to_db($prefix, $coll, $time);
              $policy = get_collection_policy_array($coll);
              $total_policy = array_merge($policy);
-        //     //loop through each model in the collection policy
-        //     foreach ($policy as $model) {
-        //         //collection_totals
-        //         $inst_collection_model_count = total_model_count($model, $prefix, $coll);
-        //         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
-        //     }
+             //un-comment to get model totals for each collection by policy
+             //loop_models_bypolicy_to_db($policy,$coll,$model,$prefix,$time);
          }
-             //we have constructed total_policy as an array of cmodels possible in a given inst
-             $total_policy = array_unique($total_policy);
-             //policies may not be set on build boxes, but we know we always want to check collection.
-              if(!in_array('islandora:collectionCModel',$total_policy)){
-                $total_policy[] = 'islandora:collectionCModel';
-              }
-              //loop through all models available in an inst.
-              foreach ($total_policy as $model){
-              //inst_totals
-              $inst_model_count = total_model_count($model, $prefix);
-              queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
-             }
-        //}
+          //we have constructed total_policy as an array of cmodels possible in a given inst
+          $total_policy = array_unique($total_policy);
+          //policies may not be set on build boxes, but we know we always want to check collection.
+          if(!in_array('islandora:collectionCModel',$total_policy)){
+            $total_policy[] = 'islandora:collectionCModel';
+          }
+          //loop through all models available in an inst.
+          foreach ($total_policy as $model){
+            //inst_totals
+            $inst_model_count = total_model_count($model, $prefix);
+            queries_db_insert($prefix . '-', NULL, $model, $inst_model_count, $time);
+          }
     }
 }
 
@@ -233,9 +243,6 @@ function islandora_root_stats_queries() {
     $display = array();
     foreach ($results as $result) {
         $display[$result->id] = array(
-            //'id' => $result->id,
-            //'inst' => $result->inst,
-            //'coll' => $result->coll,
             'cmodel' => $result->cmodel,
             'count' => $result->count,
         );

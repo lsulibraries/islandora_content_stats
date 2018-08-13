@@ -29,7 +29,6 @@ function map_cmodels($model) {
             return $short_label;
         }
     }
-
 }
 
 /**
@@ -42,10 +41,7 @@ function map_cmodels($model) {
  * String of institution's title
  */
 //needs a rework code smell
-function map_institution($inst, $context = FALSE) {
-    if ($context != FALSE) {
-
-    }
+function map_institution($inst) {
     if ($inst == 'islandora:root') {
         return $inst;
     }
@@ -55,7 +51,8 @@ function map_institution($inst, $context = FALSE) {
         $ns_homepage_table = db_query($query);
         if ($ns_homepage_table->rowCount() == 0) {
             return $inst;
-        } else {
+        }
+        else {
             foreach ($ns_homepage_table as $row) {
                 return $row->title;
             }
