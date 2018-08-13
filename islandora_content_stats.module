@@ -84,35 +84,37 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
     $corder = 'asc';
   }
   //defaults
-  $inst_arr = array('sortby' => 'inst', 'order' => $iorder);
-  $cmodel_arr = array('sortby' => 'cmodel', 'order' => $iorder);
-  $count_arr = array('sortby' => 'count', 'order' => $iorder);
+  $urls= [];
+  $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder);
+  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $iorder);
+  $urls['count'] = array('sortby' => 'count', 'order' => $iorder);
   //conditions
   $inst_and_cmodel = isset($gets['inst']) && isset($gets['cmodel']);
   $cmodel_only = isset($gets['cmodel']) && !isset($gets['inst']);
   $inst_only = isset($gets['inst']) && !isset($gets['cmodel']);
   //conditional array population.
   if($inst_and_cmodel){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder, 'cmodel' => $gets['cmodel'], 'inst' => $gets['inst']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder, 'cmodel' => $gets['cmodel'], 'inst' => $gets['inst']);
-    $count_arr = array('sortby' => 'count', 'order' => $corder, 'cmodel' => $gets['cmodel'], 'inst' => $gets['inst']);
+    foreach ($urls as $url) {
+      $url['inst'] = $gets['inst'];
+      $url['cmodel'] = $gets['cmodel'];
+    }
   }
   if($cmodel_only){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder, 'cmodel' => $gets['cmodel']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder, 'cmodel' => $gets['cmodel']);
-    $count_arr =  array('sortby' => 'count', 'order' => $corder, 'cmodel' => $gets['cmodel']);
+    foreach ($urls as $url){
+      $url['cmodel'] =$gets['cmodel'];
+    }
   }
   if($inst_only){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder, 'inst' => $gets['inst']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder, 'inst' => $gets['inst']);
-    $count_arr = array('sortby' => 'count', 'order' => $corder, 'inst' => $gets['inst']);
+    foreach ($urls as $url) {
+      $url['inst'] = $gets['url'];
+    }
   }
   //rebuild variables and return
   $variables['gets'] = $gets;
   $variables['latest'] = latest_counts_for_table($gets);
-  $variables['insturl'] = url('data',array('query' => $inst_arr));
-  $variables['typeurl'] = url('data',array('query' => $cmodel_arr));
-  $variables['counturl'] = url('data',array('query' => $count_arr));
+  $variables['insturl'] = url('data',array('query' => $urls['inst']));
+  $variables['typeurl'] = url('data',array('query' => $urls['cmodel']));
+  $variables['counturl'] = url('data',array('query' => $urls['count']));
     return $variables;
 }
 
