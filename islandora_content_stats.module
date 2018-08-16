@@ -86,9 +86,9 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   }
   //defaults
   $urls= [];
-  $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder);
-  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $torder);
-  $urls['count'] = array('sortby' => 'count', 'order' => $corder);
+  $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder, 'inst' => $gets['inst'],'cmodel'=> $gets['cmodel']);
+  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $torder, 'inst' => $gets['inst'],'cmodel'=> $gets['cmodel']);
+  $urls['count'] = array('sortby' => 'count', 'order' => $corder, 'inst' => $gets['inst'],'cmodel'=> $gets['cmodel']);
   //conditions
   $inst_and_cmodel = isset($gets['inst']) && isset($gets['cmodel']);
   $cmodel_only = isset($gets['cmodel']) && !isset($gets['inst']);
