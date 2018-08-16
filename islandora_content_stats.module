@@ -69,14 +69,15 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
   if (isset($gets['sortby'])) {
+    $order = $gets['order'];
     //existance populates conditionals
     $inst_and_asc = $gets['sortby'] == 'inst' && $gets['order'] == 'asc';
     $cmodel_and_asc = $gets['sortby'] == 'cmodel' && $gets['order'] == 'asc';
     $count_and_asc = $gets['sortby'] == 'count' && $gets['order'] == 'asc';
     //assign ordder based on conditions
-    $iorder = ($inst_and_asc) ? 'asc' : 'desc';
-    $torder = ($cmodel_and_asc) ? 'asc' : 'desc';
-    $corder = ($count_and_asc) ? 'asc' : 'desc';
+    $iorder = ($inst_and_asc) ? 'desc' : 'asc';
+    $torder = ($cmodel_and_asc) ? 'desc' : 'asc';
+    $corder = ($count_and_asc) ? 'desc' : 'asc';
   }
   else{
     $iorder = 'asc';
@@ -86,8 +87,8 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   //defaults
   $urls= [];
   $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder);
-  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $iorder);
-  $urls['count'] = array('sortby' => 'count', 'order' => $iorder);
+  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $torder);
+  $urls['count'] = array('sortby' => 'count', 'order' => $corder);
   //conditions
   $inst_and_cmodel = isset($gets['inst']) && isset($gets['cmodel']);
   $cmodel_only = isset($gets['cmodel']) && !isset($gets['inst']);
