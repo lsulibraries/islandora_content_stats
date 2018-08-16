@@ -163,17 +163,16 @@ class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
     // Check inst counts.
     foreach ($institution_counts as $inst => $models) {
       foreach ($models as $model => $results) {
-        $this->assertEqual($results['expected'], $results['found'], "Expected {$results['expected']}, found ({$results['found']}) items having model ($model) in institution {$inst}");
+        $this->assertEqual($results['expected'], $results['found'], "found ({$results['found']}) items having model ($model) in institution {$inst}");
       }
     }
     
     // Check global counts.
     $this->drupalGet('/data');
-    module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
     foreach ($global_counts as $model => $count) {
-      $q = $this->getQuery($model);
-      $db_count = $q->fetchField();
-      $this->assertEqual($count, $db_count, "Expected $count, stored $db_count in the DB.");
+      module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
+      $human_readable = map_cmodels($model);
+      $this->assertText("$human_readable Total: $count");
     }
   }
 
