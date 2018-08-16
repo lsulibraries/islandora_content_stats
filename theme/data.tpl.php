@@ -29,8 +29,10 @@
             <div class="total <?php print $global['count'] ?>"><?php print $global['count']; ?></div>
           </div>
            <?php else: ?>
-            <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-            <div class='total <?php print $global['count'] ?>'><?php print $global['count']; ?></div>
+            <div class=<?php print $global['cmodel-id'] ?>>
+              <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
+              <div class='total <?php print $global['count'] ?>'><?php print $global['count']; ?></div>
+            </div>
           <?php endif; ?>
         </div>
       <?php endforeach; ?>
