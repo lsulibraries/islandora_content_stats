@@ -170,7 +170,7 @@ function inst_totals() {
 }
 
 function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $order = FALSE, $sort = FALSE){
-  $text = "select  * from islandora_content_stats where timestamp = $time ";
+  $text = "select  * from {islandora_content_stats} where timestamp = $time ";
   if($inst) {
     $text .= "and inst = '$inst' ";
   }
@@ -240,7 +240,7 @@ function tablesort($rows, $sort, $order){
 }
 
 function latest_run() {
-    $maxtime = db_query('select max(timestamp) from islandora_content_stats');
+    $maxtime = db_query('select max(timestamp) from {islandora_content_stats}');
     $time = $maxtime->fetchField();
     return $time;
 }
