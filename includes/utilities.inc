@@ -171,20 +171,22 @@ function inst_totals() {
 }
 
 function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $order = FALSE, $sort = FALSE){
-  $text = "select  * from {islandora_content_stats} where timestamp = $time ";
+  $query = db_select('islandora_content_stats','stats')
+  ->fields('stats',array('id','inst','cmodel','count','timestamp'))
+  ->condition('timestamp', $time);
   if($inst) {
-    $text .= "and inst = '$inst' ";
+    $query->condition('inst',$inst);
   }
   if($coll) {
-    $text .= "and coll = '$coll' ";
+    $query->condition('coll',$coll);
   }
   if($cmodel) {
-    $text .= "and cmodel = '$cmodel' ";
+    $query->condition('cmodel',$cmodel);
   }
   if($order && $sort){
-    $text .= "order by $sort $order";
+    $query->orderBy($sort, $order);
   }
-  $totals = db_query($text);
+  $totals = $query->execute();
   return $totals;
 }
 
