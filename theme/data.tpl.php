@@ -76,6 +76,9 @@
                     <?php foreach  ($variables['latest'] as $record) :?>
                       <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
+                    <?php if(count($variables['latest'])==0) :?>
+                      <?php print $variables['lang']['tableEmpty'] ?>
+                    <?php endif ?>
                 </div>
                 <!-- Keep for the return of collection-level stats.-->
                 <!-- <div class='column'>

@@ -124,6 +124,7 @@ function global_totals() {
                     'id' => $record->id,
                     'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                     'cmodel' => map_cmodels($record->cmodel),
+                    'cmodel-id' => $record->cmodel,
                     'count' => $record->count,
                     'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                 );
