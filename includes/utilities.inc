@@ -172,7 +172,7 @@ function inst_totals() {
 
 function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $order = FALSE, $sort = FALSE){
   $query = db_select('islandora_content_stats','stats')
-  ->fields('stats',array('id','inst','cmodel','count','timestamp'))
+  ->fields('stats',array('id','inst','coll','cmodel','count','timestamp'))
   ->condition('timestamp', $time);
   if($inst) {
     $query->condition('inst',$inst);
