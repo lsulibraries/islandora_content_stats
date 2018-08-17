@@ -76,6 +76,12 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
         'control_group' => 'M',
         'mimetype' => 'image/png',
       ),
+      array(
+        'dsid' => 'MODS',
+        'string' => self::createModsTmpFile($label),
+        'control_group' => 'M',
+        'mimetype' => 'text/xml',
+      ),
     );
     $object = $this->ingestConstructedObject($properties, $datastreams);
     $object->state = 'active';
@@ -227,7 +233,6 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
       throw new Exception ("Argument for 'number' must be an integer.");
     }
     $model = $this->mapContentType($type);
-    echo $model;
     $ns = explode(':', $coll)[0];
     $pidsCreatedHere = [];
     foreach (range(1, $num) as $n) {
