@@ -192,7 +192,7 @@ function islandora_content_stats_run_queries() {
          foreach ($inst_colls as $coll) {
              //cpd_constituent_to_db($prefix, $coll, $time);
              $policy = get_collection_policy_array($coll);
-             $total_policy = array_merge($policy);
+             $total_policy = array_merge($total_policy, $policy);
              //un-comment to get model totals for each collection by policy
              //loop_models_bypolicy_to_db($policy,$coll,$model,$prefix,$time);
          }
