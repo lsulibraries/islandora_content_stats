@@ -74,7 +74,7 @@
                       <?php print "<a href='$insturl'>Institution/Sub-institution</a>"?>
                     </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print $record['inst']; print strtolower($record['cmodel']) ?>'><?php print $record['inst-label']; ?></div>
+                      <div class='row <?php print $record['inst-id']; print strtolower($record['cmodel-label']) ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
                     <?php if(count($variables['latest'])==0) :?>
                       <?php print $variables['lang']['tableEmpty'] ?>
@@ -102,7 +102,7 @@
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print $record['cmodel-label'];?>  <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
+                      <div class='row <?php print strtolower($record['cmodel-label']);?>  <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>
