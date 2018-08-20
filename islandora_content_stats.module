@@ -24,9 +24,7 @@ function islandora_content_stats_menu() {
 
 function islandora_content_stats_data() {
     return theme('islandora_content_stats_data_tpl');
-
 }
-
 
 function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/language');
@@ -49,14 +47,15 @@ function islandora_content_stats_theme() {
                   'globalDesc' => lang('globalDesc'),
                   'instHeader' => lang('instHeader'),
                   'instDesc' => lang('instDesc'),
-                  //filters and dl go into form, not tpl.
+                  //filters and dl go into form, not tpl
+                  //comments kept for mneumonic reasons
                   //'filtersGrouping' => lang('filtersGrouping'),
                   //'filterCmodel_desc' => lang('filterCmodel_desc'),
                   'tableDesc' => lang('tableDesc'),
                   'tableTitle' => lang('tableTitle'),
                   'tableEmpty' => lang('tableEmpty'),
-                  //'lang_dl_title' => lang('download_#title'),
-                  //'lang_dl_submit' => lang('download_#submit'),
+                  //'lang_dl_submit' => lang('downloadSubmitDesc'),
+                  //'lang_dl_title' => lang('downloadSubmit'),
                 ),
                 'params' => $params,
             ),
@@ -64,62 +63,67 @@ function islandora_content_stats_theme() {
     );
 }
 
+//code smell and repetition need cleaned.
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
-  if(isset($gets['sortby'])){
-
-  if($gets['sortby'] == 'inst' && $gets['order'] == 'asc'){
-    $iorder = 'desc';
+  if (isset($gets['sortby'])) {
+    $order = $gets['order'];
+    //existance populates conditionals
+    $inst_and_asc = $gets['sortby'] == 'inst' && $gets['order'] == 'asc';
+    $cmodel_and_asc = $gets['sortby'] == 'cmodel' && $gets['order'] == 'asc';
+    $count_and_asc = $gets['sortby'] == 'count' && $gets['order'] == 'asc';
+    //assign ordder based on conditions
+    $iorder = ($inst_and_asc) ? 'desc' : 'asc';
+    $torder = ($cmodel_and_asc) ? 'desc' : 'asc';
+    $corder = ($count_and_asc) ? 'desc' : 'asc';
   }
-  else{$iorder = 'asc';}
-  if($gets['sortby'] == 'cmodel' && $gets['order'] == 'asc'){
-    $torder = 'desc';
+  else{
+    $iorder = 'asc';
+    $torder = 'asc';
+    $corder = 'asc';
   }
-  else{$torder='asc';}
-  if($gets['sortby'] == 'count' && $gets['order'] == 'asc'){
-    $corder = 'desc';
+  //defaults
+  $inst_get = isset($gets['inst']) ? $gets['inst'] : '';
+  $cmodel_get =isset($gets['cmodel']) ? $gets['cmodel'] : '';
+  $urls= [];
+  $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder, 'inst' => $inst_get,'cmodel'=> $cmodel_get);
+  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $torder, 'inst' => $inst_get,'cmodel'=> $cmodel_get);
+  $urls['count'] = array('sortby' => 'count', 'order' => $corder, 'inst' => $inst_get, 'cmodel'=> $cmodel_get);
+  //conditions
+  $inst_and_cmodel = isset($gets['inst']) && isset($gets['cmodel']);
+  $cmodel_only = isset($gets['cmodel']) && !isset($gets['inst']);
+  $inst_only = isset($gets['inst']) && !isset($gets['cmodel']);
+  //conditional array population.
+  if($inst_and_cmodel){
+    foreach ($urls as $url) {
+      $url['inst'] = $gets['inst'];
+      $url['cmodel'] = $gets['cmodel'];
+    }
   }
-  else{$corder='asc';}
-}
-else{
-  $iorder = 'asc';
-  $torder = 'asc';
-  $corder = 'asc';
-}
-  $inst_arr = array('sortby' => 'inst', 'order' => $iorder);
-  $cmodel_arr = array('sortby' => 'cmodel', 'order' => $iorder);
-  $count_arr = array('sortby' => 'count', 'order' => $iorder);
-  if(isset($gets['inst']) && isset($gets['cmodel'])){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
-    $count_arr = array('sortby' => 'count', 'order' => $corder,'cmodel' => $gets['cmodel'],'inst' => $gets['inst']);
+  if($cmodel_only){
+    foreach ($urls as $url){
+      $url['cmodel'] =$gets['cmodel'];
+    }
   }
-  if(isset($gets['cmodel']) && !isset($gets['inst'])){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'cmodel' => $gets['cmodel']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'cmodel' => $gets['cmodel']);
-    $count_arr =  array('sortby' => 'count', 'order' => $corder,'cmodel' => $gets['cmodel']);
+  if($inst_only){
+    foreach ($urls as $url) {
+      $url['inst'] = $gets['url'];
+    }
   }
-  if(isset($gets['inst']) && !isset($gets['cmodel'])){
-    $inst_arr = array('sortby' => 'inst', 'order' => $iorder,'inst' => $gets['inst']);
-    $cmodel_arr = array('sortby' => 'cmodel', 'order' => $torder,'inst' => $gets['inst']);
-    $count_arr = array('sortby' => 'count', 'order' => $corder,'inst' => $gets['inst']);
-  }
-
+  //rebuild variables and return
   $variables['gets'] = $gets;
   $variables['latest'] = latest_counts_for_table($gets);
-  $variables['insturl'] = url('data',array('query' => $inst_arr));
-  $variables['typeurl'] = url('data',array('query' => $cmodel_arr));
-  $variables['counturl'] = url('data',array('query' => $count_arr));
-
+  $variables['insturl'] = url('data',array('query' => $urls['inst']));
+  $variables['typeurl'] = url('data',array('query' => $urls['cmodel']));
+  $variables['counturl'] = url('data',array('query' => $urls['count']));
     return $variables;
 }
 
 function template_process_islandora_content_stats_data_tpl() {
   module_load_include('inc','islandora_content_stats','includes/data.form');
   $gets = drupal_get_query_parameters();
-
   if(isset($gets['op'])){
     if($gets['op']== 'Download History as CSV'){
       islandora_content_stats_csv_download();

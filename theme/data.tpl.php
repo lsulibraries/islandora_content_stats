@@ -25,12 +25,14 @@
         <div class='globalStat'>
           <?php if( $global['cmodel'] == 'Collection') : ?>
           <div class='collections'>
-            <div class="cmodel <?php print $global['cmodel'] ?>"><?php print $global['cmodel']; ?></div>
-            <div class="total <?php print $global['count'] ?>"><?php print $global['count']; ?></div>
+            <div class="cmodel <?php print $global['cmodel']; ?>"><?php print $global['cmodel']; ?></div>
+            <div class="total <?php print $global['count']; ?>"><?php print $global['count']; ?></div>
           </div>
            <?php else: ?>
-            <div class='cmodel <?php print $global['cmodel'] ?>'><?php print $global['cmodel'] ?></div>
-            <div class='total <?php print $global['count'] ?>'><?php print $global['count']; ?></div>
+            <div class="<?php print strtolower($global['cmodel']);?> global">
+              <div class='cmodel <?php print $global['cmodel']; ?>'><?php print $global['cmodel'] ?></div>
+              <div class='total <?php print $global['count']; ?>'><?php print $global['count']; ?></div>
+            </div>
           <?php endif; ?>
         </div>
       <?php endforeach; ?>
@@ -43,7 +45,7 @@
           <?php foreach ($variables['inst_totals'] as $inst => $model_counts) : ?>
           <div class="inst_wrapper <?php print $inst ?>">
               <?php foreach ($model_counts as $itotal) : ?>
-                  <div class='cmodel_wrapper_inst'>
+                  <div class="cmodel_wrapper_inst <?php print strtolower($itotal['cmodel']);?> <?php print $inst; ?> instTotal">
                       <div class="inst"><?php print $itotal['inst-label']; ?></div>
                       <div class='cmodel'><?php print $itotal['cmodel']; ?></div>
                       <div class='total'><?php print $itotal['count']; ?></div>
@@ -66,37 +68,41 @@
                 </form>
             </div>
             <div class='table'>
-                <div class='column'>
+                <div class='column inst'>
                     <div class='header'>
                       <?php $insturl = $variables['insturl']?>
                       <?php print "<a href='$insturl'>Institution/Sub-institution</a>"?>
                     </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print $record['inst-id']; print $record['cmodel-id'] ?>'><?php print $record['inst-label']; ?></div>
+                      <div class='row <?php print $record['inst-id']; print strtolower($record['cmodel-label']) ?>'><?php print $record['inst-label']; ?></div>
                     <?php endforeach; ?>
+                    <?php if(count($variables['latest'])==0) :?>
+                      <?php print $variables['lang']['tableEmpty'] ?>
+                    <?php endif ?>
                 </div>
+                <!-- Keep for the return of collection-level stats.-->
                 <!-- <div class='column'>
                   <div class='header'>Collection</div>
                   <?php //foreach  ($variables['latest'] as $record) :?>
                         <div class='row <?php //print $record['coll']; ?>'><?php //print $record['coll-label']; ?></div>
                         <?php //endforeach; ?>
                 </div> -->
-                <div class='column'>
+                <div class='column cmodel'>
                   <div class='header'>
                     <?php $typeurl = $variables['typeurl']?>
                     <?php print "<a href='$typeurl'>Type</a>"?>
                   </div>
                   <?php foreach  ($variables['latest'] as $record) :?>
-                        <div class='row <?php print $record['cmodel-id']; ?>'><?php print $record['cmodel-label']; ?></div>
+                        <div class='row <?php print strtolower($record['cmodel-label']); ?>'><?php print $record['cmodel-label']; ?></div>
                         <?php endforeach; ?>
                 </div>
-                <div class='column'>
+                <div class='column count'>
                     <div class='header'>
                       <?php $counturl = $variables['counturl']?>
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print $record['cmodel-id']; print $record['inst-id'] ?>'><?php print $record['count-label']; ?></div>
+                      <div class='row <?php print strtolower($record['cmodel-label']);?>  <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>

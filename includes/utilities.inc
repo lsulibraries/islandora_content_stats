@@ -29,7 +29,6 @@ function map_cmodels($model) {
             return $short_label;
         }
     }
-
 }
 
 /**
@@ -42,10 +41,7 @@ function map_cmodels($model) {
  * String of institution's title
  */
 //needs a rework code smell
-function map_institution($inst, $context = FALSE) {
-    if ($context != FALSE) {
-
-    }
+function map_institution($inst) {
     if ($inst == 'islandora:root') {
         return $inst;
     }
@@ -55,7 +51,8 @@ function map_institution($inst, $context = FALSE) {
         $ns_homepage_table = db_query($query);
         if ($ns_homepage_table->rowCount() == 0) {
             return $inst;
-        } else {
+        }
+        else {
             foreach ($ns_homepage_table as $row) {
                 return $row->title;
             }
@@ -114,6 +111,7 @@ function global_totals() {
             ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
             ->condition('timestamp', $time)
             ->condition('inst', NULL)
+            ->orderBy('cmodel', 'ASC')
             ->execute();
    $totals = $query->fetchAll();
    foreach ($totals as $record) {
@@ -127,6 +125,7 @@ function global_totals() {
                     'id' => $record->id,
                     'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                     'cmodel' => map_cmodels($record->cmodel),
+                    'cmodel-id' => $record->cmodel,
                     'count' => $record->count,
                     'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
                 );
@@ -148,6 +147,7 @@ function inst_totals() {
                 ->fields('stats', array('id','inst','cmodel','count','timestamp'))
                 ->condition('timestamp', $time)
                 ->condition('inst', $inst.'-')
+                ->orderBy('cmodel', 'ASC')
                 ->execute();
        $totals = $query->fetchAll();
        foreach ($totals as $record) {
@@ -160,6 +160,7 @@ function inst_totals() {
                     $rows[$inst][] = array(
                         'id' => $record->id,
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
+                        'inst' => $record->inst,
                         //'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
                         'count' => $record->count,
@@ -173,20 +174,22 @@ function inst_totals() {
 }
 
 function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $time, $order = FALSE, $sort = FALSE){
-  $text = "select  * from islandora_content_stats where timestamp = $time ";
+  $query = db_select('islandora_content_stats','stats')
+  ->fields('stats',array('id','inst','coll','cmodel','count','timestamp'))
+  ->condition('timestamp', $time);
   if($inst) {
-    $text .= "and inst = '$inst' ";
+    $query->condition('inst',$inst);
   }
   if($coll) {
-    $text .= "and coll = '$coll' ";
+    $query->condition('coll',$coll);
   }
   if($cmodel) {
-    $text .= "and cmodel = '$cmodel' ";
+    $query->condition('cmodel',$cmodel);
   }
   if($order && $sort){
-    $text .= "order by $sort $order";
+    $query->orderBy($sort, $order);
   }
-  $totals = db_query($text);
+  $totals = $query->execute();
   return $totals;
 }
 
@@ -243,7 +246,7 @@ function tablesort($rows, $sort, $order){
 }
 
 function latest_run() {
-    $maxtime = db_query('select max(timestamp) from islandora_content_stats');
+    $maxtime = db_query('select max(timestamp) from {islandora_content_stats}');
     $time = $maxtime->fetchField();
     return $time;
 }
