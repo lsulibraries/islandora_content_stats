@@ -111,6 +111,7 @@ function global_totals() {
             ->fields('stats', array('id','inst','coll','cmodel','count','timestamp'))
             ->condition('timestamp', $time)
             ->condition('inst', NULL)
+            ->orderBy('cmodel', 'ASC')
             ->execute();
    $totals = $query->fetchAll();
    foreach ($totals as $record) {
@@ -146,6 +147,7 @@ function inst_totals() {
                 ->fields('stats', array('id','inst','cmodel','count','timestamp'))
                 ->condition('timestamp', $time)
                 ->condition('inst', $inst.'-')
+                ->orderBy('cmodel', 'ASC')
                 ->execute();
        $totals = $query->fetchAll();
        foreach ($totals as $record) {
