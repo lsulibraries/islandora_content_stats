@@ -11,17 +11,12 @@ Feature:
 
         Given I am logged in as a user with the 'administrator' role
         And the cache has been cleared
-        And I create a new collection of "9" "image" objects with pid 'testinst-stats:collection' and title "Test Images"
-        And I create a new collection of "8" "audio" objects with pid 'testinst-subinst-stats:collection' and title "Subinstitution audio"
-        And I create a new collection of "7" "image" objects with pid 'otherinst-images:collection' and title "Another Images collection"
         And I am on "/admin/islandora/tools/content_stats"
 
         When I press the "Run Queries Now" button
         And the cache has been cleared
-        #And breakpoint
 
     Scenario: Check that global counts are there and correct
-
         Then I should find xpath "//div[@class='globalStat']/div[@class='collections']/div[@class='total 3' and contains(text(), '3')]"
         And I should find xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total 16' and contains(text(), '16')]"
         And I should find xpath "//div[@class='globalStat']/div[@class='audio global']/div[@class='total 8' and contains(text(), '8')]"
@@ -29,7 +24,6 @@ Feature:
     Scenario: Check that institutional cmodel totals are there and correct#
 
         And I am on "/data"
-        #And breakpoint
         Then I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image testinst instTotal']/div[@class='total' and contains(text(), '9')]"
         And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst instTotal']/div[@class='total' and contains(text(), '2')]"
         And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst-subinst instTotal']/div[@class='total' and contains(text(), '1')]"
