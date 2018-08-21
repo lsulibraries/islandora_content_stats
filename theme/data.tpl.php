@@ -102,7 +102,7 @@
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print strtolower($record['cmodel-label']);?>  <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
+                      <div class='row <?php print strtolower($record['cmodel-label']);?> <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>

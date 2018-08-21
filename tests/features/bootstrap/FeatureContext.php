@@ -55,9 +55,9 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
-     * @Then xpath :xpath should contain text :text
+     * @Then xpath :xpath text should equal :text
      */
-    public function xpathShouldContainText($xpath, $text) {
+    public function xpathTextShouldEqual($xpath, $text) {
         $this->assertXpathTextEquals($xpath, $text);
     }
   
@@ -121,10 +121,59 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     // future self: be sure to update the collection policy
   }
 
+  /**
+    * @Then select list at xpath :xpath should contain options :options
+    */
+   public function selectListAtXpathShouldContainOptions($xpath, $options) {
+     if (!$this->xpathExists($xpath)) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+    }
+    $expectedOptions = array_map('trim', explode(',', $options));
+    $foundOptions = [];
+    $optionsXpath = "$xpath/option";
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $elements = $session->getPage()->findAll(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $optionsXpath)
+    );
+    foreach ($elements as $element) {
+      // will this ever run ?
+      if (NULL === $element) {
+        throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+      }
+      $foundOptions[] = trim($element->getText());
+    }
+    $missing = array_diff($expectedOptions, $foundOptions);
+    if (!empty($missing)) {
+      throw new \Exception(sprintf("Expected options [%s] but found [%s]; missing option(s) [%s] at xpath '%s'", implode(',', $expectedOptions), implode(',', $foundOptions), implode(',', $missing), $xpath));
+    }
+   }
+
+
+  /**
+   * Waits a while, for debugging.
+   *
+   * from http://programsbuzz.com/article/behat-script-wait-n-seconds
+   * @param int $seconds
+   *   How long to wait.
+   *
+   * @When I wait :seconds second(s)
+   */
+  public function wait($seconds) {
+    sleep($seconds);
+  }
+
   static $pidsCreated = [];
   static $admin, $repository;
 
-  /** @BeforeFeature */
+  /**
+   * TODO:
+   * - add empty collection
+   * - add collection with arbitrary policy
+   *
+   * @BeforeFeature
+   */
   public static function setupFeature(BeforeFeatureScope $scope) {
     $fixture = [
       'testinst-stats:collection' => [
@@ -153,14 +202,19 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       ],
       
     ];
-    foreach ($fixture as $pid => $data) {
+    foreach ($fixture as $collection => $data) {
       $title = $data['info']['title'];
-      self::createCollectionNew($pid, $title, array_keys($data['children']));
+      self::createCollectionNew($collection, $title, array_keys($data['children']));
       foreach ($data['children'] as $model => $num) {
-        $objPid = explode(':', $pid)[0];
-        self::ingestObjectsIntoCollection($num, $model, $objPid);
+        self::ingestObjectsIntoCollection($num, $model, $collection);
       }
     }
+
+    // Now run the queries and clear the cache so that scenarios are simpler.
+    module_load_include('inc', 'islandora_content_stats', 'includes/queries');
+    islandora_content_stats_run_queries();
+    cache_clear_all();
+    cache_clear_all();
   }
 
   /** @AfterFeature */
@@ -396,7 +450,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath)
     );
     if (NULL === $element) {
-      return FALSE;
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
     }
     if ($element->getText() != $text) {
       throw new \Exception(sprintf("Expected text '%s' but found '%s' at xpath '%s'", $text, $element->getText(), $xpath));
