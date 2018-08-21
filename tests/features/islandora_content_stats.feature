@@ -16,30 +16,61 @@ Feature:
         When I press the "Run Queries Now" button
         And the cache has been cleared
 
+    Scenario: Check that table sorts work
+        # check initial sorts
+        And I am on "/data"
+        Then xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" should contain text "otherinst"
+        And xpath "//div[@class='column cmodel']//div[contains(@class, 'row')][1]" should contain text "Collection"
+        And xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" should contain text "1"
+
+        # check first-column sorts
+        When I am on "/data"
+        And I click "Institution/Sub-institution"
+        Then xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" should contain text "testinst"
+        
+        When I click "Institution/Sub-institution"
+        Then xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" should contain text "testinst-subinst"
+
+        # check 'Type' column sorts
+        When I am on "/data"
+        When I click "Type"
+        Then xpath "//div[@class='column cmodel']//div[contains(@class, 'row')][1]" should contain text "Audio"
+        When I click "Type"
+        Then xpath "//div[@class='column cmodel']//div[contains(@class, 'row')][1]" should contain text "Image"
+
+        # check counts column sorts
+        When I am on "/data"
+        And I click "Count"
+        Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" should contain text "1"
+        When I click "Count"
+        Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" should contain text "9"
+
+    Scenario: Check that table rows are there and correct
+
+        Then xpath "//div[@class='column count']/div[@class='row image testinst']" should contain text "9"
+        And xpath "//div[@class='column count']/div[@class='row audio testinst']" should contain text "8"
+        And xpath "//div[@class='column count']/div[@class='row collection testinst']" should contain text "2"
+
+        And xpath "//div[@class='column count']/div[@class='row audio testinst-subinst']" should contain text "8"
+        And xpath "//div[@class='column count']/div[@class='row collection testinst-subinst']" should contain text "1"
+
+        And xpath "//div[@class='column count']/div[@class='row collection otherinst']" should contain text "1"
+        And xpath "//div[@class='column count']/div[@class='row image otherinst']" should contain text "9"
+
     Scenario: Check that global counts are there and correct
-        Then I should find xpath "//div[@class='globalStat']/div[@class='collections']/div[@class='total 3' and contains(text(), '3')]"
-        And I should find xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total 16' and contains(text(), '16')]"
-        And I should find xpath "//div[@class='globalStat']/div[@class='audio global']/div[@class='total 8' and contains(text(), '8')]"
+        Then xpath "//div[@class='globalStat']/div[@class='collections']/div[@class='total 3']" should contain text "3"
+        And xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total 16']" should contain text "16"
+        And xpath "//div[@class='globalStat']/div[@class='audio global']/div[@class='total 8']" should contain text "8"
         
     Scenario: Check that institutional cmodel totals are there and correct#
 
         And I am on "/data"
-        Then I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image testinst instTotal']/div[@class='total' and contains(text(), '9')]"
-        And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst instTotal']/div[@class='total' and contains(text(), '2')]"
-        And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst-subinst instTotal']/div[@class='total' and contains(text(), '1')]"
-        And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst audio testinst-subinst instTotal']/div[@class='total' and contains(text(), '8')]"
-        And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image otherinst instTotal']/div[@class='total' and contains(text(), '7')]"
-        And I should find xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection otherinst instTotal']/div[@class='total' and contains(text(), '1')]"
-
-#    Scenario: Check that table rows are there and correct
-
-#        Then I should find xpath "//div[@class='tableStats']//div[@class='table']/div[@class='column count']/div[@class=['row image testinst' and contains(text(), '9')]"
-
-#    Scenario: Check that table sorts work
-        
-#        Then I should find xpath ""
-#        When I click on "Institution/Sub-institution"
-#        Then I should see
+        Then xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image testinst instTotal']/div[@class='total']" should contain text "9"
+        And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst instTotal']/div[@class='total']" should contain text "2"
+        And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst-subinst instTotal']/div[@class='total']" should contain text "1"
+        And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst audio testinst-subinst instTotal']/div[@class='total']" should contain text "8"
+        And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image otherinst instTotal']/div[@class='total']" should contain text "7"
+        And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection otherinst instTotal']/div[@class='total']" should contain text "1"
 
     Scenario: Check that the admin page is there and correct
         And I am on "/admin/islandora/tools/content_stats"
