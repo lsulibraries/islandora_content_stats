@@ -55,6 +55,13 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   }
 
   /**
+     * @Then xpath :xpath should contain text :text
+     */
+    public function xpathShouldContainText($xpath, $text) {
+        $this->assertXpathTextEquals($xpath, $text);
+    }
+  
+  /**
    * Find whether an xpath exists in the page.
    *
    * Adapted from code posted by Abu Ashraf Masnun, retrieved 2018-06-27
@@ -63,7 +70,6 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    * @When /^I should find xpath "([^"]*)"$/
    */
   public function iShouldFindXPath($xpath) {
-
     // Errors must not pass silently.
     if (!$this->xpathExists($xpath)) {
       throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
@@ -380,6 +386,21 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       return FALSE;
     }
     return TRUE;
+  }
+
+  public function assertXpathTextEquals($xpath, $text) {
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $element = $session->getPage()->find(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath)
+    );
+    if (NULL === $element) {
+      return FALSE;
+    }
+    if ($element->getText() != $text) {
+      throw new \Exception(sprintf("Expected text '%s' but found '%s' at xpath '%s'", $text, $element->getText(), $xpath));
+    }
   }
 
   /**
