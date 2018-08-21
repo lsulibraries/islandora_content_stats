@@ -189,6 +189,10 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
   if($order && $sort){
     $query->orderBy($sort, $order);
   }
+  else {
+    $query->orderBy('inst', 'asc');
+    $query->orderBy('cmodel', 'asc');
+  }
   $totals = $query->execute();
   return $totals;
 }
