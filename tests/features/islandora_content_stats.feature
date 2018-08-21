@@ -269,3 +269,27 @@ Feature:
         Given I select "testinst-subinst" from "Filter according to ownership by institution or sub-institution"
         When I press "Filter"
         Then xpath "//div[@class='column cmodel']//div[contains(@class, 'row')][1]" text should equal "Collection"
+
+    Scenario: Ensure sorting works when institution names are provided.
+
+        Given I am logged in as a user with the 'administrator' role
+        And I am on "/testinst/settings"
+        And for "edit-title" I enter "Test Institution"
+        And I press "Submit"
+
+        And I am on "/testinst-subinst/settings"
+        And for "edit-title" I enter "Subinstitution of Test"
+        And I press "Submit"
+
+        And I am on "/otherinst/settings"
+        And for "edit-title" I enter "Other Library"
+        And I press "Submit"
+
+        And the cache has been cleared
+
+        When I am on "/data"
+        Then select list at xpath "//select[@id='edit-inst']" should contain options "Test Institution, Subinstitution of Test, Other Library"
+        And xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" text should equal "Other Library"
+
+        When I click "Institution/Sub-institution"
+        Then xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" text should equal "Test Institution"

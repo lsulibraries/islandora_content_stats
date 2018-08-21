@@ -223,6 +223,22 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       self::getRepository()->purgeObject($pid);
       printf("Deleted %s\n", $pid);
     }
+    $moduleTablesToTruncate = [
+      'islandora_content_stats' => [
+        'islandora_content_stats'
+      ],
+      'islandora_namespace_homepage' => [
+        'islandora_namespace_homepage'
+      ],
+    ];
+    foreach ($moduleTablesToTruncate as $module => $tables) {
+      if (!module_exists($module)) {
+        continue;
+      }
+      foreach ($tables as $table) {
+        db_truncate($table)->execute();
+      }
+    }
   }
   
   public static function getRepository() {
