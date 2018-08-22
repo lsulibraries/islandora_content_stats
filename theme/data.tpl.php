@@ -26,12 +26,12 @@
           <?php if( $global['cmodel'] == 'Collection') : ?>
           <div class='collections'>
             <div class="cmodel <?php print $global['cmodel']; ?>"><?php print $global['cmodel']; ?></div>
-            <div class="total <?php print $global['count']; ?>"><?php print $global['count']; ?></div>
+            <div class="total"><?php print $global['count']; ?></div>
           </div>
            <?php else: ?>
             <div class="<?php print strtolower($global['cmodel']);?> global">
               <div class='cmodel <?php print $global['cmodel']; ?>'><?php print $global['cmodel'] ?></div>
-              <div class='total <?php print $global['count']; ?>'><?php print $global['count']; ?></div>
+              <div class='total'><?php print $global['count']; ?></div>
             </div>
           <?php endif; ?>
         </div>
