@@ -176,17 +176,17 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
    */
   public static function setupFeature(BeforeFeatureScope $scope) {
     $fixture = [
-      'testinst-stats:collection' => [
+      'testinst-images:collection' => [
         'info' => [
-          'title' => 'Test Images',
+          'title' => 'Superinstitution Images Collection',
         ],
         'children' => [
           'image' => 9
         ],
       ],
-      'testinst-subinst-stats:collection' => [
+      'testinst-subinst-audio:collection' => [
         'info' => [
-          'title' => 'Subinstitution Audio',
+          'title' => 'Subinstitution Audio Collection',
         ],
         'children' => [
           'audio' => 8
@@ -194,13 +194,39 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       ],
       'otherinst-images:collection' => [
         'info' => [
-          'title' => 'Another Images Collection',
+          'title' => 'Substring Images Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
         ],
         'children' => [
           'image' => 7
         ],
       ],
-      
+      'emptyinst-empty:collection' => [
+        'info' => [
+          'title' => 'Empty Collection',
+        ],
+        'children' => [],
+      ],
+      'anotherinst-image:collection' => [
+        'info' => [
+          'title' => 'Superstring Image Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
+        ],
+        'children' => [
+          'audio' => 4,
+          'image' => 2,
+        ],
+      ],
+      'otherinsta-image:collection' => [
+        'info' => [
+          'title' => 'Superstring Image Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
+        ],
+        'children' => [
+          'audio' => 1,
+          'image' => 3,
+        ],
+      ],
     ];
     foreach ($fixture as $collection => $data) {
       $title = $data['info']['title'];
@@ -210,6 +236,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       }
     }
 
+    // Adds an extraneous cmodel to one collection policy.
+    self::addPolicyToCollection('testinst-subinst-audio:collection', self::mapContentType('image'), 'Image', 'testinst-subinst-audio');
     // Now run the queries and clear the cache so that scenarios are simpler.
     module_load_include('inc', 'islandora_content_stats', 'includes/queries');
     islandora_content_stats_run_queries();
@@ -239,6 +267,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
         db_truncate($table)->execute();
       }
     }
+    cache_clear_all();
   }
   
   public static function getRepository() {
@@ -293,6 +322,28 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       if (!islandora_collection_toggle_publish_collection_is_published($pid)) {
         islandora_collection_toggle_publish_publish_collection($pid);
       }
+    }
+  }
+  
+  public static function addPolicyToCollection($collection_pid, $cmodel_pid, $name, $namespace) {
+    $collection = islandora_object_load($collection_pid);
+    if (!$collection) {
+      throw new Exception("Unable to load object with pid '$collection_pid'");
+    }
+
+    if (!isset($collection['COLLECTION_POLICY'])) {
+      $policy = CollectionPolicy::emptyPolicy();
+      $policy->addContentModel($cmodel_pid, $name, $namespace);
+      $cp_ds = $collection->constructDatastream('COLLECTION_POLICY', 'M');
+      $cp_ds->mimetype = 'application/xml';
+      $cp_ds->label = 'Collection Policy';
+      $cp_ds->setContentFromString($policy->getXML());
+      $collection->ingestDatastream($cp_ds);
+    }
+    else {
+      $policy = new CollectionPolicy($collection['COLLECTION_POLICY']->content);
+      $policy->addContentModel($cmodel_pid, $name, $namespace);
+      $collection['COLLECTION_POLICY']->setContentFromString($policy->getXML());
     }
   }
   
