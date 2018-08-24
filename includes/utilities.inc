@@ -198,14 +198,13 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
 }
 
 
-function latest_counts_for_table($gets) {
-  $filters = [];
+function latest_counts_for_table($pageParams) {
   $rows = [];
-  $order = isset($gets['order']) ? $gets['order'] : FALSE;
-  $sort = isset($gets['sortby']) ? $gets['sortby'] : FALSE;
-  $inst = isset($gets['inst']) ? $gets['inst']: FALSE;
-  $cmodel = isset($gets['cmodel']) ? $gets['cmodel'] : FALSE;
-  $coll = isset($gets['coll']) ? $gets['coll'] : FALSE;
+  $order = $pageParams['order'];
+  $sort = $pageParams['sort'];
+  $inst = isset($pageParams['inst']) ? $pageParams['inst']: FALSE;
+  $cmodel = isset($pageParams['cmodel']) ? $pageParams['cmodel'] : FALSE;
+  $coll = FALSE;
   module_load_include('inc','islandora_content_stats','includes/data.form');
   module_load_include('inc','islandora_content_stats','includes/queries');
   $time  = latest_run();
@@ -278,7 +277,6 @@ function cmodel_types_for_form() {
     }
     return $options;
 }
-
 
 /**
  * @return array $return
