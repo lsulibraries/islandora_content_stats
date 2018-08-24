@@ -10,7 +10,7 @@
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     // important to note that this pulls $_GET by default https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_query_parameters/7.x
     // forms usually get POST-ed
-    $gets = drupal_get_query_parameters();
+    $gets = pageDefaultParams(islandora_content_stats_get_query_params());
     module_load_include('inc', 'islandora_content_stats', 'includes/utilites');
     module_load_include('inc', 'islandora_content_stats', 'includes/language');
     $form = array();
