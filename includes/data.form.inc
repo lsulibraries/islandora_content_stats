@@ -38,6 +38,14 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
     );
+    $form['filter']['sort'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $gets['sort'],
+    );
+    $form['filter']['order'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $gets['order'],
+    );
     $form['filter']['filterdesc'] = array(
         '#type' => 'item',
         '#title' => lang('filterSubmitDesc'),
