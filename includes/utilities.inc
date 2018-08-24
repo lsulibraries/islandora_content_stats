@@ -264,17 +264,17 @@ function latest_run() {
 function cmodel_types_for_form() {
   module_load_include('inc','islandora','includes/utilities');
     $model_counts = array_keys(islandora_get_content_models());
-    $return = array();
+    $options = array();
     foreach ($model_counts as $model) {
         //when cmodel is FedoraObject or ContentModel, don't map
         $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
         $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
         if (($not_fobj) && ($not_cmobj)) {
             $string = map_cmodels($model);
-            $return[$model] = t($string);
+            $options[$model] = t($string);
         }
     }
-    return $return;
+    return $options;
 }
 
 
@@ -285,11 +285,11 @@ function cmodel_types_for_form() {
  */
 function institutions_for_form() {
     $prefixes = get_all_prefixes();
-    $return = array();
+    $options = array();
     foreach ($prefixes as $inst) {
-        $return[$inst . '-'] = map_institution($inst, 'form');
+        $options[$inst] = map_institution($inst, 'form');
     }
-    return $return;
+    return $options;
 }
 
 

@@ -19,13 +19,13 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#title' => lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
     );
-    $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
+    $cmodel = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
         '#title' => lang('filterCmodel'),
         '#options' => cmodel_types_for_form(),
         '#required' => FALSE,
-        '#default_value' => $ternary,
+        '#default_value' => $cmodel,
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
