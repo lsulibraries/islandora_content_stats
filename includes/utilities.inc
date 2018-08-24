@@ -178,7 +178,7 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
   ->fields('stats',array('id','inst','coll','cmodel','count','timestamp'))
   ->condition('timestamp', $time);
   if($inst) {
-    $query->condition('inst',$inst);
+    $query->condition('inst',$inst.'-');
   }
   if($coll) {
     $query->condition('coll',$coll);
