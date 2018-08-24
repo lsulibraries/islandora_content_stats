@@ -237,16 +237,21 @@ function latest_counts_for_table($pageParams) {
 
 function tablesort($rows, $sort, $order){
   $sortField = "$sort-label";
+  $rows2Lower = [];
+  foreach ($rows as $row) {
+    $row['inst-label'] = strtolower($row['inst-label']);
+    $rows2Lower[] = $row;
+  }
   if (!$sort) {
     array_multisort(
-        array_column($rows, 'inst-label'), SORT_ASC,
-        array_column($rows, 'cmodel-label'), SORT_ASC,
+        array_column($rows2Lower, 'inst-label'), SORT_ASC, SORT_STRING,
+        array_column($rows2Lower, 'cmodel-label'), SORT_ASC, SORT_STRING,
         $rows
       );
     return $rows;
   }
   $order_const = $order === 'asc' ? SORT_ASC : SORT_DESC;
-  array_multisort(array_column($rows, $sortField), $order_const, $rows);
+  array_multisort(array_column($rows2Lower, $sortField), $order_const, SORT_STRING, $rows);
   return $rows;
 }
 
