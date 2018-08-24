@@ -10,7 +10,7 @@
 function islandora_content_stats_data_filter_form($form, &$form_state) {
     // important to note that this pulls $_GET by default https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_get_query_parameters/7.x
     // forms usually get POST-ed
-    $gets = drupal_get_query_parameters();
+    $gets = pageDefaultParams(islandora_content_stats_get_query_params());
     module_load_include('inc', 'islandora_content_stats', 'includes/utilites');
     module_load_include('inc', 'islandora_content_stats', 'includes/language');
     $form = array();
@@ -19,13 +19,13 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#title' => lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
     );
-    $ternary = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
+    $cmodel = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
         '#title' => lang('filterCmodel'),
         '#options' => cmodel_types_for_form(),
         '#required' => FALSE,
-        '#default_value' => $ternary,
+        '#default_value' => $cmodel,
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
@@ -37,6 +37,14 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
+    );
+    $form['filter']['sort'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $gets['sort'],
+    );
+    $form['filter']['order'] = array(
+        '#type' => 'hidden',
+        '#default_value' => $gets['order'],
     );
     $form['filter']['filterdesc'] = array(
         '#type' => 'item',

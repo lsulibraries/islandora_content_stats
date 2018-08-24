@@ -26,12 +26,12 @@
           <?php if( $global['cmodel'] == 'Collection') : ?>
           <div class='collections'>
             <div class="cmodel <?php print $global['cmodel']; ?>"><?php print $global['cmodel']; ?></div>
-            <div class="total <?php print $global['count']; ?>"><?php print $global['count']; ?></div>
+            <div class="total"><?php print $global['count']; ?></div>
           </div>
            <?php else: ?>
             <div class="<?php print strtolower($global['cmodel']);?> global">
               <div class='cmodel <?php print $global['cmodel']; ?>'><?php print $global['cmodel'] ?></div>
-              <div class='total <?php print $global['count']; ?>'><?php print $global['count']; ?></div>
+              <div class='total'><?php print $global['count']; ?></div>
             </div>
           <?php endif; ?>
         </div>
@@ -102,7 +102,7 @@
                       <?php print "<a href='$counturl'>Count</a>"?>
                       </div>
                     <?php foreach  ($variables['latest'] as $record) :?>
-                      <div class='row <?php print strtolower($record['cmodel-label']);?>  <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
+                      <div class='row <?php print strtolower($record['cmodel-label']);?> <?php print rtrim($record['inst-id'], '-') ?>'><?php print $record['count-label']; ?></div>
                     <?php endforeach; ?>
                 </div>
             </div>

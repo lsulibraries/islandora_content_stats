@@ -178,7 +178,7 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
   ->fields('stats',array('id','inst','coll','cmodel','count','timestamp'))
   ->condition('timestamp', $time);
   if($inst) {
-    $query->condition('inst',$inst);
+    $query->condition('inst',$inst.'-');
   }
   if($coll) {
     $query->condition('coll',$coll);
@@ -189,19 +189,22 @@ function conditionals_for_table($inst = FALSE, $coll = FALSE, $cmodel = FALSE, $
   if($order && $sort){
     $query->orderBy($sort, $order);
   }
+  else {
+    $query->orderBy('inst', 'asc');
+    $query->orderBy('cmodel', 'asc');
+  }
   $totals = $query->execute();
   return $totals;
 }
 
 
-function latest_counts_for_table($gets) {
-  $filters = [];
+function latest_counts_for_table($pageParams) {
   $rows = [];
-  $order = isset($gets['order']) ? $gets['order'] : FALSE;
-  $sort = isset($gets['sortby']) ? $gets['sortby'] : FALSE;
-  $inst = isset($gets['inst']) ? $gets['inst']: FALSE;
-  $cmodel = isset($gets['cmodel']) ? $gets['cmodel'] : FALSE;
-  $coll = isset($gets['coll']) ? $gets['coll'] : FALSE;
+  $order = $pageParams['order'];
+  $sort = $pageParams['sort'];
+  $inst = isset($pageParams['inst']) ? $pageParams['inst']: FALSE;
+  $cmodel = isset($pageParams['cmodel']) ? $pageParams['cmodel'] : FALSE;
+  $coll = FALSE;
   module_load_include('inc','islandora_content_stats','includes/data.form');
   module_load_include('inc','islandora_content_stats','includes/queries');
   $time  = latest_run();
@@ -214,7 +217,7 @@ function latest_counts_for_table($gets) {
     //does not build row when query's inst is is_null
     if ($record->count != 0) {
       if (($not_fobj) && ($not_cmobj) && ($not_global)) {
-          $rows[$record->id] = array(
+          $rows[] = array(
             'id' => $record->id,
             'inst-id' => $record->inst,
             'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
@@ -228,21 +231,28 @@ function latest_counts_for_table($gets) {
       }
     }
   }
-  if ($sort){
-    $rows = tablesort($rows,$sort,$order);
-  }
-  return $rows;
+  return tablesort($rows,$sort,$order);
 }
 
 
 function tablesort($rows, $sort, $order){
-  $sorted = array();
-  foreach ($rows as $id => $record){
-    $sorted[$record[$sort.'-label'].$id] = $record;
+  $sortField = "$sort-label";
+  $rows2Lower = [];
+  foreach ($rows as $row) {
+    $row['inst-label'] = strtolower($row['inst-label']);
+    $rows2Lower[] = $row;
   }
-  $sortfn = $order == 'asc' ? 'ksort' : 'krsort';
-  $sortfn($sorted, SORT_NATURAL);
-  return $sorted;
+  if (!$sort) {
+    array_multisort(
+        array_column($rows2Lower, 'inst-label'), SORT_ASC, SORT_STRING,
+        array_column($rows2Lower, 'cmodel-label'), SORT_ASC, SORT_STRING,
+        $rows
+      );
+    return $rows;
+  }
+  $order_const = $order === 'asc' ? SORT_ASC : SORT_DESC;
+  array_multisort(array_column($rows2Lower, $sortField), $order_const, SORT_STRING, $rows);
+  return $rows;
 }
 
 function latest_run() {
@@ -260,19 +270,18 @@ function latest_run() {
 function cmodel_types_for_form() {
   module_load_include('inc','islandora','includes/utilities');
     $model_counts = array_keys(islandora_get_content_models());
-    $return = array();
+    $options = array();
     foreach ($model_counts as $model) {
         //when cmodel is FedoraObject or ContentModel, don't map
         $not_fobj = $model != 'fedora-system:FedoraObject-3.0';
         $not_cmobj = $model != 'fedora-system:ContentModel-3.0';
         if (($not_fobj) && ($not_cmobj)) {
             $string = map_cmodels($model);
-            $return[$model] = t($string);
+            $options[$model] = t($string);
         }
     }
-    return $return;
+    return $options;
 }
-
 
 /**
  * @return array $return
@@ -281,11 +290,11 @@ function cmodel_types_for_form() {
  */
 function institutions_for_form() {
     $prefixes = get_all_prefixes();
-    $return = array();
+    $options = array();
     foreach ($prefixes as $inst) {
-        $return[$inst . '-'] = map_institution($inst, 'form');
+        $options[$inst] = map_institution($inst, 'form');
     }
-    return $return;
+    return $options;
 }
 
 

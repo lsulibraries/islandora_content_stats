@@ -1,6 +1,8 @@
 <?php
 
 // require_once 'FeatureContextBase.php';
+use Behat\Behat\Hook\Scope\BeforeFeatureScope;
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalExtension\Context\DrushContext;
 use Drupal\DrupalUserManager;
@@ -16,52 +18,275 @@ use Drupal\Component\Utility\Random;
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends FeatureContextBase implements SnippetAcceptingContext {
-
-  static $baseCollection = 'testing-testing-123:collection';
-  public $admin, $pidsCreated, $repository;
+class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext {
 
   /**
-   * Initializes context.
    *
-   * Every scenario gets its own context instance.
-   * You can also pass arbitrary arguments to the
-   * context constructor through behat.yml.
+   * @Given I am viewing pid :pid
+   * @Then I view pid :pid
    */
-  public function __construct() {
-    $this->admin = self::getAdminUser();
-    $this->repository = islandora_get_tuque_connection($this->admin)->repository;
-    parent::__construct();
+  public function iVisitPid($pid) {
+    $path = '/islandora/object/' . $pid;
+    $this->getSession()->visit($this->locatePath($path));
   }
 
+  /**
+   * Click on the element with the provided xpath query
+   *
+   * Posted by Abu Ashraf Masnun, retrieved 2018-06-27
+   * http://masnun.com/2012/11/28/behat-and-mink-finding-and-clicking-with-xpath-and-jquery-like-css-selector.html
+   * @When /^I click on the element with xpath "([^"]*)"$/
+   */
+  public function iClickOnTheElementWithXPath($xpath) {
+    // Get the mink session.
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $element = $session->getPage()->find(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath)
+    );
+    // Errors must not pass silently.
+    if (NULL === $element) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+    }
+
+    // Ok, let's click on it.
+    $element->click();
+  }
+
+  /**
+     * @Then xpath :xpath text should equal :text
+     */
+    public function xpathTextShouldEqual($xpath, $text) {
+        $this->assertXpathTextEquals($xpath, $text);
+    }
   
-  /** @BeforeScenario */
-  public function before($event)
-  {
-    $this->pidsCreated = [];
-  }
-
-  /** @AfterScenario */
-  public function after($event)
-  {
-    foreach ($this->pidsCreated as $pid) {
-      $this->repository->purgeObject($pid);
+  /**
+   * Find whether an xpath exists in the page.
+   *
+   * Adapted from code posted by Abu Ashraf Masnun, retrieved 2018-06-27
+   * http://masnun.com/2012/11/28/behat-and-mink-finding-and-clicking-with-xpath-and-jquery-like-css-selector.html
+   *
+   * @When /^I should find xpath "([^"]*)"$/
+   */
+  public function iShouldFindXPath($xpath) {
+    // Errors must not pass silently.
+    if (!$this->xpathExists($xpath)) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
     }
   }
 
-  public function createCollectionNew($pid, $label, $models) {
+  /**
+   * Find whether an xpath exists in the page.
+   *
+   * Adapted from code posted by Abu Ashraf Masnun, retrieved 2018-06-27
+   * http://masnun.com/2012/11/28/behat-and-mink-finding-and-clicking-with-xpath-and-jquery-like-css-selector.html
+   *
+   * @When /^I should not find xpath "([^"]*)"$/
+   */
+  public function iShouldNotFindXPath($xpath) {
+
+    // Errors must not pass silently.
+    if ($this->xpathExists($xpath)) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+    }
+  }
+
+  /**
+  * @Given I create a new collection :pid
+  */
+  public function iCreateANewCollection($pid) {
+    module_load_include('inc', 'islandora_utils', 'includes/util');
+    try {
+      self::createCollectionNew($pid, 'Test collection', 'islandora:sp_large_image_cmodel');
+    }
+    catch (Exception $e) {
+      throw new Exception ($e);
+    }
+  }
+
+  /**
+  * @Given I create a new collection of :num :type objects with pid :pid and title :title
+  */
+  public function iCreateANewCollectionForObjectsWithPidAndTitle($num, $type, $pid, $title) {
+    self::createCollectionNew($pid, $title, $type);
+    self::ingestObjectsIntoCollection($num, $type, $pid);
+  }
+
+  /**
+   * @Given I create :num objects of type :type in collection :coll
+   */
+  public function iCreateObjectsOfTypeInCollection($num, $type, $coll) { 
+    self::ingestObjectsIntoCollection($num, $type, $coll);
+    // future self: be sure to update the collection policy
+  }
+
+  /**
+    * @Then select list at xpath :xpath should contain options :options
+    */
+   public function selectListAtXpathShouldContainOptions($xpath, $options) {
+     if (!$this->xpathExists($xpath)) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+    }
+    $expectedOptions = array_map('trim', explode(',', $options));
+    $foundOptions = [];
+    $optionsXpath = "$xpath/option";
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $elements = $session->getPage()->findAll(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $optionsXpath)
+    );
+    foreach ($elements as $element) {
+      // will this ever run ?
+      if (NULL === $element) {
+        throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+      }
+      $foundOptions[] = trim($element->getText());
+    }
+    $missing = array_diff($expectedOptions, $foundOptions);
+    if (!empty($missing)) {
+      throw new \Exception(sprintf("Expected options [%s] but found [%s]; missing option(s) [%s] at xpath '%s'", implode(',', $expectedOptions), implode(',', $foundOptions), implode(',', $missing), $xpath));
+    }
+   }
+
+
+  /**
+   * Waits a while, for debugging.
+   *
+   * from http://programsbuzz.com/article/behat-script-wait-n-seconds
+   * @param int $seconds
+   *   How long to wait.
+   *
+   * @When I wait :seconds second(s)
+   */
+  public function wait($seconds) {
+    sleep($seconds);
+  }
+
+  static $pidsCreated = [];
+  static $admin, $repository;
+
+  /**
+   * TODO:
+   * - add empty collection
+   * - add collection with arbitrary policy
+   *
+   * @BeforeFeature
+   */
+  public static function setupFeature(BeforeFeatureScope $scope) {
+    $fixture = [
+      'testinst-images:collection' => [
+        'info' => [
+          'title' => 'Superinstitution Images Collection',
+        ],
+        'children' => [
+          'image' => 9
+        ],
+      ],
+      'testinst-subinst-audio:collection' => [
+        'info' => [
+          'title' => 'Subinstitution Audio Collection',
+        ],
+        'children' => [
+          'audio' => 8
+        ],
+      ],
+      'otherinst-images:collection' => [
+        'info' => [
+          'title' => 'Substring Images Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
+        ],
+        'children' => [
+          'image' => 7
+        ],
+      ],
+      'emptyinst-empty:collection' => [
+        'info' => [
+          'title' => 'Empty Collection',
+        ],
+        'children' => [],
+      ],
+      'anotherinst-image:collection' => [
+        'info' => [
+          'title' => 'Superstring Image Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
+        ],
+        'children' => [
+          'audio' => 4,
+          'image' => 2,
+        ],
+      ],
+      'otherinsta-image:collection' => [
+        'info' => [
+          'title' => 'Superstring Image Collection',
+          'description' => 'The namespace prefix of this collection is one of a group of overlapping namespace prefixes.'
+        ],
+        'children' => [
+          'audio' => 1,
+          'image' => 3,
+        ],
+      ],
+    ];
+    foreach ($fixture as $collection => $data) {
+      $title = $data['info']['title'];
+      self::createCollectionNew($collection, $title, array_keys($data['children']));
+      foreach ($data['children'] as $model => $num) {
+        self::ingestObjectsIntoCollection($num, $model, $collection);
+      }
+    }
+
+    // Adds an extraneous cmodel to one collection policy.
+    self::addPolicyToCollection('testinst-subinst-audio:collection', self::mapContentType('image'), 'Image', 'testinst-subinst-audio');
+    // Now run the queries and clear the cache so that scenarios are simpler.
+    module_load_include('inc', 'islandora_content_stats', 'includes/queries');
+    islandora_content_stats_run_queries();
+    cache_clear_all();
+    cache_clear_all();
+  }
+
+  /** @AfterFeature */
+  public static function teardownFeature(AfterFeatureScope $scope) {
+    foreach (self::$pidsCreated as $pid) {
+      self::getRepository()->purgeObject($pid);
+      printf("Deleted %s\n", $pid);
+    }
+    $moduleTablesToTruncate = [
+      'islandora_content_stats' => [
+        'islandora_content_stats'
+      ],
+      'islandora_namespace_homepage' => [
+        'islandora_namespace_homepage'
+      ],
+    ];
+    foreach ($moduleTablesToTruncate as $module => $tables) {
+      if (!module_exists($module)) {
+        continue;
+      }
+      foreach ($tables as $table) {
+        db_truncate($table)->execute();
+      }
+    }
+    cache_clear_all();
+  }
+  
+  public static function getRepository() {
+    return islandora_get_tuque_connection(self::getAdminUser())->repository;
+  }
+  
+  public static function createCollectionNew($pid, $label, $models) {
     // Set up the object and ingest it.
     $properties = array(
       'label' => $label,
       'pid' => $pid,
       'models' => 'islandora:collectionCModel',
       'parent' => 'islandora:root',
-      'owner'  => $this->admin->name,
+      'owner'  => self::getAdminUser()->name,
     );
     $ns = explode(':', $pid)[0];
     $policy = CollectionPolicy::emptyPolicy();
     foreach ((array) $models as $model) {
-      $policy->addContentModel($this->mapContentType($model), 'New Object', $ns);
+      $policy->addContentModel(self::mapContentType($model), 'New Object', $ns);
     }
     $datastreams = array(
       array(
@@ -83,19 +308,42 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
         'mimetype' => 'text/xml',
       ),
     );
-    $object = $this->ingestConstructedObject($properties, $datastreams);
+    $object = self::ingestConstructedObject($properties, $datastreams);
     $object->state = 'active';
-    $this->publishCollection($object->id);
-    $this->pidsCreated[] = $object->id;
+    self::publishCollection($object->id);
+    self::$pidsCreated[] = $object->id;
+    printf("Created %s\n", $pid);
     return $object;
   }
 
-  public function publishCollection($pid) {
+  public static function publishCollection($pid) {
     if (module_exists('islandora_collection_toggle_publish')) {
       module_load_include('inc','islandora_collection_toggle_publish', 'includes/utilities');
       if (!islandora_collection_toggle_publish_collection_is_published($pid)) {
         islandora_collection_toggle_publish_publish_collection($pid);
       }
+    }
+  }
+  
+  public static function addPolicyToCollection($collection_pid, $cmodel_pid, $name, $namespace) {
+    $collection = islandora_object_load($collection_pid);
+    if (!$collection) {
+      throw new Exception("Unable to load object with pid '$collection_pid'");
+    }
+
+    if (!isset($collection['COLLECTION_POLICY'])) {
+      $policy = CollectionPolicy::emptyPolicy();
+      $policy->addContentModel($cmodel_pid, $name, $namespace);
+      $cp_ds = $collection->constructDatastream('COLLECTION_POLICY', 'M');
+      $cp_ds->mimetype = 'application/xml';
+      $cp_ds->label = 'Collection Policy';
+      $cp_ds->setContentFromString($policy->getXML());
+      $collection->ingestDatastream($cp_ds);
+    }
+    else {
+      $policy = new CollectionPolicy($collection['COLLECTION_POLICY']->content);
+      $policy->addContentModel($cmodel_pid, $name, $namespace);
+      $collection['COLLECTION_POLICY']->setContentFromString($policy->getXML());
     }
   }
   
@@ -131,11 +379,11 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
    * @return bool|AbstractObject
    *   FALSE if the object ingest failed, or the object if successful.
    */
-  public function ingestConstructedObject(array $properties = array(), array $datastreams = array()) {
+  public static function ingestConstructedObject(array $properties = array(), array $datastreams = array()) {
     if (!isset($properties['pid'])) {
       $properties['pid'] = "islandora";
     }
-    $object = $this->repository->constructObject($properties['pid']);
+    $object = self::getRepository()->constructObject($properties['pid']);
 
     // Set the object properties before ingesting it.
     if (isset($properties['label'])) {
@@ -189,7 +437,7 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
       }
     }
 
-    $this->repository->ingestObject($object);
+    self::getRepository()->ingestObject($object);
 
     // Add a parent relationship, if necessary.
     if (isset($properties['parent'])) {
@@ -199,40 +447,11 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
     return $object;
   }
 
-  /**
-  * @Given I create a new collection :pid
-  */
-  public function iCreateANewCollection($pid) {
-    module_load_include('inc', 'islandora_utils', 'includes/util');
-    try {
-      $this->createCollectionNew($pid, 'Test collection', 'islandora:sp_large_image_cmodel');
-    }
-    catch (Exception $e) {
-      throw new Exception ($e);
-    }
-  }
-
-  /**
-  * @Given I create a new collection of :num :type objects with pid :pid and title :title
-  */
-  public function iCreateANewCollectionForObjectsWithPidAndTitle($num, $type, $pid, $title) {
-    $this->createCollectionNew($pid, $title, $type);
-    $this->ingestObjectsIntoCollection($num, $type, $pid);
-  }
-
-  /**
-   * @Given I create :num objects of type :type in collection :coll
-   */
-  public function iCreateObjectsOfTypeInCollection($num, $type, $coll) { 
-    $this->ingestObjectsIntoCollection($num, $type, $coll);
-    // future self: be sure to update the collection policy
-  }
-
-  private function ingestObjectsIntoCollection($num, $type, $coll) {
+  private static function ingestObjectsIntoCollection($num, $type, $coll) {
     if (!ctype_digit(strval($num))) {
       throw new Exception ("Argument for 'number' must be an integer.");
     }
-    $model = $this->mapContentType($type);
+    $model = self::mapContentType($type);
     $ns = explode(':', $coll)[0];
     $pidsCreatedHere = [];
     foreach (range(1, $num) as $n) {
@@ -242,7 +461,7 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
         'label'  => $itemLabel,
         'models' => $model,
         'parent' => $coll,
-        'owner'  => $this->admin->name,
+        'owner'  => self::getAdminUser()->name,
       );
       $datastreams = array(
         array(
@@ -258,15 +477,64 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
           'mimetype' => 'image/png',
         ),
       );
-      $object = $this->ingestConstructedObject($properties, $datastreams);
+      $object = self::ingestConstructedObject($properties, $datastreams);
       $object->state = 'active';
       $pidsCreatedHere[] = $object->id;
+      printf("Created %s\n", $object->id);
     }
-    $this->pidsCreated = array_merge($this->pidsCreated, $pidsCreatedHere);
-    return $pidsCreatedHere;
+    self::$pidsCreated = array_merge(self::$pidsCreated, $pidsCreatedHere);
+    return self::$pidsCreated;
+  }
+
+  /**
+   * Helper fn for xpath exists.
+   *
+   * Adapted from code posted by Abu Ashraf Masnun, retrieved 2018-06-27
+   * http://masnun.com/2012/11/28/behat-and-mink-finding-and-clicking-with-xpath-and-jquery-like-css-selector.html
+   *
+   * @param string $xpath
+   *   xpath to find
+   */
+  public function xpathExists($xpath) {
+    // Get the mink session.
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $element = $session->getPage()->find(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath)
+    );
+    if (NULL === $element) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  public function assertXpathTextEquals($xpath, $text) {
+    $session = $this->getSession();
+    // Runs the actual query and returns the element.
+    $element = $session->getPage()->find(
+        'xpath',
+        $session->getSelectorsHandler()->selectorToXpath('xpath', $xpath)
+    );
+    if (NULL === $element) {
+      throw new \InvalidArgumentException(sprintf('Could not evaluate XPath: "%s"', $xpath));
+    }
+    if ($element->getText() != $text) {
+      throw new \Exception(sprintf("Expected text '%s' but found '%s' at xpath '%s'", $text, $element->getText(), $xpath));
+    }
+  }
+
+  /**
+   * @Given /^breakpoint$/
+   */
+  public function breakpoint() {
+    fwrite(STDOUT, "\033[s \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
+    while (fgets(STDIN, 1024) == '') {}
+    fwrite(STDOUT, "\033[u");
+    return;
   }
   
-  protected function mapContentType($type) {
+  protected static function mapContentType($type) {
     $map = [
       'image' => 'sp_large_image_cmodel',
       'audio' => 'sp-audioCModel',
@@ -275,63 +543,6 @@ class FeatureContext extends FeatureContextBase implements SnippetAcceptingConte
       throw new Exception("$type is not recognized in this FeatureContext; you can define it.");
     }
     return "islandora:{$map[$type]}";
-  }
-  
-  /**
-   * @Given I am viewing the test collection
-   */
-  public function iAmViewingTheTestCollection()
-  {
-      $path = '/islandora/object/' . self::$baseCollection;
-      $this->getSession()->visit($this->locatePath($path));
-  }
-
-  /**
-   * @BeforeSuite
-   */
-  public static function setup() {
-//    $admin = self::getAdminUser();
-//    self::createCollection($admin);
-//    self::createModsTmpFile();
-  }
-
-  /**
-   * @AfterSuite
-   */
-  public static function teardown() {
-//    global $user;
-//    $original_user = $user;
-//    $old_state = drupal_save_session();
-//    drupal_save_session(FALSE);
-//    $user = $behat = user_load_by_name('behat');
-//
-//    self::deleteCollection(self::$baseCollection);
-//    $user = $original_user;
-//    drupal_save_session($old_state);
-//
-//    if($behat) {
-//      user_delete($behat->uid);
-//    }
-  }
-
-  static function createCollection($user, \stdClass $collection = NULL) {
-    module_load_include('inc', 'islandora_utils', 'includes/util');
-    if (!$collection) {
-      $collection = new stdClass();
-      $collection->title = 'Test Collection';
-      $collection->descript = "This is a description for a test collection";
-      $collection->pid = self::$baseCollection;
-    }
-    islandora_utils_ingest_collection($collection->title, $collection->descript, $collection->pid, 'islandora:root', array(), $user);
-  }
-
-  public static function deleteCollection($pid) {
-    $object = islandora_object_load($pid);
-    if ($object) {
-      module_load_include('inc', 'islandora_solution_pack_collection', 'includes/batch');
-      batch_set(islandora_basic_collection_delete_children_batch($object));
-      islandora_delete_object($object);
-    }
   }
 
   public static function getAdminUser() {

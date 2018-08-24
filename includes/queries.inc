@@ -9,8 +9,7 @@
  */
 
 function get_all_collections($prefix = FALSE) {
-  $prefix = $prefix . '-';
-  $filter = $prefix ? "FILTER regex(str(?obj), '$prefix')" : '';
+  $filter = $prefix ? getSparqlNamespacePrefixFilter($prefix) : '';
   $tuque = islandora_get_tuque_connection();
   $query = <<<EOQ
 SELECT ?obj
@@ -27,17 +26,23 @@ EOQ;
   return $coll_pids;
 }
 
-function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
-  $prefix = $prefix == FALSE ? FALSE : $prefix . '-';
-  $where_coll = $coll_pid ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
-  $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
-  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?item <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
+function getSparqlNamespacePrefixFilter($unqualifiedStringPrefix) {
+  if (!$unqualifiedStringPrefix) {
+    return '';
+  }
+  return "FILTER regex(str(?obj), '^info:fedora/$unqualifiedStringPrefix-')";
+}
 
-  $filter = $prefix ? "FILTER regex(str(?item), '$prefix')" : '';
-    $query = <<<EOL
-select ?item $xfactor
+function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
+  $where_coll = $coll_pid ? "?obj <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
+  $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
+  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?obj <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
+
+  $filter = $prefix ? getSparqlNamespacePrefixFilter($prefix) : '';
+  $query = <<<EOL
+select ?obj $xfactor
 from <#ri>
-where {{ ?item <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
+where {{ ?obj <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
 $where_coll
 $not_constituent
 } $filter}

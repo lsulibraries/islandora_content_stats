@@ -63,62 +63,115 @@ function islandora_content_stats_theme() {
     );
 }
 
-//code smell and repetition need cleaned.
+/**
+ * 
+ * @return array containing the string keys of the page params in use.
+ */
+function getPageParams() {
+  return ['sort', 'order', 'cmodel', 'inst'];
+}
+
+/**
+ * @return keyed array with values for sorting and filters
+ */
+function islandora_content_stats_get_query_params() {
+  $pageParams = array_fill_keys(getPageParams(), FALSE);
+  $getParams = drupal_get_query_parameters();
+  // Check that incoming values are ones we expect.
+  foreach (array_keys($pageParams) as $param) {
+    if (array_key_exists($param, $getParams)) {
+      validValuesPassthru($param, $getParams[$param]);
+      $pageParams[$param] = $getParams[$param];
+    }
+  }
+  return $pageParams;
+}
+
+/**
+ * 
+ * @param array $pageParams as returned from
+ *   islandora_content_stats_get_query_params().
+ * @return array The input [] with default values set.
+ */
+function pageDefaultParams($pageParams) {
+  if (!$pageParams['sort']) {
+    $pageParams['sort'] = 'inst';
+  }
+  if (!$pageParams['order']) {
+    $pageParams['order'] = 'asc';
+  }
+  if ($pageParams['cmodel'] && $pageParams['sort'] = 'cmodel') {
+    $pageParams['sort'] = 'inst';
+  }
+  if ($pageParams['inst'] && $pageParams['sort'] = 'inst') {
+    $pageParams['sort'] = 'cmodel';
+  }
+  return $pageParams;
+}
+
+/**
+ * 
+ * @param string $column table column name
+ * @return array of query params suitable for url().
+ */
+function columnSortLinkParams($column) {
+  $pageParams = pageDefaultParams(islandora_content_stats_get_query_params());
+  validValuesPassthru('sort', $column);
+  if ($pageParams['sort'] == $column) {
+    $pageParams['order'] = $pageParams['order'] == 'asc' ? 'desc' : 'asc';
+  }
+  else {
+    $pageParams['sort'] = $column;
+  }
+  return array_filter($pageParams);
+}
+
+/**
+ * Checks get params related to sorts and filters.
+ * 
+ * @param String $key the name of the param.
+ * @param String $value param's value.
+ * @throws Exception for invalid param names ($key) 
+ *   or for invalid values.
+ */
+function validValuesPassthru($key, $value) {
+  switch ($key) {
+    case 'sort':
+      $valid = ['inst', 'cmodel', 'count'];
+      break;
+    case 'order': 
+      $valid = ['desc', 'asc'];
+      break;
+    case 'cmodel':
+      module_load_include('inc', 'islandora', 'includes/utilities');
+      $valid = array_keys(islandora_get_content_models());
+      break;
+    case 'inst':
+      module_load_include('inc', 'islandora_content_stats', 'includes/queries');
+      $valid = get_all_prefixes();
+      break;
+    default:
+      throw new Exception(sprintf("Invalid parameter; one of [%s] expected; got [%s]", implode('|', ['sort','order','cmodel','inst']), $value));
+  }
+  $valid[] = NULL;
+  if (!in_array($value, $valid)) {
+    throw new Exception(sprintf("Invalid value for parameter %s; one of [%s] expected; got [%s]", $key, implode('|', $valid), $value));
+  }
+}
+
+/**
+ * hook_preprocess
+ * 
+ * @param type $variables
+ */
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   module_load_include('inc','islandora_content_stats','includes/utilities');
-  module_load_include('inc','islandora_content_stats','includes/data.form');
-  $gets = drupal_get_query_parameters();
-  if (isset($gets['sortby'])) {
-    $order = $gets['order'];
-    //existance populates conditionals
-    $inst_and_asc = $gets['sortby'] == 'inst' && $gets['order'] == 'asc';
-    $cmodel_and_asc = $gets['sortby'] == 'cmodel' && $gets['order'] == 'asc';
-    $count_and_asc = $gets['sortby'] == 'count' && $gets['order'] == 'asc';
-    //assign ordder based on conditions
-    $iorder = ($inst_and_asc) ? 'desc' : 'asc';
-    $torder = ($cmodel_and_asc) ? 'desc' : 'asc';
-    $corder = ($count_and_asc) ? 'desc' : 'asc';
-  }
-  else{
-    $iorder = 'asc';
-    $torder = 'asc';
-    $corder = 'asc';
-  }
-  //defaults
-  $inst_get = isset($gets['inst']) ? $gets['inst'] : '';
-  $cmodel_get =isset($gets['cmodel']) ? $gets['cmodel'] : '';
-  $urls= [];
-  $urls['inst'] = array('sortby' => 'inst', 'order' => $iorder, 'inst' => $inst_get,'cmodel'=> $cmodel_get);
-  $urls['cmodel'] = array('sortby' => 'cmodel', 'order' => $torder, 'inst' => $inst_get,'cmodel'=> $cmodel_get);
-  $urls['count'] = array('sortby' => 'count', 'order' => $corder, 'inst' => $inst_get, 'cmodel'=> $cmodel_get);
-  //conditions
-  $inst_and_cmodel = isset($gets['inst']) && isset($gets['cmodel']);
-  $cmodel_only = isset($gets['cmodel']) && !isset($gets['inst']);
-  $inst_only = isset($gets['inst']) && !isset($gets['cmodel']);
-  //conditional array population.
-  if($inst_and_cmodel){
-    foreach ($urls as $url) {
-      $url['inst'] = $gets['inst'];
-      $url['cmodel'] = $gets['cmodel'];
-    }
-  }
-  if($cmodel_only){
-    foreach ($urls as $url){
-      $url['cmodel'] =$gets['cmodel'];
-    }
-  }
-  if($inst_only){
-    foreach ($urls as $url) {
-      $url['inst'] = $gets['url'];
-    }
-  }
-  //rebuild variables and return
-  $variables['gets'] = $gets;
-  $variables['latest'] = latest_counts_for_table($gets);
-  $variables['insturl'] = url('data',array('query' => $urls['inst']));
-  $variables['typeurl'] = url('data',array('query' => $urls['cmodel']));
-  $variables['counturl'] = url('data',array('query' => $urls['count']));
-    return $variables;
+  $pageParams = pageDefaultParams(islandora_content_stats_get_query_params());
+
+  $variables['latest'] = latest_counts_for_table($pageParams);
+  $variables['insturl'] = url('data',array('query' => columnSortLinkParams('inst')));
+  $variables['typeurl'] = url('data',array('query' => columnSortLinkParams('cmodel')));
+  $variables['counturl'] = url('data',array('query' => columnSortLinkParams('count')));
 }
 
 function template_process_islandora_content_stats_data_tpl() {
