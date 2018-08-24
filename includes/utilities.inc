@@ -218,7 +218,7 @@ function latest_counts_for_table($gets) {
     //does not build row when query's inst is is_null
     if ($record->count != 0) {
       if (($not_fobj) && ($not_cmobj) && ($not_global)) {
-          $rows[$record->id] = array(
+          $rows[] = array(
             'id' => $record->id,
             'inst-id' => $record->inst,
             'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
@@ -232,21 +232,23 @@ function latest_counts_for_table($gets) {
       }
     }
   }
-  if ($sort){
-    $rows = tablesort($rows,$sort,$order);
-  }
-  return $rows;
+  return tablesort($rows,$sort,$order);
 }
 
 
 function tablesort($rows, $sort, $order){
-  $sorted = array();
-  foreach ($rows as $id => $record){
-    $sorted[$record[$sort.'-label'].$id] = $record;
+  $sortField = "$sort-label";
+  if (!$sort) {
+    array_multisort(
+        array_column($rows, 'inst-label'), SORT_ASC,
+        array_column($rows, 'cmodel-label'), SORT_ASC,
+        $rows
+      );
+    return $rows;
   }
-  $sortfn = $order == 'asc' ? 'ksort' : 'krsort';
-  $sortfn($sorted, SORT_NATURAL);
-  return $sorted;
+  $order_const = $order === 'asc' ? SORT_ASC : SORT_DESC;
+  array_multisort(array_column($rows, $sortField), $order_const, $rows);
+  return $rows;
 }
 
 function latest_run() {
