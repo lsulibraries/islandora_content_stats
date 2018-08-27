@@ -354,9 +354,19 @@ Feature:
         And for "edit-title" I enter "Other Library"
         And I press "Submit"
 
+        And I am on "/emptyinst/settings"
+        And for "edit-title" I enter "Emptiness University"
+        And I press "Submit"
+        # ensure that empty entries (deleted by CA for whatever reason)
+        # don't display as emptystring
+        And I am on "/emptyinst/settings"
+        And for "edit-title" I enter ""
+        And I press "Submit"
+
         And the cache has been cleared
 
         When I am on "/data"
+
         Then select list at xpath "//select[@id='edit-inst']" should contain options "anotherinst, otherinsta, emptyinst, Test Institution, Subinstitution of Test, Other Library"
         And xpath "//div[@class='column inst']//div[contains(@class, 'row')][1]" text should equal "anotherinst"
 

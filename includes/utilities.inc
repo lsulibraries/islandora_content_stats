@@ -51,6 +51,9 @@ function map_institution($inst) {
     $query = 'select * from {islandora_namespace_homepage} where prefix = :inst';
     $ns_homepage_table = db_query($query, $qargs);
     foreach ($ns_homepage_table as $row) {
+      if ($row->title == '') {
+        return $inst;
+      }
       return $row->title;
     }
     // if there are no hits in the db:
