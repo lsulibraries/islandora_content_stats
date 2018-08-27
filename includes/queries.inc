@@ -172,7 +172,7 @@ function islandora_content_stats_run_queries() {
     //array of each namespace prefix and sub-inst namespace prefix ie [lsu,lsu-ag];
     $all_prefixes = get_all_prefixes();
     //all available models
-    $all_cmodels = array_keys(islandora_get_content_models());
+    $all_cmodels = array_keys(islandora_content_stats_islandora_get_content_models());
     //all available collections at islandora:root
     $all_colls = get_all_collections();
     //Loop for Totals at root

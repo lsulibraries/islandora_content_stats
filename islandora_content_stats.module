@@ -150,7 +150,7 @@ function validValuesPassthru($key, $value) {
       break;
     case 'cmodel':
       module_load_include('inc', 'islandora', 'includes/utilities');
-      $valid = array_keys(islandora_get_content_models());
+      $valid = array_keys(islandora_content_stats_islandora_get_content_models());
       break;
     case 'inst':
       module_load_include('inc', 'islandora_content_stats', 'includes/queries');
@@ -163,6 +163,23 @@ function validValuesPassthru($key, $value) {
   if (!in_array($value, $valid)) {
     throw new Exception(sprintf("Invalid value for parameter %s; one of [%s] expected; got [%s]", $key, implode('|', $valid), $value));
   }
+}
+
+function islandora_content_stats_islandora_get_content_models() {
+
+  $cmodels = &drupal_static(__FUNCTION__);
+  if (!isset($cmodels)) {
+    if ($cache = cache_get('islandora_content_stats_cmodels')) {
+      $cmodels = $cache->data;
+    }
+    else {
+      module_load_include('inc', 'islandora', 'includes/utilities');
+      $cmodels = islandora_get_content_models();
+      cache_set('islandora_content_stats_cmodels', $cmodels, 'cache');
+    }
+  }
+  return $cmodels;
+
 }
 
 /**
