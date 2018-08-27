@@ -182,7 +182,7 @@ function islandora_content_stats_run_queries() {
             if($model == 'islandora:collectionCModel'){
               $count = $count -1;
             }
-            $coll = variable_get('islandora_repository_pid');
+            $coll = variable_get('islandora_repository_pid', 'islandora:root');
             queries_db_insert(NULL, $coll, $model, $count, $time);
             //loop for all institutions
     }

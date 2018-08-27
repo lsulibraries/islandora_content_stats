@@ -40,24 +40,23 @@ function map_cmodels($model) {
  * @return string
  * String of institution's title
  */
-//needs a rework code smell
 function map_institution($inst) {
-    if ($inst == 'islandora:root') {
-        return $inst;
+  if ($inst == variable_get('islandora_repository_pid', 'islandora:root')) {
+    return $inst;
+  }
+  else if (module_exists('islandora_namespace_homepage')) {
+    $qargs = [':inst' => rtrim($inst, '-')];
+    $query = 'select * from {islandora_namespace_homepage} where prefix = :inst';
+    $ns_homepage_table = db_query($query, $qargs);
+    foreach ($ns_homepage_table as $row) {
+      return $row->title;
     }
-    else {
-        $inst = rtrim($inst, '-');
-        $query = 'select * from {islandora_namespace_homepage} where prefix = \'' . $inst . '\'';
-        $ns_homepage_table = db_query($query);
-        if ($ns_homepage_table->rowCount() == 0) {
-            return $inst;
-        }
-        else {
-            foreach ($ns_homepage_table as $row) {
-                return $row->title;
-            }
-        }
-    }
+    // if there are no hits in the db:
+    return $inst;
+  }
+  else {
+    return $inst;
+  }
 }
 
 /**
@@ -218,6 +217,7 @@ function latest_counts_for_table($pageParams) {
     //does not build row when query's inst is is_null
     if ($record->count != 0) {
       if (($not_fobj) && ($not_cmobj) && ($not_global)) {
+        $inst = rtrim($record->inst, '-');
           $rows[] = array(
             'id' => $record->id,
             'inst-id' => $inst,

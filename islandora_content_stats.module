@@ -37,7 +37,7 @@ function islandora_content_stats_theme() {
     module_load_include('inc','islandora_content_stats','includes/utilities');
     module_load_include('inc','islandora_content_stats','includes/queries');
     module_load_include('inc','islandora_content_stats','includes/data.form');
-    $params =  drupal_get_query_parameters();
+    $params =  islandora_content_stats_get_query_params();
     return array(
         'islandora_content_stats_data_tpl' => array(
             'template' => 'theme/data',
@@ -178,7 +178,6 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   $variables['insturl'] = url('data',array('query' => columnSortLinkParams('inst')));
   $variables['typeurl'] = url('data',array('query' => columnSortLinkParams('cmodel')));
   $variables['counturl'] = url('data',array('query' => columnSortLinkParams('count')));
-}
 
   // setup vars for download
   module_load_include('inc', 'islandora_content_stats', 'includes/language');
