@@ -28,7 +28,9 @@ function map_cmodels($model) {
             $short_label = str_replace(' Content Model', '', $i_replace);
             return $short_label;
         }
+        return $model;
     }
+    return $model;
 }
 
 /**
