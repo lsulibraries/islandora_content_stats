@@ -56,19 +56,8 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#value' => lang('filterSubmit'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
-    $form['download']['dltitle'] = array(
-        '#markup' => "<div class='dl_txt'>" . lang('dlSubmitDesc') . "</div>",
-        '#attributes' => array('class' => array('ics_download_title')),
-    );
-    $form['download']['submit'] = array(
-        '#type' => 'submit',
-        '#value' => lang('dlSubmit'),
-        '#submit' => array('islandora_content_stats_csv_download'),
-        '#attributes' => array('class' => array('ics_download_button')),
-    );
     return $form;
 }
-
 
 /**
  * Download function
@@ -76,44 +65,36 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
  */
 function islandora_content_stats_csv_download() {
   module_load_include('inc','islandora_content_stats','includes/utilities');
-  $query = 'SELECT * FROM {islandora_content_stats}';
-  $filters = array();
-   foreach ($_GET as $key => $filter) {
-   if($key === 'cmodel' || $key === 'inst' || $key == 'coll') {
-           $filters[$key] = $filter;
-       }
-   }
-  $max_time = '';
-  $q_time = db_query('select MAX(timestamp) from {islandora_content_stats}');
-  $max_time = $q_time->fetchField();
-  $query .= ' WHERE timestamp = \'' . $max_time . '\'';
-  foreach ($filters as $key => $filter) {
-    if ($filter != '') {
-       $query .= ' AND ' . $key . ' = \'' . $filter . '\'';
+  $max_time = latest_run();
+  $query = 'SELECT * FROM {islandora_content_stats} WHERE timestamp = :max_time';
+  $qargs = [':max_time' => $max_time];
+  foreach (pageDefaultParams(islandora_content_stats_get_query_params()) as $key => $filter) {
+    if(in_array($key, ['cmodel', 'inst', 'coll']) && $filter) {
+      $query .= " AND $key = :$key";
+      $qargs[$key] = $key == 'inst' ? "$filter-" : $filter;
     }
   }
-  $csv = [];
-  $results = db_query($query) or die('Sql error : ' . mysql_error()); // why is `die()` in this code ? watchdog or similar would be better.
-  $csv[] = implode(',', array('QID', 'Institution', 'Collection', 'Cmodel', 'Count', 'Timestamp', 'URL'));
+
+  $csv = [implode(',', array('QID', 'Institution', 'Cmodel', 'Count', 'Timestamp', 'URL'))];
+
+  $results = db_query($query, $qargs);
   foreach ($results as $result) {
-      $not_fobj = $result->cmodel != 'fedora-system:FedoraObject-3.0';
-      $not_cmobj = $result->cmodel != 'fedora-system:ContentModel-3.0';
-      $not_rootcoll = $result->coll != 'islandora:root';
-      if (($not_fobj) && ($not_cmobj) && ($not_rootcoll)) {
-          $mapped_results = array(
-              $result->id,
-              map_institution($result->inst),
-              map_collection($result->coll),
-              $result->cmodel,
-              $result->count,
-              strftime('%d:%m:%Y:%r', $result->timestamp),
-              map_collection($result->coll, 'csv')
-          );
-          $csv[] = implode(',', $mapped_results);
-      }
+    $rootcoll = variable_get('islandora_repository_pid', 'islandora:root');
+    $ignored_cmodel = in_array($result->cmodel, ['fedora-system:FedoraObject-3.0', 'fedora-system:ContentModel-3.0']);
+    if(!$ignored_cmodel && $result->coll != $rootcoll) {
+
+      $mapped_results = array(
+        $result->id,
+        map_institution($result->inst),
+        $result->cmodel,
+        $result->count,
+        strftime('%d:%m:%Y:%r', $result->timestamp),
+      );
+      $csv[] = implode(',', $mapped_results);
+    }
   }
-  $csv = implode("\n", $csv);
-  $filename = file_unmanaged_save_data($csv, "temporary://" . 'data.csv', FILE_EXISTS_RENAME);
+  $csv2string = implode("\n", $csv);
+  $filename = file_unmanaged_save_data($csv2string, "temporary://data.csv", FILE_EXISTS_RENAME);
   $headers = [
     'Content-type' => 'text/csv; utf-8',
     'Content-Dispositon' => 'attachment; filename=islandora_content_stats.csv'

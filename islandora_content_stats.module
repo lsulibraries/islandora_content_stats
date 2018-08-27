@@ -12,10 +12,16 @@ function islandora_content_stats_menu() {
         'access arguments' => array('administer site configuration'),
         'file' => 'includes/admin.form.inc',
     );
-        $items['data'] = array(
+    $items['data'] = array(
         'title' => 'Content Statistics',
         'page callback' => 'islandora_content_stats_data',
         'page arguments' => array('islandora_content_stats_form'),
+        'file' => 'includes/data.form.inc',
+        'access callback' => TRUE,
+    );
+    $items['data/download'] = array(
+        'title' => 'Content Statistics',
+        'page callback' => 'islandora_content_stats_csv_download',
         'file' => 'includes/data.form.inc',
         'access callback' => TRUE,
     );
@@ -174,14 +180,11 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
   $variables['counturl'] = url('data',array('query' => columnSortLinkParams('count')));
 }
 
-function template_process_islandora_content_stats_data_tpl() {
-  module_load_include('inc','islandora_content_stats','includes/data.form');
-  $gets = drupal_get_query_parameters();
-  if(isset($gets['op'])){
-    if($gets['op']== 'Download History as CSV'){
-      islandora_content_stats_csv_download();
-    }
-  }
+  // setup vars for download
+  module_load_include('inc', 'islandora_content_stats', 'includes/language');
+  $variables['dlSubmitDesc'] = lang('dlSubmitDesc');
+  $variables['dlSubmit'] = lang('dlSubmit');
+  $variables['downloadurl'] = url('data/download', array('query' => columnSortLinkParams('inst')));
 }
 
 /**

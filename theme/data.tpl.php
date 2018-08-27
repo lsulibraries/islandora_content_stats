@@ -106,6 +106,12 @@
                     <?php endforeach; ?>
                 </div>
             </div>
+            <div class="form-wrapper">
+              <form action="<?php print $downloadurl; ?>">
+                <div class="dl_text ics_download_title"><?php print $dlSubmitDesc; ?></div>
+                <input value="<?php print $dlSubmit; ?>" class="ics_download_button" type="submit"></input>
+              </form>
+            </div>
         </div>
     </div>
 </div>
