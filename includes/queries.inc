@@ -93,8 +93,8 @@ function get_collection_policy_array($pid) {
 }
 
 function compound_check_constituency($prefix, $coll = FALSE) {
+    throw new Exception ("This function is not intended to be active ATM!");
     $coll = $coll ? islandora_object_load($coll) : '';
-    $label = gettype($coll) == 'object' ? $coll->label : '';
     $tuque = islandora_get_tuque_connection();
     $query = <<<EOL
 SELECT ?item ?parent ?coll_parent ?parentmodel ?itemmodel
@@ -141,13 +141,14 @@ EOL;
 }
 
 function cpd_constituent_to_db($prefix, $coll = FALSE, $time) {
+  throw new Exception ("This function is not intended to be active ATM!");
   if ($coll != FALSE) {
     //check each inst for constituent members.
-    $children_of_cpds = compound_check_constituency($prefix);
+//    $children_of_cpds = compound_check_constituency($prefix);
     queries_db_insert($prefix . '-', 'All', 'children of compound object types',$children_of_cpds['count'],$time);
   }
   if ($coll) {
-    $collCpds = compound_check_constituency($prefix, $coll);
+//    $collCpds = compound_check_constituency($prefix, $coll);
     queries_db_insert($prefix . '-', $coll, $collCpds['parentModels'], $collCpds['count'], $time);
   }
 }
@@ -242,18 +243,17 @@ function queries_db_insert($inst, $coll, $cmodel, $count, $time) {
  * each query where coll is islandora:root (ints == NULL)
  */
 function islandora_root_stats_queries() {
-    $last_time = db_query('select max(timestamp) from {islandora_content_stats}');
-    $time = $last_time->fetchField();
-    $pref = 'select * from {islandora_content_stats} where inst is NULL and timestamp = \'';
-    $suff = '\' and cmodel not like \'fedora-system%\'';
-    $query = db_query($pref . $time . $suff);
-    $results = $query->fetchAll();
-    $display = array();
-    foreach ($results as $result) {
-        $display[$result->id] = array(
-            'cmodel' => $result->cmodel,
-            'count' => $result->count,
-        );
-    }
-    return $display;
+  throw new Exception ("This function is not intended to be active ATM!");
+  module_load_include('inc','islandora_content_stats','includes/utilities');
+  $qargs = [':ts' => latest_run()];
+  $query = 'select * from {islandora_content_stats} where inst is NULL and timestamp = :ts';
+  $results = db_query($query, $qargs)->fetchAll();
+  $display = array();
+  foreach ($results as $result) {
+    $display[$result->id] = array(
+      'cmodel' => $result->cmodel,
+      'count' => $result->count,
+    );
+  }
+  return $display;
 }

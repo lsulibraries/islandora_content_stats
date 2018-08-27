@@ -70,6 +70,7 @@ function map_institution($inst) {
  * String of institution's title with link to item
  */
 function map_collection($pid, $context = FALSE) {
+  throw new Exception ("This function is not intended to be active ATM!");
     $iobj_str = '/islandora/object/';
     if ($pid != '') {
         $obj = islandora_object_load($pid);
@@ -123,7 +124,7 @@ function global_totals() {
             if (($not_fobj) && ($not_cmobj)) {
                 $rows[$record->id] = array(
                     'id' => $record->id,
-                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+//                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                     'cmodel' => map_cmodels($record->cmodel),
                     'cmodel-id' => $record->cmodel,
                     'count' => $record->count,
@@ -219,9 +220,9 @@ function latest_counts_for_table($pageParams) {
       if (($not_fobj) && ($not_cmobj) && ($not_global)) {
           $rows[] = array(
             'id' => $record->id,
-            'inst-id' => $record->inst,
-            'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
-            'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
+            'inst-id' => $inst,
+            'inst-label' => ($inst == '' ? 'All' : map_institution($inst)),
+//            'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
             'coll' => $record->coll,
             'cmodel-id' => $record->cmodel,
             'cmodel-label' => map_cmodels($record->cmodel),
@@ -303,6 +304,7 @@ function institutions_for_form() {
  * options for data.form.inc dropdown of colleciton names
  */
 function collection_pid_labels_for_form() {
+  throw new Exception ("This fn is not in use ATM!");
     $return = array();
     $tuque = islandora_get_tuque_connection();
     $query = <<<EOL
@@ -314,7 +316,7 @@ EOL;
     $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
     foreach ($collections as $coll) {
         $coll = $coll['pid']['value'];
-        $return[$coll] = map_collection($coll);
+//        $return[$coll] = map_collection($coll);
     }
     $return['All'] = 'All';
     return $return;
