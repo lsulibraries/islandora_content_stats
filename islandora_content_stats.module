@@ -106,10 +106,10 @@ function pageDefaultParams($pageParams) {
   if (!$pageParams['order']) {
     $pageParams['order'] = 'asc';
   }
-  if ($pageParams['cmodel'] && $pageParams['sort'] = 'cmodel') {
+  if ($pageParams['cmodel'] && $pageParams['sort'] == 'cmodel') {
     $pageParams['sort'] = 'inst';
   }
-  if ($pageParams['inst'] && $pageParams['sort'] = 'inst') {
+  if ($pageParams['inst'] && $pageParams['sort'] == 'inst') {
     $pageParams['sort'] = 'cmodel';
   }
   return $pageParams;

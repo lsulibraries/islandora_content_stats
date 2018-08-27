@@ -317,6 +317,10 @@ Feature:
         And I press "Filter"
         Then xpath "//div[@class='column cmodel']//div[contains(@class, 'row')][1]" text should equal "Collection"
 
+        # Check that choosing sort by count works after filter application:
+        When I click "Type"
+        Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" text should equal "8"
+
     Scenario: Check filters in combination with sorts (sort first, see that filters persist)
 
         # from page-load (order by inst, asc), set the sort column to 'type' (asc is implied)
