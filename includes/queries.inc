@@ -35,17 +35,15 @@ function getSparqlNamespacePrefixFilter($unqualifiedStringPrefix) {
 
 function total_model_count($model, $prefix = FALSE, $coll_pid = FALSE) {
   $where_coll = $coll_pid ? "?obj <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> <info:fedora/$coll_pid> ." : '';
-  $xfactor = $model == 'islandora:sp_large_image_cmodel' ? '?x' : '';
-  $not_constituent = $model == 'islandora:sp_large_image_cmodel' ? "?obj <info:fedora/fedora-system:def/relations-external#isMemberOfCollection> ?x ." : '';
-
   $filter = $prefix ? getSparqlNamespacePrefixFilter($prefix) : '';
   $query = <<<EOL
-select ?obj $xfactor
+select ?obj
 from <#ri>
 where {{ ?obj <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
-$where_coll
-$not_constituent
-} $filter}
+  $where_coll
+  } 
+  $filter
+}
 EOL;
     $tuque = islandora_get_tuque_connection();
     $result = $tuque->repository->ri->countQuery($query, 'sparql');
