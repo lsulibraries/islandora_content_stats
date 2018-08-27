@@ -181,7 +181,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
           'title' => 'Superinstitution Images Collection',
         ],
         'children' => [
-          'image' => 9
+          'image' => 11
         ],
       ],
       'testinst-subinst-audio:collection' => [

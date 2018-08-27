@@ -39,14 +39,14 @@ Feature:
 
         # Need to wait just a sec for the animated thing to load.
         When I wait "1" seconds
-        And xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total']" text should equal "21"
+        And xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total']" text should equal "23"
         And xpath "//div[@class='globalStat']/div[@class='audio global']/div[@class='total']" text should equal "13"
         Then xpath "//div[@class='globalStat']/div[@class='collections']/div[@class='total']" text should equal "6"
         
     Scenario: Check that institutional cmodel totals are there and correct
 
         # testinst Parent of 'testinst-subinst' having 9 image objects.
-        Then xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image testinst instTotal']/div[@class='total']" text should equal "9"
+        Then xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst image testinst instTotal']/div[@class='total']" text should equal "11"
         And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst audio testinst instTotal']/div[@class='total']" text should equal "8"
         And xpath "//div[@class='instContainer']//div[@class='cmodel_wrapper_inst collection testinst instTotal']/div[@class='total']" text should equal "2"
 
@@ -77,7 +77,7 @@ Feature:
 
     Scenario: Check that table rows are there and correct
 
-        Then xpath "//div[@class='column count']/div[@class='row image testinst']" text should equal "9"
+        Then xpath "//div[@class='column count']/div[@class='row image testinst']" text should equal "11"
         And xpath "//div[@class='column count']/div[@class='row audio testinst']" text should equal "8"
         And xpath "//div[@class='column count']/div[@class='row collection testinst']" text should equal "2"
 
@@ -121,7 +121,7 @@ Feature:
         And I click "Count"
         Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" text should equal "1"
         When I click "Count"
-        Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" text should equal "9"
+        Then xpath "//div[@class='column count']//div[contains(@class, 'row')][1]" text should equal "11"
 
     Scenario: Check options for filters
         Then select list at xpath "//select[@id='edit-inst']" should contain options "anotherinst, emptyinst,testinst, testinst-subinst, otherinst, otherinsta"

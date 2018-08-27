@@ -256,8 +256,9 @@ function tablesort($rows, $sort, $order){
       );
     return $rows;
   }
-  $order_const = $order === 'asc' ? SORT_ASC : SORT_DESC;
-  array_multisort(array_column($rows2Lower, $sortField), $order_const, SORT_STRING, $rows);
+  $orderMethod = $order === 'asc' ? SORT_ASC : SORT_DESC;
+  $sortMethod  = $sortField === 'count-label' ? SORT_NUMERIC : SORT_STRING;
+  array_multisort(array_column($rows2Lower, $sortField), $orderMethod, $sortMethod, $rows);
   return $rows;
 }
 
