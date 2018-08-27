@@ -154,9 +154,9 @@ function cpd_constituent_to_db($prefix, $coll = FALSE, $time) {
 //loop through each model in the collection policy
 function loop_models_bypolicy_to_db($policy, $coll, $model, $prefix, $time) {
   foreach ($policy as $model) {
-         //collection_totals
-         $inst_collection_model_count = total_model_count($model, $prefix, $coll);
-         queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
+    //collection_totals
+    $inst_collection_model_count = total_model_count($model, $prefix, $coll);
+    queries_db_insert($prefix . '-', $coll, $model, $inst_collection_model_count, $time);
   }
 }
 
