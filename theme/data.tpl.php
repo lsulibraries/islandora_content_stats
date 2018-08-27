@@ -107,10 +107,8 @@
                 </div>
             </div>
             <div class="form-wrapper">
-              <form action="<?php print $downloadurl; ?>">
                 <div class="dl_text ics_download_title"><?php print $dlSubmitDesc; ?></div>
-                <input value="<?php print $dlSubmit; ?>" class="ics_download_button" type="submit"></input>
-              </form>
+                <a href="<?php print $downloadurl; ?>"><div class="ics_download_button"><?php print $dlSubmit; ?></div></a>
             </div>
         </div>
     </div>
