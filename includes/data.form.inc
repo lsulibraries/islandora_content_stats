@@ -20,15 +20,6 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#attributes' => array('class' => array('ics_filters')),
     );
     $cmodel = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
-    $form['filter']['cmodel'] = array(
-        '#type' => 'select',
-        '#title' => lang('filterCmodel'),
-        '#options' => cmodel_types_for_form(),
-        '#required' => FALSE,
-        '#default_value' => $cmodel,
-        '#empty_option' => '--none--',
-        '#attributes' => array('class' => array('ics_filter_cmodel')),
-    );
     $form['filter']['inst'] = array(
         '#type' => 'select',
         '#title' => lang('filterInst'),
@@ -37,6 +28,15 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
         '#empty_option' => '--none--',
         '#attributes' => array('class' => array('ics_filter_inst')),
+    );
+    $form['filter']['cmodel'] = array(
+        '#type' => 'select',
+        '#title' => lang('filterCmodel'),
+        '#options' => cmodel_types_for_form(),
+        '#required' => FALSE,
+        '#default_value' => $cmodel,
+        '#empty_option' => '--none--',
+        '#attributes' => array('class' => array('ics_filter_cmodel')),
     );
     $form['filter']['sort'] = array(
         '#type' => 'hidden',
