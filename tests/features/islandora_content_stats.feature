@@ -42,6 +42,10 @@ Feature:
         And xpath "//div[@class='globalStat']/div[@class='image global']/div[@class='total']" text should equal "23"
         And xpath "//div[@class='globalStat']/div[@class='audio global']/div[@class='total']" text should equal "13"
         Then xpath "//div[@class='globalStat']/div[@class='collections']/div[@class='total']" text should equal "6"
+
+    Scenario: Check that filter lists are in alpha order
+        Then xpath list "//select[@id='edit-inst']/option[text() != '--none--']" should start with "anotherinst" and end with "testinst-subinst"
+        Then xpath list "//select[@id='edit-cmodel']/option[text() != '--none--']" should start with "Annotation CModel" and end with "Web ARChive"
         
     Scenario: Check that institutional cmodel totals are there and correct
 

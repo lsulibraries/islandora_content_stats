@@ -150,6 +150,13 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     }
    }
 
+   /**
+     * @Then xpath list :xpathList should start with :start and end with :end
+     */
+    public function xpathListShouldStartWithAndEndWith($xpathList, $start, $end) {
+        $this->assertXpathTextEquals(sprintf("%s[1]", $xpathList), $start);
+        $this->assertXpathTextEquals(sprintf("%s[last()]", $xpathList), $end);
+    }
 
   /**
    * Waits a while, for debugging.

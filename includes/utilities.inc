@@ -248,6 +248,7 @@ function tablesort($rows, $sort, $order){
     $row['inst-label'] = strtolower($row['inst-label']);
     $rows2Lower[] = $row;
   }
+
   if (!$sort) {
     array_multisort(
         array_column($rows2Lower, 'inst-label'), SORT_ASC, SORT_STRING,
@@ -287,6 +288,7 @@ function cmodel_types_for_form() {
             $options[$model] = t($string);
         }
     }
+    asort($options);
     return $options;
 }
 
@@ -301,6 +303,7 @@ function institutions_for_form() {
     foreach ($prefixes as $inst) {
         $options[$inst] = map_institution($inst, 'form');
     }
+    asort($options);
     return $options;
 }
 
