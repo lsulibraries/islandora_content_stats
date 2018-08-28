@@ -1,0 +1,224 @@
+<?php
+
+class ContentStatsCountsTestCase extends IslandoraCollectionWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Check stats',
+      'description' => 'Ensure that stats are correct.',
+      'group' => 'Content stats',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(['islandora', 'islandora_basic_collection', 'islandora_content_stats']);
+    $this->namespace = 'latech-cmprt';
+    $this->testCollection = $this->namespace . ':' . $this->randomName();
+  }
+
+
+  public function testBasicStats() {
+
+    $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($user);
+    $this->createTestCollection('Test Collection', array('islandora:sp_large_image_cmodel', 'islandora:batch_testCM'), $this->testCollection);
+    $properties = [
+      'models' => 'islandora:sp_large_image_cmodel',
+      'parent' => $this->testCollection
+    ];
+    $imagesToCreate = 5;
+    foreach(range(1,$imagesToCreate) as $notUsed) {
+      $properties['label'] = "A test image {$this->randomString(10)}";
+      $properties['pid'] = "{$this->namespace}:{$this->randomName()}";
+      $this->ingestConstructedObject($properties);
+    }
+
+    module_load_include('inc', 'islandora_content_stats', 'queries');
+    $collections = get_all_collections();
+    $this->assertEqual(count($collections), 1);
+
+    $this->drupalGet("/islandora/object/{$this->testCollection}");
+    $this->drupalGet("/islandora/object/{$this->testCollection}/manage/properties");
+    $this->drupalPost('/admin/islandora/tools/content_stats', array(), 'Run Queries Now');
+    $this->drupalGet('/data');
+    $this->assertNoText('table is empty', "Should not see the text 'table is empty'");
+
+    $query = $this->getQuery('islandora:sp_large_image_cmodel');
+    $img_count = $query->fetchField();
+    $this->assertEqual($imagesToCreate, $img_count, "Created $imagesToCreate images, found $img_count");
+
+  }
+
+  public function getQuery($cmodel = FALSE, $institution = FALSE) {
+    $where = '';
+    $args = [];
+    if ($cmodel || $institution) {
+      $where .= "WHERE ";
+      if ($cmodel) {
+        $args['cmodel'] = $cmodel;
+        $where .= "cmodel = :cmodel";
+      }
+      if ($institution) {
+        $args['inst'] = $institution;
+        $both = $cmodel ? 'AND' : '';
+        $where .= " $both inst = :inst";
+      }
+    }
+    $sql = sprintf("select count from {islandora_content_stats} %s", $where);
+    return db_query($sql, $args);
+  }
+
+  public function testComplex() {
+    $data = [
+      [
+        'prefix' => 'abc-',
+        'collections' => [
+          'xyz' => [
+            'islandora:sp_large_image_cmodel' => 15,
+            'islandora:sp-audioCModel' => 4
+          ],
+          'mmm' => [
+            'islandora:sp_large_image_cmodel' => 23
+          ],
+        ],
+      ],
+      [
+        'prefix' => 'zzz-',
+        'collections' => [
+          'ppp' => [
+            'islandora:sp_large_image_cmodel' => 5,
+            'islandora:sp-audioCModel' => 6
+          ],
+          'ooo' => [
+            'islandora:sp_large_image_cmodel' => 3
+          ],
+        ],
+      ],
+      [
+        'prefix' => 'zzz-aaa-',
+        'collections' => [
+          'eee' => [
+            'islandora:sp_large_image_cmodel' => 15,
+          ],
+          'uuu' => [
+            'islandora:sp_large_image_cmodel' => 7
+          ],
+        ],
+        'parentInst' => 'zzz-',
+      ],
+    ];
+    // get logged in and such
+    $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($user);
+
+    // populate test data
+    $institutions = [];
+    foreach ($data as $params) {
+      $inst = new Institution($params);
+      $institutions[] = $inst;
+      foreach ($inst->collections as $name => $models) {
+        $namespace = $inst->prefix . $name;
+        $pid = "$namespace:{$this->randomName()}";
+        $label = "Collection called $name";
+        $this->createTestCollection($name, array_keys($models), $pid);
+        foreach ($models as $model => $sum) {
+          $this->constructObjects($model, $pid, $this->randomName(), $namespace, $sum);
+        }
+      }
+    }
+
+    $this->drupalPost('/admin/islandora/tools/content_stats', array(), 'Run Queries Now');
+    $this->drupalGet('/data');
+    $this->assertNoText('table is empty', "Should not see the text 'table is empty'");
+
+    // Build up arrays of expected/found values at global/inst levels.
+    $global_counts = [];
+    $institution_counts = [];
+    foreach ($institutions as $institution) {
+      foreach ($institution->getAllModels() as $m) {
+        $query = $this->getQuery($m, $institution->prefix);
+
+        $expected = $institution->getModelCount($m);
+        if (!array_key_exists($institution->prefix, $institution_counts)) {
+          $institution_counts[$institution->prefix] = [];
+        }
+        if (!array_key_exists($m, $institution_counts[$institution->prefix])) {
+          $institution_counts[$institution->prefix][$m] = [];
+          $institution_counts[$institution->prefix][$m]['found'] = 0;
+          $institution_counts[$institution->prefix][$m]['expected'] = 0;
+        }
+        $institution_counts[$institution->prefix][$m]['found'] += (int)$query->fetchField();
+        $institution_counts[$institution->prefix][$m]['expected'] += $expected;
+        if ($institution->parentInst) {
+          $institution_counts[$institution->parentInst][$m]['expected'] += $expected;
+        }
+
+        if (!array_key_exists($m, $global_counts)) {
+          $global_counts[$m] = 0;
+        }
+        $global_counts[$m] += $expected;
+      }
+    }
+
+    // Check inst counts.
+    foreach ($institution_counts as $inst => $models) {
+      foreach ($models as $model => $results) {
+        $this->assertEqual($results['expected'], $results['found'], "found ({$results['found']}) items having model ($model) in institution {$inst}");
+      }
+    }
+    
+    // Check global counts.
+    $this->drupalGet('/data');
+    foreach ($global_counts as $model => $count) {
+      module_load_include('inc', 'islandora_content_stats', 'includes/utilities');
+      $human_readable = map_cmodels($model);
+      $this->assertText("$human_readable Total: $count");
+    }
+  }
+
+  public function constructObjects($models, $parent, $label, $pid, $count) {
+    $properties = [
+      'models' => $models,
+      'parent' => $parent,
+      'label'  => $label,
+      'pid'    => $pid
+    ];
+
+    foreach(range(1, $count) as $notUsed) {
+      $this->ingestConstructedObject($properties);
+    }
+  }
+}
+
+class Institution {
+  public $prefix, $collections, $parentInst;
+  public function __construct ($params) {
+    $this->prefix = $params['prefix'];
+    $this->collections = $params['collections'];
+    $this->parentInst = array_key_exists('parentInst', $params) ? $params['parentInst'] : FALSE;
+  }
+
+  public function getModelCount($model) {
+    if ($model == 'islandora:collectionCModel') {
+      return count($this->collections);
+    }
+    $total = 0;
+    foreach ($this->collections as $name => $details) {
+      if (in_array($model, array_keys($details))) {
+        $total += $this->collections[$name][$model];
+      }
+    }
+    return $total;
+  }
+
+  public function getAllModels() {
+    $all = [];
+    foreach ($this->collections as $name => $models) {
+      $all = array_merge($all, array_keys($models));
+    }
+    if (count($this->collections > 1)) {
+      $all[] = 'islandora:collectionCModel';
+    }
+    return array_unique($all);
+  }
+}

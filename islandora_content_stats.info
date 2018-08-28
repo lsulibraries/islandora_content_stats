@@ -3,4 +3,6 @@ description = module to run Resource Index queries periodically and display the 
 core = 7.x
 files[] = includes/queries.inc
 files[] = includes/admin.form.inc
+files[] = tests/counts.test
 dependencies[] = islandora
+dependencies[] = islandora_namespace_homepage
