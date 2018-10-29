@@ -74,7 +74,7 @@ function map_institution($inst) {
  * String of institution's title with link to item
  */
 function map_collection($pid, $context = FALSE) {
-  throw new Exception ("This function is not intended to be active ATM!");
+  //throw new Exception ("This function is not intended to be active ATM!");
     $iobj_str = '/islandora/object/';
     if ($pid != '') {
         $obj = islandora_object_load($pid);
@@ -128,7 +128,7 @@ function global_totals() {
             if (($not_fobj) && ($not_cmobj)) {
                 $rows[$record->id] = array(
                     'id' => $record->id,
-//                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                    'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                     'cmodel' => map_cmodels($record->cmodel),
                     'cmodel-id' => $record->cmodel,
                     'count' => $record->count,
@@ -166,7 +166,7 @@ function inst_totals() {
                         'id' => $record->id,
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
                         'inst' => $record->inst,
-                        //'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
+                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
@@ -227,7 +227,7 @@ function latest_counts_for_table($pageParams) {
             'id' => $record->id,
             'inst-id' => $inst,
             'inst-label' => ($inst == '' ? 'All' : map_institution($inst)),
-//            'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
+            'coll-label' => ($record->coll == '' ? 'All' : map_collection($record->coll)),
             'coll' => $record->coll,
             'cmodel-id' => $record->cmodel,
             'cmodel-label' => map_cmodels($record->cmodel),
@@ -325,7 +325,7 @@ EOL;
     $collections = $tuque->repository->ri->sparqlQuery($query, 'unlimited');
     foreach ($collections as $coll) {
         $coll = $coll['pid']['value'];
-//        $return[$coll] = map_collection($coll);
+       $return[$coll] = map_collection($coll);
     }
     $return['All'] = 'All';
     return $return;

@@ -41,7 +41,7 @@ select ?obj
 from <#ri>
 where {{ ?obj <info:fedora/fedora-system:def/model#hasModel> <info:fedora/$model> .
   $where_coll
-  } 
+  }
   $filter
 }
 EOL;
@@ -198,7 +198,8 @@ function islandora_content_stats_run_queries() {
              $policy = get_collection_policy_array($coll);
              $total_policy = array_merge($total_policy, $policy);
              //un-comment to get model totals for each collection by policy
-             //loop_models_bypolicy_to_db($policy,$coll,$model,$prefix,$time);
+             //requires that collections have a policy.
+             loop_models_bypolicy_to_db($policy, $coll, $model, $prefix, $time);
          }
           //we have constructed total_policy as an array of cmodels possible in a given inst
           $total_policy = array_unique($total_policy);

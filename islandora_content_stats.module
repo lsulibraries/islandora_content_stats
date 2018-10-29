@@ -70,7 +70,7 @@ function islandora_content_stats_theme() {
 }
 
 /**
- * 
+ *
  * @return array containing the string keys of the page params in use.
  */
 function getPageParams() {
@@ -94,7 +94,7 @@ function islandora_content_stats_get_query_params() {
 }
 
 /**
- * 
+ *
  * @param array $pageParams as returned from
  *   islandora_content_stats_get_query_params().
  * @return array The input [] with default values set.
@@ -116,7 +116,7 @@ function pageDefaultParams($pageParams) {
 }
 
 /**
- * 
+ *
  * @param string $column table column name
  * @return array of query params suitable for url().
  */
@@ -134,10 +134,10 @@ function columnSortLinkParams($column) {
 
 /**
  * Checks get params related to sorts and filters.
- * 
+ *
  * @param String $key the name of the param.
  * @param String $value param's value.
- * @throws Exception for invalid param names ($key) 
+ * @throws Exception for invalid param names ($key)
  *   or for invalid values.
  */
 function validValuesPassthru($key, $value) {
@@ -145,7 +145,7 @@ function validValuesPassthru($key, $value) {
     case 'sort':
       $valid = ['inst', 'cmodel', 'count'];
       break;
-    case 'order': 
+    case 'order':
       $valid = ['desc', 'asc'];
       break;
     case 'cmodel':
@@ -184,7 +184,7 @@ function islandora_content_stats_islandora_get_content_models() {
 
 /**
  * hook_preprocess
- * 
+ *
  * @param type $variables
  */
 function template_preprocess_islandora_content_stats_data_tpl(&$variables) {

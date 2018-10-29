@@ -81,12 +81,12 @@
                     <?php endif ?>
                 </div>
                 <!-- Keep for the return of collection-level stats.-->
-                <!-- <div class='column'>
+                <div class='column'>
                   <div class='header'>Collection</div>
-                  <?php //foreach  ($variables['latest'] as $record) :?>
-                        <div class='row <?php //print $record['coll']; ?>'><?php //print $record['coll-label']; ?></div>
-                        <?php //endforeach; ?>
-                </div> -->
+                  <?php foreach  ($variables['latest'] as $record) :?>
+                        <div class='row <?php print $record['coll']; ?>'><?php print $record['coll-label']; ?></div>
+                        <?php endforeach; ?>
+                </div>
                 <div class='column cmodel'>
                   <div class='header'>
                     <?php $typeurl = $variables['typeurl']?>
