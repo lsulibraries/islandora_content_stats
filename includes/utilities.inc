@@ -151,6 +151,7 @@ function inst_totals() {
         $query = db_select('islandora_content_stats','stats')
                 ->fields('stats', array('id','inst','cmodel','count','timestamp'))
                 ->condition('timestamp', $time)
+                ->condition('coll', NULL)
                 ->condition('inst', $inst.'-')
                 ->orderBy('cmodel', 'ASC')
                 ->execute();
@@ -166,7 +167,6 @@ function inst_totals() {
                         'id' => $record->id,
                         'inst-label' => ($record->inst == '' ? 'All' : map_institution($record->inst)),
                         'inst' => $record->inst,
-                        'coll' => ($record->coll == '' ? 'All' : map_collection($record->coll, 'form')),
                         'cmodel' => map_cmodels($record->cmodel),
                         'count' => $record->count,
                         'timestamp' => gmdate('Y m d \TH:i:s\Z', $record->timestamp),
