@@ -71,7 +71,7 @@ function islandora_content_stats_language() {
   ];
 }
 
-function lang($key) {
+function stats_lang($key) {
   $fullkey = "islandora_content_stats_language_$key";
   $val = variable_get($fullkey);
   if (!$val) {

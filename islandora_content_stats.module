@@ -46,22 +46,22 @@ function islandora_content_stats_theme() {
                 'global_totals' => global_totals(),
                 'inst_totals' => inst_totals(),
                 'lang' => array(
-                  'pageHeader' => lang('pageHeader'),
-                  'pageDesc' => lang('pageDesc'),
+                  'pageHeader' => stats_lang('pageHeader'),
+                  'pageDesc' => stats_lang('pageDesc'),
                   'lastRun' => gmdate("M d Y H:i:s", latest_run()),
-                  'globalHeader' => lang('globalHeader'),
-                  'globalDesc' => lang('globalDesc'),
-                  'instHeader' => lang('instHeader'),
-                  'instDesc' => lang('instDesc'),
+                  'globalHeader' => stats_lang('globalHeader'),
+                  'globalDesc' => stats_lang('globalDesc'),
+                  'instHeader' => stats_lang('instHeader'),
+                  'instDesc' => stats_lang('instDesc'),
                   //filters and dl go into form, not tpl
                   //comments kept for mneumonic reasons
-                  //'filtersGrouping' => lang('filtersGrouping'),
-                  //'filterCmodel_desc' => lang('filterCmodel_desc'),
-                  'tableDesc' => lang('tableDesc'),
-                  'tableTitle' => lang('tableTitle'),
-                  'tableEmpty' => lang('tableEmpty'),
-                  //'lang_dl_submit' => lang('downloadSubmitDesc'),
-                  //'lang_dl_title' => lang('downloadSubmit'),
+                  //'filtersGrouping' => stats_lang('filtersGrouping'),
+                  //'filterCmodel_desc' => stats_lang('filterCmodel_desc'),
+                  'tableDesc' => stats_lang('tableDesc'),
+                  'tableTitle' => stats_lang('tableTitle'),
+                  'tableEmpty' => stats_lang('tableEmpty'),
+                  //'lang_dl_submit' => stats_lang('downloadSubmitDesc'),
+                  //'lang_dl_title' => stats_lang('downloadSubmit'),
                 ),
                 'params' => $params,
             ),
@@ -198,8 +198,8 @@ function template_preprocess_islandora_content_stats_data_tpl(&$variables) {
 
   // setup vars for download
   module_load_include('inc', 'islandora_content_stats', 'includes/language');
-  $variables['dlSubmitDesc'] = lang('dlSubmitDesc');
-  $variables['dlSubmit'] = lang('dlSubmit');
+  $variables['dlSubmitDesc'] = stats_lang('dlSubmitDesc');
+  $variables['dlSubmit'] = stats_lang('dlSubmit');
   $variables['downloadurl'] = url('data/download', array('query' => columnSortLinkParams('inst')));
 }
 
