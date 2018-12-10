@@ -16,13 +16,13 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     $form = array();
     $form['filter'] = array(
         '#type' => 'fieldset',
-        '#title' => lang('filter_fieldset_#title'),
+        '#title' => stats_lang('filter_fieldset_#title'),
         '#attributes' => array('class' => array('ics_filters')),
     );
     $cmodel = array_key_exists('cmodel', $gets) ? $gets['cmodel'] : NULL;
     $form['filter']['inst'] = array(
         '#type' => 'select',
-        '#title' => lang('filterInst'),
+        '#title' => stats_lang('filterInst'),
         '#options' => institutions_for_form(),
         '#required' => FALSE,
         '#default_value' => array_key_exists('inst', $gets) ? $gets['inst'] : '--none--',
@@ -31,7 +31,7 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     );
     $form['filter']['cmodel'] = array(
         '#type' => 'select',
-        '#title' => lang('filterCmodel'),
+        '#title' => stats_lang('filterCmodel'),
         '#options' => cmodel_types_for_form(),
         '#required' => FALSE,
         '#default_value' => $cmodel,
@@ -48,12 +48,12 @@ function islandora_content_stats_data_filter_form($form, &$form_state) {
     );
     $form['filter']['filterdesc'] = array(
         '#type' => 'item',
-        '#title' => lang('filterSubmitDesc'),
+        '#title' => stats_lang('filterSubmitDesc'),
         '#attributes' => array('class' => array('ics_filter_submit_description')),
     );
     $form['filter']['submit'] = array(
         '#type' => 'submit',
-        '#value' => lang('filterSubmit'),
+        '#value' => stats_lang('filterSubmit'),
         '#attributes' => array('class' => array('ics_filter_submit')),
     );
     return $form;

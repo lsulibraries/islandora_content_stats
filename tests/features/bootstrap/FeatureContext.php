@@ -397,7 +397,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       $object->label = $properties['label'];
     }
     else {
-      $properties['label'] = DrupalUnitTestCase::randomName();
+      $rnd = new Random();
+      $properties['label'] = $rnd->name(10);
       $object->label = $properties['label'];
     }
 
@@ -421,7 +422,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     if (!empty($datastreams)) {
       foreach ($datastreams as $datastream) {
         if (!isset($datastream['dsid'])) {
-          $datastream['dsid'] = DrupalUnitTestCase::randomName();
+          $rnd = new Random();
+          $datastream['dsid'] = $rnd->name(12);
         }
         if (!isset($datastream['control_group'])) {
           $new_datastream = $object->constructDatastream($datastream['dsid']);
@@ -462,7 +464,8 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
     $ns = explode(':', $coll)[0];
     $pidsCreatedHere = [];
     foreach (range(1, $num) as $n) {
-      $itemLabel = DrupalTestCase::randomName();
+      $rnd = new Random();
+      $itemLabel = $rnd->name();
       $properties = array(
         'pid'    => $ns,
         'label'  => $itemLabel,
